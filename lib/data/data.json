@@ -1,0 +1,395 @@
+{
+  "categories": [
+    {
+      "id": "women",
+      "name": "Kadın",
+      "slug": "kadin",
+      "children": [
+        {
+          "id": "women-clothing",
+          "name": "Giyim",
+          "slug": "giyim",
+          "products": [
+            {
+              "id": "p1001",
+              "sku": "W-TSHIRT-001",
+              "title": "Oversize Basic T-Shirt",
+              "description": "Yumuşak pamuklu oversize tişört – S-XL",
+              "price": 299.9,
+              "currency": "TRY",
+              "stock": 42,
+              "images": [
+                "/img/products/p1001-front.webp",
+                "/img/products/p1001-back.webp"
+              ],
+              "brand": "ModaX",
+              "favoriteCount": 12,
+              "isFavorited": false
+            },
+            {
+              "id": "p1002",
+              "sku": "W-JEANS-002",
+              "title": "Mom Fit Jean",
+              "description": "Yüksek bel, hafif esnek denim",
+              "price": 749.9,
+              "currency": "TRY",
+              "stock": 18,
+              "images": [
+                "/img/products/p1002-front.webp",
+                "/img/products/p1002-back.webp"
+              ],
+              "brand": "DenimCo",
+              "favoriteCount": 31,
+              "isFavorited": false
+            }
+          ]
+        },
+        {
+          "id": "women-shoes",
+          "name": "Ayakkabı",
+          "slug": "ayakkabi",
+          "products": [
+            {
+              "id": "p2001",
+              "sku": "W-SNEAK-003",
+              "title": "Chunky Sneaker",
+              "description": "Kalın tabanlı sneaker – 36-40",
+              "price": 1099.9,
+              "currency": "TRY",
+              "stock": 27,
+              "images": [
+                "/img/products/p2001-front.webp",
+                "/img/products/p2001-side.webp"
+              ],
+              "brand": "StepUp",
+              "favoriteCount": 24,
+              "isFavorited": false
+            },
+            {
+              "id": "p2002",
+              "sku": "W-HEEL-004",
+              "title": "Stiletto Topuklu Ayakkabı",
+              "description": "10 cm topuk, süet görünümlü",
+              "price": 899.9,
+              "currency": "TRY",
+              "stock": 12,
+              "images": [
+                "/img/products/p2002-front.webp",
+                "/img/products/p2002-side.webp"
+              ],
+              "brand": "Elegance",
+              "favoriteCount": 7,
+              "isFavorited": false
+            }
+          ]
+        },
+        {
+          "id": "women-accessories",
+          "name": "Aksesuar",
+          "slug": "aksesuar",
+          "products": [
+            {
+              "id": "p3001",
+              "sku": "W-BAG-005",
+              "title": "Mini Omuz Çantası",
+              "description": "Fermuarlı, vegan deri",
+              "price": 649.9,
+              "currency": "TRY",
+              "stock": 34,
+              "images": [
+                "/img/products/p3001-front.webp",
+                "/img/products/p3001-inside.webp"
+              ],
+              "brand": "Luna",
+              "favoriteCount": 15,
+              "isFavorited": false
+            },
+            {
+              "id": "p3002",
+              "sku": "W-SCARF-006",
+              "title": "İpek Karışımlı Fular",
+              "description": "70 × 70 cm, çok renkli",
+              "price": 229.9,
+              "currency": "TRY",
+              "stock": 58,
+              "images": [
+                "/img/products/p3002-main.webp"
+              ],
+              "brand": "SilkRoad",
+              "favoriteCount": 3,
+              "isFavorited": false
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "men",
+      "name": "Erkek",
+      "slug": "erkek",
+      "children": [
+        {
+          "id": "men-clothing",
+          "name": "Giyim",
+          "slug": "giyim",
+          "products": [
+            {
+              "id": "p1001",
+              "sku": "W-TSHIRT-001",
+              "title": "Oversize Basic T-Shirt",
+              "description": "Yumuşak pamuklu oversize tişört – S-XL",
+              "price": 299.9,
+              "currency": "TRY",
+              "stock": 42,
+              "images": [
+                "/img/products/p1001-front.webp",
+                "/img/products/p1001-back.webp"
+              ],
+              "brand": "ModaX",
+              "favoriteCount": 12,
+              "isFavorited": false
+            },
+            {
+              "id": "p1002",
+              "sku": "W-JEANS-002",
+              "title": "Mom Fit Jean",
+              "description": "Yüksek bel, hafif esnek denim",
+              "price": 749.9,
+              "currency": "TRY",
+              "stock": 18,
+              "images": [
+                "/img/products/p1002-front.webp",
+                "/img/products/p1002-back.webp"
+              ],
+              "brand": "DenimCo",
+              "favoriteCount": 31,
+              "isFavorited": false
+            }
+          ]
+        },
+        {
+          "id": "women-shoes",
+          "name": "Ayakkabı",
+          "slug": "ayakkabi",
+          "products": [
+            {
+              "id": "p2001",
+              "sku": "W-SNEAK-003",
+              "title": "Chunky Sneaker",
+              "description": "Kalın tabanlı sneaker – 36-40",
+              "price": 1099.9,
+              "currency": "TRY",
+              "stock": 27,
+              "images": [
+                "/img/products/p2001-front.webp",
+                "/img/products/p2001-side.webp"
+              ],
+              "brand": "StepUp",
+              "favoriteCount": 24,
+              "isFavorited": false
+            },
+            {
+              "id": "p2002",
+              "sku": "W-HEEL-004",
+              "title": "Stiletto Topuklu Ayakkabı",
+              "description": "10 cm topuk, süet görünümlü",
+              "price": 899.9,
+              "currency": "TRY",
+              "stock": 12,
+              "images": [
+                "/img/products/p2002-front.webp",
+                "/img/products/p2002-side.webp"
+              ],
+              "brand": "Elegance",
+              "favoriteCount": 7,
+              "isFavorited": false
+            }
+          ]
+        },
+        {
+          "id": "women-accessories",
+          "name": "Aksesuar",
+          "slug": "aksesuar",
+          "products": [
+            {
+              "id": "p3001",
+              "sku": "W-BAG-005",
+              "title": "Mini Omuz Çantası",
+              "description": "Fermuarlı, vegan deri",
+              "price": 649.9,
+              "currency": "TRY",
+              "stock": 34,
+              "images": [
+                "/img/products/p3001-front.webp",
+                "/img/products/p3001-inside.webp"
+              ],
+              "brand": "Luna",
+              "favoriteCount": 15,
+              "isFavorited": false
+            },
+            {
+              "id": "p3002",
+              "sku": "W-SCARF-006",
+              "title": "İpek Karışımlı Fular",
+              "description": "70 × 70 cm, çok renkli",
+              "price": 229.9,
+              "currency": "TRY",
+              "stock": 58,
+              "images": [
+                "/img/products/p3002-main.webp"
+              ],
+              "brand": "SilkRoad",
+              "favoriteCount": 3,
+              "isFavorited": false
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "kids",
+      "name": "Çocuk",
+      "slug": "cocuk",
+      "children": [
+        {
+          "id": "kids-clothing",
+          "name": "Giyim",
+          "slug": "giyim",
+          "products": [
+            {
+              "id": "p4001",
+              "sku": "K-TOP-001",
+              "title": "Çocuk Tişörtü",
+              "description": "Renkli, pamuklu tişört – 2-10 yaş",
+              "price": 199.9,
+              "currency": "TRY",
+              "stock": 50,
+              "images": [
+                "/img/products/p4001-front.webp"
+              ],
+              "brand": "KidsWorld",
+              "favoriteCount": 20,
+              "isFavorited": false
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "accessories",
+      "name": "Aksesuar",
+      "slug": "aksesuar",
+      "children": [
+        {
+          "id": "accessories-bags",
+          "name": "Çantalar",
+          "slug": "cantalar",
+          "products": [
+            {
+              "id": "p5001",
+              "sku": "A-BAG-001",
+              "title": "Sırt Çantası",
+              "description": "Geniş iç hacimli, su geçirmez",
+              "price": 499.9,
+              "currency": "TRY",
+              "stock": 30,
+              "images": [
+                "/img/products/p5001-front.webp"
+              ],
+              "brand": "TravelGear",
+              "favoriteCount": 10,
+              "isFavorited": false
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "electronics",
+      "name": "Elektronik",
+      "slug": "elektronik",
+      "children": [
+        {
+          "id": "electronics-phones",
+          "name": "Telefonlar",
+          "slug": "telefonlar",
+          "products": [
+            {
+              "id": "p6001",
+              "sku": "E-PHONE-001",
+              "title": "Akıllı Telefon X100",
+              "description": "6.5 inç ekran, 128GB depolama",
+              "price": 5999.9,
+              "currency": "TRY",
+              "stock": 15,
+              "images": [
+                "/img/products/p6001-front.webp"
+              ],
+              "brand": "TechBrand",
+              "favoriteCount": 50,
+              "isFavorited": false
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "home-appliances",
+      "name": "Ev Aletleri",
+      "slug": "ev-aletleri",
+      "children": [
+        {
+          "id": "home-appliances-kitchen",
+          "name": "Mutfak Aletleri",
+          "slug": "mutfak-aletleri",
+          "products": [
+            {
+              "id": "p7001",
+              "sku": "H-KITCHEN-001",
+              "title": "Blender Seti",
+              "description": "3 hız ayarı, 1.5L hazne",
+              "price": 899.9,
+              "currency": "TRY",
+              "stock": 20,
+              "images": [
+                "/img/products/p7001-front.webp"
+              ],
+              "brand": "HomeTech",
+              "favoriteCount": 18,
+              "isFavorited": false
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "sports",
+      "name": "Spor",
+      "slug": "spor",
+      "children": [
+        {
+          "id": "sports-clothing",
+          "name": "Spor Giyim",
+          "slug": "spor-giyim",
+          "products": [
+            {
+              "id": "p8001",
+              "sku": "S-TSHIRT-001",
+              "title": "Spor Tişörtü",
+              "description": "Nefes alabilen kumaş, S-XXL",
+              "price": 249.9,
+              "currency": "TRY",
+              "stock": 40,
+              "images": [
+                "/img/products/p8001-front.webp"
+              ],
+              "brand": "FitWear",
+              "favoriteCount": 22,
+              "isFavorited": false
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
