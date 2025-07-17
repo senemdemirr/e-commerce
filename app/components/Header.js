@@ -1,7 +1,7 @@
 import Image from "next/image";
 import SearchInput from "./SearchInput";
 import Navbar from "./Navbar";
-import { Button } from "@mui/material";
+import { Button , Link} from "@mui/material";
 import FavoriteBorderOutlinedIcon from '@mui/icons-material/FavoriteBorderOutlined';
 import ShoppingCartOutlinedIcon from '@mui/icons-material/ShoppingCartOutlined';
 import AuthMenu from "./AuthMenu";
@@ -10,14 +10,16 @@ export default function Header(){
     return (
        <div className="container w-full m-auto flex flex-col ">
          <div className=" bg-transparent flex flex-row justify-between items-center">
-            <Image
-            src={"/e-commerce_logo.png"}
-            alt="E-Commerce Logo"
-            width={200}
-            height={50}
-            className="cursor-pointer"
-            priority
-            />
+            <Link href="/">
+                <Image
+                src={"/e-commerce_logo.png"}
+                alt="E-Commerce Logo"
+                width={200}
+                height={50}
+                className="cursor-pointer"
+                priority
+                />
+            </Link>
             <SearchInput></SearchInput>
             <div className="flex flex-row justify-center items-center ">
                 <AuthMenu></AuthMenu>
