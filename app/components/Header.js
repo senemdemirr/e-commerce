@@ -8,7 +8,7 @@ import AuthMenu from "./AuthMenu";
 
 export default function Header(){
     return (
-       <div className="container w-full m-auto flex flex-col ">
+       <div className="container w-full mx-auto flex flex-col ">
          <div className=" bg-transparent flex flex-row justify-between items-center">
             <Link href="/">
                 <Image
