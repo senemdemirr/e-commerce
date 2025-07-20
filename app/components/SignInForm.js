@@ -41,8 +41,8 @@ export default function SignUpForm() {
         fullWidth 
         className="!my-2"
       />
-      <span onClick={forgotPassword} className="hover:underline cursor-pointer mt-2 float-right">I forgot my password</span>
-      <Button type="submit" variant="contained" className="w-full bg-green-500">Sign In</Button>
+      <span onClick={forgotPassword} className="hover:underline cursor-pointer mt-2 float-right text-gray-600">I forgot my password</span>
+      <Button type="submit" variant="contained" className="w-full !bg-green-500 !my-4">Sign In</Button>
     </form>
     <Snackbar
       open={open}
