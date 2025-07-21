@@ -24,7 +24,14 @@ export default function SignUpForm() {
         className="!my-2"
         label="Email" 
         fullWidth 
-        {...register("email", { required: "Email is required" })}
+        {...register("email",  
+          {
+            required: "Email is required" , 
+            pattern:{
+              value: /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/,
+              message: "Invalid email address" 
+            }
+        })}
         error={!!errors.email}
         helperText={errors.email ? errors.email.message : ""}
       />
@@ -34,7 +41,18 @@ export default function SignUpForm() {
         label="Password" 
         type="password" 
         fullWidth 
-        {...register("password", { required: "Password is required" })}
+        {...register("password", 
+          { 
+            required: "Password is required",
+            minLength: {
+              value: 6,
+              message: "Password must be at least 6 characters"
+            },
+            maxLength: {
+              value: 11,
+              message: "Password must not exceed 10 characters"
+            }
+          })}
         error={!!errors.password}
         helperText={errors.password ? errors.password.message : ""}
       />
@@ -48,6 +66,8 @@ export default function SignUpForm() {
           required: "Confirm Password is required",
           validate: (value) => value === password|| "Passwords do not match"
         })}
+        error={!!errors.confirmPassword}
+        helperText={errors.confirmPassword ? errors.confirmPassword.message : ""}
       />
       <Button type="submit" variant="contained" className="w-full !bg-green-500 !text-gray-100 !my-4">Sign Up</Button>
     </form>

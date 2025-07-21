@@ -3,7 +3,7 @@ import { useForm } from "react-hook-form";
 import { useState } from "react";
 import { TextField, Button , Snackbar} from "@mui/material";
 
-export default function SignUpForm() {
+export default function SignInForm() {
   const {register, handleSubmit, formState: {errors}} = useForm();
   const [open, setOpen] = useState(false);
 
@@ -16,14 +16,21 @@ export default function SignUpForm() {
     setOpen(true);
     setTimeout(() => {
     router.push("/");
-    }, 3000);
+    }, 2000);
   };
 
   return (
    <>
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 px-4">
       <TextField 
-        {...register("email", { required: "Email is required" })}
+        {...register("email",  
+          {
+            required: "Email is required" , 
+            pattern:{
+              value: /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/,
+              message: "Invalid email address" 
+            }
+        })}
         error={!!errors.email}
         helperText={errors.email ? errors.email.message : ""}
         size="small" 
@@ -46,7 +53,7 @@ export default function SignUpForm() {
     </form>
     <Snackbar
       open={open}
-      autoHideDuration={2000}
+      autoHideDuration={1000}
       message="Sign in successful! Redirecting..."
     />
     </>
