@@ -18,7 +18,7 @@
               "price": 299.9,
               "currency": "TRY",
               "stock": 42,
-              "images": ["/img/products/p1001.png"],
+              "image": "/img/products/p1001.png",
               "brand": "ModaX"
             },
             {
@@ -29,7 +29,7 @@
               "price": 749.9,
               "currency": "TRY",
               "stock": 18,
-              "images": ["/img/products/p1002.png"],
+              "image": "/img/products/p1002.png",
               "brand": "DenimCo"
             }
           ]
@@ -47,7 +47,7 @@
               "price": 1099.9,
               "currency": "TRY",
               "stock": 27,
-              "images": ["/img/products/p2001.png"],
+              "image": "/img/products/p2001.png",
               "brand": "StepUp"
             },
             {
@@ -58,7 +58,7 @@
               "price": 899.9,
               "currency": "TRY",
               "stock": 12,
-              "images": ["/img/products/p2002.png"],
+              "image": "/img/products/p2002.png",
               "brand": "Elegance"
             }
           ]
@@ -76,7 +76,7 @@
               "price": 649.9,
               "currency": "TRY",
               "stock": 34,
-              "images": ["/img/products/p3001.png"],
+              "image": "/img/products/p3001.png",
               "brand": "Luna"
             },
             {
@@ -87,7 +87,7 @@
               "price": 229.9,
               "currency": "TRY",
               "stock": 58,
-              "images": ["/img/products/p3002.png"],
+              "image": "/img/products/p3002.png",
               "brand": "SilkRoad"
             }
           ]
@@ -112,7 +112,7 @@
               "price": 319.9,
               "currency": "TRY",
               "stock": 36,
-              "images": ["/img/products/p4001.png"],
+              "image": "/img/products/p4001.png",
               "brand": "ManStyle"
             },
             {
@@ -123,7 +123,7 @@
               "price": 799.9,
               "currency": "TRY",
               "stock": 20,
-              "images": ["/img/products/p4002.png"],
+              "image": "/img/products/p4002.png",
               "brand": "DenimPro"
             }
           ]
@@ -141,7 +141,7 @@
               "price": 999.9,
               "currency": "TRY",
               "stock": 25,
-              "images": ["/img/products/p5001.png"],
+              "image": "/img/products/p5001.png",
               "brand": "UrbanStep"
             },
             {
@@ -152,7 +152,7 @@
               "price": 1199.9,
               "currency": "TRY",
               "stock": 15,
-              "images": ["/img/products/p5002.png"],
+              "image": "/img/products/p5002.png",
               "brand": "ElegantMan"
             }
           ]
@@ -170,7 +170,7 @@
               "price": 349.9,
               "currency": "TRY",
               "stock": 40,
-              "images": ["/img/products/p6001.png"],
+              "image": "/img/products/p6001.png",
               "brand": "BeltCraft"
             },
             {
@@ -181,7 +181,7 @@
               "price": 299.9,
               "currency": "TRY",
               "stock": 32,
-              "images": ["/img/products/p6002.png"],
+              "image": "/img/products/p6002.png",
               "brand": "WalletMaster"
             }
           ]
@@ -206,7 +206,7 @@
               "price": 199.9,
               "currency": "TRY",
               "stock": 50,
-              "images": ["/img/products/p7001.png"],
+              "image": "/img/products/p7001.png",
               "brand": "KidsWorld"
             },
             {
@@ -217,7 +217,7 @@
               "price": 149.9,
               "currency": "TRY",
               "stock": 60,
-              "images": ["/img/products/p7002.png"],
+              "image": "/img/products/p7002.png",
               "brand": "MiniTrend"
             }
           ]
@@ -242,7 +242,7 @@
               "price": 499.9,
               "currency": "TRY",
               "stock": 30,
-              "images": ["/img/products/p8001.png"],
+              "image": "/img/products/p8001.png",
               "brand": "TravelGear"
             }
           ]
@@ -267,7 +267,7 @@
               "price": 5999.9,
               "currency": "TRY",
               "stock": 15,
-              "images": ["/img/products/p9001.png"],
+              "image": "/img/products/p9001.png",
               "brand": "TechBrand"
             }
           ]
@@ -292,7 +292,7 @@
               "price": 899.9,
               "currency": "TRY",
               "stock": 20,
-              "images": ["/img/products/p10001.png"],
+              "image": "/img/products/p10001.png",
               "brand": "HomeTech"
             }
           ]
@@ -317,7 +317,7 @@
               "price": 249.9,
               "currency": "TRY",
               "stock": 40,
-              "images": ["/img/products/p11001.png"],
+              "image": "/img/products/p11001.png",
               "brand": "FitWear"
             }
           ]
