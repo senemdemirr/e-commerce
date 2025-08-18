@@ -24,13 +24,13 @@ export default function Header(){
             <div className="flex flex-row justify-center items-center ">
                 <AuthMenu></AuthMenu>
                 <Button
-                    className="text-white px-4 py-2 rounded hover:bg-blue-600 mr-2 border-none cursor-pointer"
+                    className="!text-gray-600 px-4 py-2 rounded hover:!bg-transparent mr-2 border-none cursor-pointer"
                     startIcon={<FavoriteBorderOutlinedIcon />}
                 > 
                 My Favorite
                 </Button> 
                 <Button
-                    className="text-white px-4 py-2 rounded hover:bg-green-600 border-none cursor-pointer"
+                    className="!text-gray-600 px-4 py-2 rounded hover:!bg-transparent border-none cursor-pointer"
                     startIcon={<ShoppingCartOutlinedIcon />}
                 > 
                 My Basket
