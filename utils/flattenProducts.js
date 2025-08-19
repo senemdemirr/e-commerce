@@ -9,6 +9,5 @@ export function flattenProducts(data) {
             })
         })
     })
-    console.log("flattened products", product);
     return product;
 }
