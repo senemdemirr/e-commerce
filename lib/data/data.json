@@ -2,21 +2,21 @@
   "categories": [
     {
       "id": "women",
-      "name": "Kadın",
-      "slug": "kadin",
+      "name": "Women",
+      "slug": "women",
       "children": [
         {
           "id": "women-clothing",
-          "name": "Giyim",
-          "slug": "giyim",
+          "name": "Clothing",
+          "slug": "clothing",
           "products": [
             {
               "id": "p1001",
               "sku": "W-TSHIRT-001",
               "title": "Oversize Basic T-Shirt",
-              "description": "Yumuşak pamuklu oversize tişört – S-XL",
+              "description": "Soft cotton oversize t-shirt – S-XL",
               "price": 299.9,
-              "currency": "TRY",
+              "currency": "TL",
               "stock": 42,
               "image": "/img/products/p1001.png",
               "brand": "ModaX"
@@ -24,10 +24,10 @@
             {
               "id": "p1002",
               "sku": "W-JEANS-002",
-              "title": "Mom Fit Jean",
-              "description": "Yüksek bel, hafif esnek denim",
+              "title": "Mom Fit Jeans",
+              "description": "High-waisted, slightly stretch denim",
               "price": 749.9,
-              "currency": "TRY",
+              "currency": "TL",
               "stock": 18,
               "image": "/img/products/p1002.png",
               "brand": "DenimCo"
@@ -36,16 +36,16 @@
         },
         {
           "id": "women-shoes",
-          "name": "Ayakkabı",
-          "slug": "ayakkabi",
+          "name": "Shoes",
+          "slug": "shoes",
           "products": [
             {
               "id": "p2001",
               "sku": "W-SNEAK-003",
               "title": "Chunky Sneaker",
-              "description": "Kalın tabanlı sneaker – 36-40",
+              "description": "Thick-soled sneaker – 36-40",
               "price": 1099.9,
-              "currency": "TRY",
+              "currency": "TL",
               "stock": 27,
               "image": "/img/products/p2001.png",
               "brand": "StepUp"
@@ -53,10 +53,10 @@
             {
               "id": "p2002",
               "sku": "W-HEEL-004",
-              "title": "Stiletto Topuklu Ayakkabı",
-              "description": "10 cm topuk, süet görünümlü",
+              "title": "Stiletto High Heels",
+              "description": "10 cm heel, suede look",
               "price": 899.9,
-              "currency": "TRY",
+              "currency": "TL",
               "stock": 12,
               "image": "/img/products/p2002.png",
               "brand": "Elegance"
@@ -65,16 +65,16 @@
         },
         {
           "id": "women-accessories",
-          "name": "Aksesuar",
-          "slug": "aksesuar",
+          "name": "Accessories",
+          "slug": "accessories",
           "products": [
             {
               "id": "p3001",
               "sku": "W-BAG-005",
-              "title": "Mini Omuz Çantası",
-              "description": "Fermuarlı, vegan deri",
+              "title": "Mini Shoulder Bag",
+              "description": "Zippered, vegan leather",
               "price": 649.9,
-              "currency": "TRY",
+              "currency": "TL",
               "stock": 34,
               "image": "/img/products/p3001.png",
               "brand": "Luna"
@@ -82,10 +82,10 @@
             {
               "id": "p3002",
               "sku": "W-SCARF-006",
-              "title": "İpek Karışımlı Fular",
-              "description": "70 × 70 cm, çok renkli",
+              "title": "Silk Blend Scarf",
+              "description": "70 × 70 cm, multicolor",
               "price": 229.9,
-              "currency": "TRY",
+              "currency": "TL",
               "stock": 58,
               "image": "/img/products/p3002.png",
               "brand": "SilkRoad"
@@ -96,21 +96,21 @@
     },
     {
       "id": "men",
-      "name": "Erkek",
-      "slug": "erkek",
+      "name": "Men",
+      "slug": "men",
       "children": [
         {
           "id": "men-clothing",
-          "name": "Giyim",
-          "slug": "giyim",
+          "name": "Clothing",
+          "slug": "clothing",
           "products": [
             {
               "id": "p4001",
               "sku": "M-TSHIRT-001",
               "title": "Regular Fit T-Shirt",
-              "description": "Pamuklu, basic tişört – M-XXL",
+              "description": "Cotton, basic t-shirt – M-XXL",
               "price": 319.9,
-              "currency": "TRY",
+              "currency": "TL",
               "stock": 36,
               "image": "/img/products/p4001.png",
               "brand": "ManStyle"
@@ -118,10 +118,10 @@
             {
               "id": "p4002",
               "sku": "M-JEANS-002",
-              "title": "Slim Fit Jean",
-              "description": "Düz paça, koyu mavi denim",
+              "title": "Slim Fit Jeans",
+              "description": "Straight leg, dark blue denim",
               "price": 799.9,
-              "currency": "TRY",
+              "currency": "TL",
               "stock": 20,
               "image": "/img/products/p4002.png",
               "brand": "DenimPro"
@@ -130,16 +130,16 @@
         },
         {
           "id": "men-shoes",
-          "name": "Ayakkabı",
-          "slug": "ayakkabi",
+          "name": "Shoes",
+          "slug": "shoes",
           "products": [
             {
               "id": "p5001",
               "sku": "M-SNEAK-003",
-              "title": "Erkek Sneaker",
-              "description": "Rahat taban, günlük kullanım – 40-45",
+              "title": "Men's Sneaker",
+              "description": "Comfort sole, daily use – 40-45",
               "price": 999.9,
-              "currency": "TRY",
+              "currency": "TL",
               "stock": 25,
               "image": "/img/products/p5001.png",
               "brand": "UrbanStep"
@@ -147,10 +147,10 @@
             {
               "id": "p5002",
               "sku": "M-LOAFER-004",
-              "title": "Klasik Loafer",
-              "description": "Deri, kahverengi klasik ayakkabı",
+              "title": "Classic Loafer",
+              "description": "Leather, brown classic shoes",
               "price": 1199.9,
-              "currency": "TRY",
+              "currency": "TL",
               "stock": 15,
               "image": "/img/products/p5002.png",
               "brand": "ElegantMan"
@@ -159,16 +159,16 @@
         },
         {
           "id": "men-accessories",
-          "name": "Aksesuar",
-          "slug": "aksesuar",
+          "name": "Accessories",
+          "slug": "accessories",
           "products": [
             {
               "id": "p6001",
               "sku": "M-BELT-005",
-              "title": "Hakiki Deri Kemer",
-              "description": "Siyah, ayarlanabilir uzunluk",
+              "title": "Genuine Leather Belt",
+              "description": "Black, adjustable length",
               "price": 349.9,
-              "currency": "TRY",
+              "currency": "TL",
               "stock": 40,
               "image": "/img/products/p6001.png",
               "brand": "BeltCraft"
@@ -176,10 +176,10 @@
             {
               "id": "p6002",
               "sku": "M-WALLET-006",
-              "title": "Deri Cüzdan",
-              "description": "8 kartlık bölme, kompakt boyut",
+              "title": "Leather Wallet",
+              "description": "8 card slots, compact size",
               "price": 299.9,
-              "currency": "TRY",
+              "currency": "TL",
               "stock": 32,
               "image": "/img/products/p6002.png",
               "brand": "WalletMaster"
@@ -190,21 +190,21 @@
     },
     {
       "id": "kids",
-      "name": "Çocuk",
-      "slug": "cocuk",
+      "name": "Kids",
+      "slug": "kids",
       "children": [
         {
           "id": "kids-clothing",
-          "name": "Giyim",
-          "slug": "giyim",
+          "name": "Clothing",
+          "slug": "clothing",
           "products": [
             {
               "id": "p7001",
               "sku": "K-TOP-001",
-              "title": "Çocuk Tişörtü",
-              "description": "Renkli, pamuklu tişört – 2-10 yaş",
+              "title": "Kids T-Shirt",
+              "description": "Colorful, cotton t-shirt – 2-10 years",
               "price": 199.9,
-              "currency": "TRY",
+              "currency": "TL",
               "stock": 50,
               "image": "/img/products/p7001.png",
               "brand": "KidsWorld"
@@ -212,10 +212,10 @@
             {
               "id": "p7002",
               "sku": "K-SHORTS-002",
-              "title": "Çocuk Şort",
-              "description": "Rahat kesim, pamuklu şort",
+              "title": "Kids Shorts",
+              "description": "Relaxed fit, cotton shorts",
               "price": 149.9,
-              "currency": "TRY",
+              "currency": "TL",
               "stock": 60,
               "image": "/img/products/p7002.png",
               "brand": "MiniTrend"
@@ -226,21 +226,21 @@
     },
     {
       "id": "accessories",
-      "name": "Aksesuar",
-      "slug": "aksesuar",
+      "name": "Accessories",
+      "slug": "accessories",
       "children": [
         {
           "id": "accessories-bags",
-          "name": "Çantalar",
-          "slug": "cantalar",
+          "name": "Bags",
+          "slug": "bags",
           "products": [
             {
               "id": "p8001",
               "sku": "A-BAG-001",
-              "title": "Sırt Çantası",
-              "description": "Geniş iç hacimli, su geçirmez",
+              "title": "Backpack",
+              "description": "Spacious interior, waterproof",
               "price": 499.9,
-              "currency": "TRY",
+              "currency": "TL",
               "stock": 30,
               "image": "/img/products/p8001.png",
               "brand": "TravelGear"
@@ -251,21 +251,21 @@
     },
     {
       "id": "electronics",
-      "name": "Elektronik",
-      "slug": "elektronik",
+      "name": "Electronics",
+      "slug": "electronics",
       "children": [
         {
           "id": "electronics-phones",
-          "name": "Telefonlar",
-          "slug": "telefonlar",
+          "name": "Phones",
+          "slug": "phones",
           "products": [
             {
               "id": "p9001",
               "sku": "E-PHONE-001",
-              "title": "Akıllı Telefon X100",
-              "description": "6.5 inç ekran, 128GB depolama",
+              "title": "Smartphone X100",
+              "description": "6.5 inch screen, 128GB storage",
               "price": 5999.9,
-              "currency": "TRY",
+              "currency": "TL",
               "stock": 15,
               "image": "/img/products/p9001.png",
               "brand": "TechBrand"
@@ -276,21 +276,21 @@
     },
     {
       "id": "home-appliances",
-      "name": "Ev Aletleri",
-      "slug": "ev-aletleri",
+      "name": "Home Appliances",
+      "slug": "home-appliances",
       "children": [
         {
           "id": "home-appliances-kitchen",
-          "name": "Mutfak Aletleri",
-          "slug": "mutfak-aletleri",
+          "name": "Kitchen Appliances",
+          "slug": "kitchen-appliances",
           "products": [
             {
               "id": "p10001",
               "sku": "H-KITCHEN-001",
-              "title": "Blender Seti",
-              "description": "3 hız ayarı, 1.5L hazne",
+              "title": "Blender Set",
+              "description": "3 speed settings, 1.5L jar",
               "price": 899.9,
-              "currency": "TRY",
+              "currency": "TL",
               "stock": 20,
               "image": "/img/products/p10001.png",
               "brand": "HomeTech"
@@ -301,21 +301,21 @@
     },
     {
       "id": "sports",
-      "name": "Spor",
-      "slug": "spor",
+      "name": "Sports",
+      "slug": "sports",
       "children": [
         {
           "id": "sports-clothing",
-          "name": "Spor Giyim",
-          "slug": "spor-giyim",
+          "name": "Sportswear",
+          "slug": "sportswear",
           "products": [
             {
               "id": "p11001",
               "sku": "S-TSHIRT-001",
-              "title": "Spor Tişörtü",
-              "description": "Nefes alabilen kumaş, S-XXL",
+              "title": "Sports T-Shirt",
+              "description": "Breathable fabric, S-XXL",
               "price": 249.9,
-              "currency": "TRY",
+              "currency": "TL",
               "stock": 40,
               "image": "/img/products/p11001.png",
               "brand": "FitWear"
