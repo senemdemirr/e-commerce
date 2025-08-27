@@ -17,7 +17,6 @@
               "description": "Soft cotton oversize t-shirt – S-XL",
               "price": 299.9,
               "currency": "TL",
-              "stock": 42,
               "image": "/img/products/p1001.png",
               "brand": "ModaX"
             },
@@ -28,7 +27,6 @@
               "description": "High-waisted, slightly stretch denim",
               "price": 749.9,
               "currency": "TL",
-              "stock": 18,
               "image": "/img/products/p1002.png",
               "brand": "DenimCo"
             }
@@ -46,7 +44,6 @@
               "description": "Thick-soled sneaker – 36-40",
               "price": 1099.9,
               "currency": "TL",
-              "stock": 27,
               "image": "/img/products/p2001.png",
               "brand": "StepUp"
             },
@@ -57,7 +54,6 @@
               "description": "10 cm heel, suede look",
               "price": 899.9,
               "currency": "TL",
-              "stock": 12,
               "image": "/img/products/p2002.png",
               "brand": "Elegance"
             }
@@ -75,7 +71,6 @@
               "description": "Zippered, vegan leather",
               "price": 649.9,
               "currency": "TL",
-              "stock": 34,
               "image": "/img/products/p3001.png",
               "brand": "Luna"
             },
@@ -86,7 +81,6 @@
               "description": "70 × 70 cm, multicolor",
               "price": 229.9,
               "currency": "TL",
-              "stock": 58,
               "image": "/img/products/p3002.png",
               "brand": "SilkRoad"
             }
@@ -111,7 +105,6 @@
               "description": "Cotton, basic t-shirt – M-XXL",
               "price": 319.9,
               "currency": "TL",
-              "stock": 36,
               "image": "/img/products/p4001.png",
               "brand": "ManStyle"
             },
@@ -122,7 +115,6 @@
               "description": "Straight leg, dark blue denim",
               "price": 799.9,
               "currency": "TL",
-              "stock": 20,
               "image": "/img/products/p4002.png",
               "brand": "DenimPro"
             }
@@ -140,7 +132,6 @@
               "description": "Comfort sole, daily use – 40-45",
               "price": 999.9,
               "currency": "TL",
-              "stock": 25,
               "image": "/img/products/p5001.png",
               "brand": "UrbanStep"
             },
@@ -151,7 +142,6 @@
               "description": "Leather, brown classic shoes",
               "price": 1199.9,
               "currency": "TL",
-              "stock": 15,
               "image": "/img/products/p5002.png",
               "brand": "ElegantMan"
             }
@@ -169,7 +159,6 @@
               "description": "Black, adjustable length",
               "price": 349.9,
               "currency": "TL",
-              "stock": 40,
               "image": "/img/products/p6001.png",
               "brand": "BeltCraft"
             },
@@ -180,7 +169,6 @@
               "description": "8 card slots, compact size",
               "price": 299.9,
               "currency": "TL",
-              "stock": 32,
               "image": "/img/products/p6002.png",
               "brand": "WalletMaster"
             }
@@ -205,7 +193,6 @@
               "description": "Colorful, cotton t-shirt – 2-10 years",
               "price": 199.9,
               "currency": "TL",
-              "stock": 50,
               "image": "/img/products/p7001.png",
               "brand": "KidsWorld"
             },
@@ -216,7 +203,6 @@
               "description": "Relaxed fit, cotton shorts",
               "price": 149.9,
               "currency": "TL",
-              "stock": 60,
               "image": "/img/products/p7002.png",
               "brand": "MiniTrend"
             }
@@ -241,7 +227,6 @@
               "description": "Spacious interior, waterproof",
               "price": 499.9,
               "currency": "TL",
-              "stock": 30,
               "image": "/img/products/p8001.png",
               "brand": "TravelGear"
             }
@@ -266,7 +251,6 @@
               "description": "6.5 inch screen, 128GB storage",
               "price": 5999.9,
               "currency": "TL",
-              "stock": 15,
               "image": "/img/products/p9001.png",
               "brand": "TechBrand"
             }
@@ -291,7 +275,6 @@
               "description": "3 speed settings, 1.5L jar",
               "price": 899.9,
               "currency": "TL",
-              "stock": 20,
               "image": "/img/products/p10001.png",
               "brand": "HomeTech"
             }
@@ -316,7 +299,6 @@
               "description": "Breathable fabric, S-XXL",
               "price": 249.9,
               "currency": "TL",
-              "stock": 40,
               "image": "/img/products/p11001.png",
               "brand": "FitWear"
             }
