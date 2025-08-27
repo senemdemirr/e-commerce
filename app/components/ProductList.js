@@ -23,6 +23,7 @@ export default function ProductList({products,fixedCategorySlug=null,fixedSubCat
         }
         return list;
     }, [products,queryValue,fixedCategorySlug,fixedSubCategorySlug]);
+    //Rerun the filter only if the values ​​in this list change, otherwise use the old result.
 
     if(filtered.length === 0){
         return <div className="py-8 text-center text-gray-500">No products found</div>
