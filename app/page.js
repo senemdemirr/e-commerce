@@ -1,10 +1,11 @@
-import Image from "next/image";
-import styles from "./page.module.css";
+import dataFromApi from "@/lib/data/data.json";
+import { flattenProducts } from "@/utils/flattenProducts";
 import ProductList from "./components/ProductList";
 export default function Home() {
+  const products = flattenProducts(dataFromApi);
   return (
     <>
-     <ProductList></ProductList>
+     <ProductList products={products}></ProductList>
     </>
   );
 }
