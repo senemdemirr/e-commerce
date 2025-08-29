@@ -18,7 +18,7 @@ export default async function ProductDetailPage({ params }) {
         <div className="container mx-auto px-4 py-8">
             <nav className="text-sm mb-4 text-gray-500">
                 <Link href={`/${category}`} className="hover:underline">{category}</Link>
-                <Link href={`/${subcategory}`} className="hover:underline">/{subcategory}</Link>
+                <Link href={`/${category}/${subcategory}`} className="hover:underline">/{subcategory}</Link>
                 <span className="text-gray-700"> /{sku} </span>
             </nav>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
