@@ -1,25 +1,29 @@
-import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { useRouter } from "next/navigation";
-import { TextField, Button, Snackbar } from "@mui/material";
+import { TextField, Button } from "@mui/material";
+import { addUser, checkUser } from "./localStorage";
+import { useSnackbar } from "notistack";
 
 export default function SignUpForm() {
   const { register, handleSubmit, watch, formState: { errors } } = useForm();
+  const { enqueueSnackbar } = useSnackbar();
 
   const password = watch("password");
   //this value for confirm password validation
-  const [open, setOpen] = useState(false);
-  // this state for snackbar
   const router = useRouter();
 
   const onSubmit = (data) => {
-    const user = { email: data.email, password: data.password };
-    localStorage.setItem("user", JSON.stringify(user));
-    
-    setOpen(true);
-    setTimeout(() => {
-      router.push("/");
-    }, 3000);
+    if (checkUser(data)) {
+      enqueueSnackbar("User already exists", { variant: "error" });
+    }
+    else {
+      addUser({ email: data.email, password: data.password });
+      enqueueSnackbar("Sign up successful", { variant: "success" });
+      setTimeout(() => {
+        router.push("/");
+      }, 3000);
+    }
+
   }
 
   return (
@@ -77,12 +81,6 @@ export default function SignUpForm() {
         />
         <Button type="submit" variant="contained" className="w-full !bg-green-500 !text-gray-100 !my-4">Sign Up</Button>
       </form>
-      <Snackbar
-        open={open}
-        autoHideDuration={2000}
-        onClose={() => setOpen(false)}
-        message="Sign up successful! Redirecting..."
-      />
     </>
   );
 }

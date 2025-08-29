@@ -6,24 +6,27 @@ import { useSnackbar } from "notistack";
 export default function SignInForm() {
   const { register, handleSubmit, formState: { errors } } = useForm();
   const { enqueueSnackbar } = useSnackbar();
-  // this state for snackbar
   const router = useRouter();
 
   function forgotPassword() {
     router.push("/forgot-password");
   }
+
   const onSubmit = (data) => {
     const getData = JSON.parse(localStorage.getItem("user"));
-    if (getData?.email !== data.email || getData?.password !== data.password) {
-      enqueueSnackbar("Invalid email or password", { variant: "error" });
-      return;
+    if (getData) {
+      const user = getData.find(u => u.email === data.email && u.password === data.password);
+      if (!user) {
+        enqueueSnackbar("Invalid email or password", { variant: "error" });
+      }
+      else {
+        enqueueSnackbar("Sign in successful", { variant: "success" });
+        setTimeout(() => {
+          router.push("/");
+        }, 2000);
+      }
     }
-    else {
-      enqueueSnackbar("Sign in successful", { variant: "success" });
-      setTimeout(() => {
-        router.push("/");
-      }, 2000);
-    }
+
   };
 
   return (
@@ -58,7 +61,7 @@ export default function SignInForm() {
         <span onClick={forgotPassword} className="hover:underline cursor-pointer mt-2 float-right text-gray-600">I forgot my password</span>
         <Button type="submit" variant="contained" className="w-full !bg-green-500 !my-4">Sign In</Button>
       </form>
-      
+
     </>
   );
 }
