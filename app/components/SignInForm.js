@@ -20,6 +20,7 @@ export default function SignInForm() {
         enqueueSnackbar("Invalid email or password", { variant: "error" });
       }
       else {
+        addUser({ email: data.email, password: data.password });
         enqueueSnackbar("Sign in successful", { variant: "success" });
         setTimeout(() => {
           router.push("/");

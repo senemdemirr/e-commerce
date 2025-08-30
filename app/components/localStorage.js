@@ -10,20 +10,30 @@ export function addUser(user) {
 }
 export function checkUser(user) {
     const users = getUser();
-    if(users){
-       const userCheck =  users.find(u => u.email === user.email);
-       if(userCheck){
-        return true;
-       }
-       else{
-        return false;
-       }
+    if (users) {
+        const userCheck = users.find(u => u.email === user.email);
+        if (userCheck) {
+            return true;
+        }
+        else {
+            return false;
+        }
 
     }
 }
-export function clearUser(user){
+export function updateUser(user) {
     const users = getUser();
-    if(users){
+    const newData = users.map(u => {
+        if (u.email === user.email) {
+            return { ...u, password: user.newPassword };
+        }
+        return u;
+    });
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(newData))
+}
+export function clearUser(user) {
+    const users = getUser();
+    if (users) {
         const newData = users.filter(u => u.email !== user.email && u.password !== user.password);
         localStorage.setItem(STORAGE_KEY, JSON.stringify(newData))
     }
