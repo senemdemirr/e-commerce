@@ -18,7 +18,8 @@
               "price": 299.9,
               "currency": "TL",
               "image": "/img/products/p1001.png",
-              "brand": "ModaX"
+              "brand": "ModaX",
+              "isFavorite": true
             },
             {
               "id": "p1002",
@@ -28,7 +29,8 @@
               "price": 749.9,
               "currency": "TL",
               "image": "/img/products/p1002.png",
-              "brand": "DenimCo"
+              "brand": "DenimCo",
+              "isFavorite" : false
             }
           ]
         },
@@ -45,7 +47,8 @@
               "price": 1099.9,
               "currency": "TL",
               "image": "/img/products/p2001.png",
-              "brand": "StepUp"
+              "brand": "StepUp",
+              "isFavorite": false
             },
             {
               "id": "p2002",
@@ -55,7 +58,8 @@
               "price": 899.9,
               "currency": "TL",
               "image": "/img/products/p2002.png",
-              "brand": "Elegance"
+              "brand": "Elegance",
+              "isFavorite": true
             }
           ]
         },
@@ -72,7 +76,8 @@
               "price": 649.9,
               "currency": "TL",
               "image": "/img/products/p3001.png",
-              "brand": "Luna"
+              "brand": "Luna",
+              "isFavorite": true
             },
             {
               "id": "p3002",
@@ -82,7 +87,8 @@
               "price": 229.9,
               "currency": "TL",
               "image": "/img/products/p3002.png",
-              "brand": "SilkRoad"
+              "brand": "SilkRoad",
+              "isFavorite": false
             }
           ]
         }
@@ -106,7 +112,8 @@
               "price": 319.9,
               "currency": "TL",
               "image": "/img/products/p4001.png",
-              "brand": "ManStyle"
+              "brand": "ManStyle",
+              "isFavorite": false
             },
             {
               "id": "p4002",
@@ -116,7 +123,8 @@
               "price": 799.9,
               "currency": "TL",
               "image": "/img/products/p4002.png",
-              "brand": "DenimPro"
+              "brand": "DenimPro",
+              "isFavorite": true
             }
           ]
         },
@@ -133,7 +141,8 @@
               "price": 999.9,
               "currency": "TL",
               "image": "/img/products/p5001.png",
-              "brand": "UrbanStep"
+              "brand": "UrbanStep",
+              "isFavorite": false
             },
             {
               "id": "p5002",
@@ -143,7 +152,8 @@
               "price": 1199.9,
               "currency": "TL",
               "image": "/img/products/p5002.png",
-              "brand": "ElegantMan"
+              "brand": "ElegantMan",
+              "isFavorite": true
             }
           ]
         },
@@ -160,7 +170,8 @@
               "price": 349.9,
               "currency": "TL",
               "image": "/img/products/p6001.png",
-              "brand": "BeltCraft"
+              "brand": "BeltCraft",
+              "isFavorite": true
             },
             {
               "id": "p6002",
@@ -170,7 +181,8 @@
               "price": 299.9,
               "currency": "TL",
               "image": "/img/products/p6002.png",
-              "brand": "WalletMaster"
+              "brand": "WalletMaster",
+              "isFavorite": false
             }
           ]
         }
@@ -194,7 +206,8 @@
               "price": 199.9,
               "currency": "TL",
               "image": "/img/products/p7001.png",
-              "brand": "KidsWorld"
+              "brand": "KidsWorld",
+              "isFavorite": false
             },
             {
               "id": "p7002",
@@ -204,7 +217,8 @@
               "price": 149.9,
               "currency": "TL",
               "image": "/img/products/p7002.png",
-              "brand": "MiniTrend"
+              "brand": "MiniTrend",
+              "isFavorite": true
             }
           ]
         }
@@ -228,7 +242,8 @@
               "price": 499.9,
               "currency": "TL",
               "image": "/img/products/p8001.png",
-              "brand": "TravelGear"
+              "brand": "TravelGear",
+              "isFavorite": true
             }
           ]
         }
@@ -252,7 +267,8 @@
               "price": 5999.9,
               "currency": "TL",
               "image": "/img/products/p9001.png",
-              "brand": "TechBrand"
+              "brand": "TechBrand",
+              "isFavorite": false
             }
           ]
         }
@@ -276,7 +292,8 @@
               "price": 899.9,
               "currency": "TL",
               "image": "/img/products/p10001.png",
-              "brand": "HomeTech"
+              "brand": "HomeTech",
+              "isFavorite": true
             }
           ]
         }
@@ -300,7 +317,8 @@
               "price": 249.9,
               "currency": "TL",
               "image": "/img/products/p11001.png",
-              "brand": "FitWear"
+              "brand": "FitWear",
+              "isFavorite": false
             }
           ]
         }
