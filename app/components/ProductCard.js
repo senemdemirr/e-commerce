@@ -6,7 +6,8 @@ export default function ProductCard({ product }) {
     const [isFavorite, setIsFavorite] = useState(false);
     const href = `/${product.categorySlug}/${product.subCategorySlug}/${product.sku}`;
 
-    function toggleFavorite() {
+    function toggleFavorite(e) {
+        e.preventDefault();
         setIsFavorite(!isFavorite);
     }
     return (
