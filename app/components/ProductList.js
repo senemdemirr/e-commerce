@@ -3,7 +3,7 @@ import ProductCard from "./ProductCard";
 import { useSearchParams } from "next/navigation";
 import { useMemo } from "react";
 
-export default function ProductList({products,fixedCategorySlug=null,fixedSubCategorySlug=null}) {
+export default function ProductList({products,fixedCategorySlug=null,fixedSubCategorySlug=null, isFavorite=null}) {
     const searchParams = useSearchParams();
     const query = searchParams.get("query") || "";
     const queryValue = query.trim().toLocaleLowerCase('tr');
@@ -21,8 +21,11 @@ export default function ProductList({products,fixedCategorySlug=null,fixedSubCat
         if(queryValue){
             list = list.filter((product) => product.title.toLocaleLowerCase('tr').includes(queryValue))
         }
+        if(isFavorite){
+            list = list.filter((product) => product.isFavorite === isFavorite);
+        }
         return list;
-    }, [products,queryValue,fixedCategorySlug,fixedSubCategorySlug]);
+    }, [products,queryValue,fixedCategorySlug,fixedSubCategorySlug, isFavorite]);
     //Rerun the filter only if the values ​​in this list change, otherwise use the old result.
 
     if(filtered.length === 0){
