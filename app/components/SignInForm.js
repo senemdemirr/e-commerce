@@ -2,13 +2,14 @@ import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { TextField, Button } from "@mui/material";
 import { useSnackbar } from "notistack";
-import { getAllUser ,addUser } from "./localStorage";
+import { getAllUser } from "./localStorage";
 
 export default function SignInForm() {
   const { register, handleSubmit, formState: { errors } } = useForm();
   const { enqueueSnackbar } = useSnackbar();
   const router = useRouter();
-
+  const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+  
   function forgotPassword() {
     router.push("/forgot-password");
   }
@@ -37,7 +38,7 @@ export default function SignInForm() {
             {
               required: "Email is required",
               pattern: {
-                value: /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/,
+                value: emailRegex,
                 message: "Invalid email address"
               }
             })}

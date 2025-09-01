@@ -11,6 +11,9 @@ export default function SignUpForm() {
   const password = watch("password");
   //this value for confirm password validation
   const router = useRouter();
+  const passwordMinValue = 6;
+  const passwordMaxValue = 11;
+  const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
 
   const onSubmit = (data) => {
     if (checkUser(data)) {
@@ -36,7 +39,7 @@ export default function SignUpForm() {
             {
               required: "Email is required",
               pattern: {
-                value: /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/,
+                value: emailRegex,
                 message: "Invalid email address"
               }
             })}
@@ -53,15 +56,16 @@ export default function SignUpForm() {
             {
               required: "Password is required",
               minLength: {
-                value: 6,
+                value: passwordMinValue,
                 message: "Password must be at least 6 characters"
               },
               maxLength: {
-                value: 11,
+                value: passwordMaxValue,
                 message: "Password must not exceed 10 characters"
               }
             })}
           error={!!errors.password}
+          // error is waiting for boolean value therefore we use "!!" because errors.password is an object actually and we want to convert it to boolean
           helperText={errors.password ? errors.password.message : ""}
         />
         <TextField
