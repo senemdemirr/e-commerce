@@ -19,9 +19,7 @@ export default function SignUpForm() {
     else {
       addUser({ email: data.email, password: data.password });
       enqueueSnackbar("Sign up successful", { variant: "success" });
-      setTimeout(() => {
-        router.push("/");
-      }, 3000);
+      router.push("/");
     }
 
   }

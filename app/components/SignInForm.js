@@ -2,6 +2,7 @@ import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { TextField, Button } from "@mui/material";
 import { useSnackbar } from "notistack";
+import { getAllUser ,addUser } from "./localStorage";
 
 export default function SignInForm() {
   const { register, handleSubmit, formState: { errors } } = useForm();
@@ -11,23 +12,21 @@ export default function SignInForm() {
   function forgotPassword() {
     router.push("/forgot-password");
   }
+  function goHome(){
+    router.push("/");
+  }
 
   const onSubmit = (data) => {
-    const getData = JSON.parse(localStorage.getItem("user"));
-    if (getData) {
-      const user = getData.find(u => u.email === data.email && u.password === data.password);
-      if (!user) {
-        enqueueSnackbar("Invalid email or password", { variant: "error" });
-      }
-      else {
-        addUser({ email: data.email, password: data.password });
-        enqueueSnackbar("Sign in successful", { variant: "success" });
-        setTimeout(() => {
-          router.push("/");
-        }, 2000);
-      }
+    const getUsers = getAllUser();
+    if (getUsers.length === 0) return;
+    const user = getUsers.find(u => u.email === data.email && u.password === data.password);
+    if (!user) {
+      enqueueSnackbar("Invalid email or password", { variant: "error" });
     }
-
+    else {
+      enqueueSnackbar("Sign in successful", { variant: "success" });
+      goHome();
+    }
   };
 
   return (
