@@ -1,9 +1,12 @@
 import { flattenProducts } from "@/utils/flattenProducts";
 import dataFromApi from "@/lib/data/data.json";
 import ProductList from "../components/ProductList";
-export default function FavoritesPage(){
+import { Suspense } from "react";
+export default function FavoritesPage() {
     const products = flattenProducts(dataFromApi);
     return (
-        <ProductList products={products} isFavorite={true}></ProductList>
+        <Suspense fallback={null}>
+            <ProductList products={products} isFavorite={true}></ProductList>
+        </Suspense>
     );
 }
