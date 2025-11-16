@@ -2,6 +2,7 @@ import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
 import FavoriteIcon from '@mui/icons-material/Favorite';
 import { useState } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 export default function ProductCard({ product }) {
     const [isFavorite, setIsFavorite] = useState(false);
     const href = `/${product.categorySlug}/${product.subCategorySlug}/${product.sku}`;
@@ -14,10 +15,13 @@ export default function ProductCard({ product }) {
         <Link href={href}>
             <div className="bg-white cursor-pointer rounded-2xl shadow-md hover:shadow-xl transition flex flex-col overflow-hidden border border-gray-100">
                 <div className="relative">
-                    <img
+                    <Image
                         src={product.image}
                         alt={product.title}
                         className="h-64 w-full object-contain bg-white p-2"
+                        loading='lazy'
+                        width={300}
+                        height={300}
                     />
                     <span onClick={toggleFavorite} className="absolute top-2 right-2 bg-gray-100 border border-gray-200 shadow-2xl text-white text-xs px-1.5 py-1.5 rounded-full">
                         {isFavorite ?
