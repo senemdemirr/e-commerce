@@ -2,7 +2,7 @@ import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { TextField, Button } from "@mui/material";
 import { useSnackbar } from "notistack";
-import { getAllUser } from "./localStorage";
+import { getAllUser } from "@/lib/storage/localStorage";
 
 export default function SignInForm() {
   const { register, handleSubmit, formState: { errors } } = useForm();

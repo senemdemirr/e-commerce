@@ -1,7 +1,7 @@
 import { useForm } from "react-hook-form";
 import { useRouter } from "next/navigation";
 import { TextField, Button } from "@mui/material";
-import { addUser, checkUser } from "./localStorage";
+import { addUser, checkUser } from "@/lib/storage/localStorage";
 import { useSnackbar } from "notistack";
 
 export default function SignUpForm() {
