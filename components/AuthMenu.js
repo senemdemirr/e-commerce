@@ -51,7 +51,7 @@ export default function AuthMenu() {
                     }}
                 >
                     <MenuItem>
-                        <Link href="/signin" className="w-full block">Sign in</Link>
+                        <Link href="/auth/login" className="w-full block">Sign in</Link>
                     </MenuItem>
                     <MenuItem>
                         <Link href="/signup" className="w-full block">Sign up</Link>
