@@ -3,7 +3,7 @@ import { TextField } from "@mui/material";
 import { useForm } from "react-hook-form";
 import { Button } from "@mui/material";
 import Link from "next/link";
-import { checkUser, updateUser } from "@/app/components/localStorage";
+import { checkUser, updateUser } from "@/components/localStorage";
 import { useSnackbar } from "notistack";
 
 export default function ForgotPasswordPage() {

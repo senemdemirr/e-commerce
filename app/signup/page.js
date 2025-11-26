@@ -1,4 +1,4 @@
-import TabsPage from "../components/Tabs";
+import TabsPage from "@/components/Tabs";
 
 export default function SignUpPage(){
     return(
