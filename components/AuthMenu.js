@@ -1,12 +1,16 @@
 "use client"
 import { useState, useRef } from "react";
-import { Button, Menu, MenuItem } from '@mui/material';
+import { Button, Menu, MenuItem , Box} from '@mui/material';
 import Link from "next/link";
 import PersonIcon from '@mui/icons-material/Person2Outlined';
+import { useUser } from "@auth0/nextjs-auth0";
+
 
 export default function AuthMenu() {
     const [isOpen, setIsOpen] = useState(false);
     const buttonRef = useRef(null);
+    const { user } = useUser();
+
 
     function handleMouseEnter() {
         setIsOpen(true);
@@ -27,7 +31,7 @@ export default function AuthMenu() {
                     aria-haspopup="true"
                     aria-expanded={isOpen ? 'true' : undefined}
                 >
-                    Sign In
+                    {user ? "Hesabım" : "Sign In"}
                 </Button>
                 <Menu
                     id="auth-menu"
@@ -50,12 +54,27 @@ export default function AuthMenu() {
                         },
                     }}
                 >
-                    <MenuItem>
-                        <Link href="/auth/login" className="w-full block">Sign in</Link>
-                    </MenuItem>
-                    <MenuItem>
-                        <Link href="/signup" className="w-full block">Sign up</Link>
-                    </MenuItem>
+                    {user ? (
+                        <Box>
+                        <MenuItem>
+                            <Link href="/my-profile" className="w-full block">
+                                My Profile
+                            </Link>
+                        </MenuItem>
+                        <MenuItem>
+                            <Link href="/auth/logout" className="w-full block">
+                                Log out
+                            </Link>
+                        </MenuItem>
+                        </Box>
+                    ) : (
+                        <MenuItem>
+                            <Link href="/auth/login" className="w-full block">
+                                Sign in
+                            </Link>
+                        </MenuItem>
+                    )}
+
                 </Menu>
             </div></>
     )
