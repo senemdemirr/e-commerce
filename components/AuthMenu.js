@@ -57,6 +57,7 @@ export default function AuthMenu() {
                     {user ? (
                         <Box>
                         <MenuItem>
+                        {/* To-Do read and search the auth profile. How can I use auth/profile  */}
                             <Link href="/my-profile" className="w-full block">
                                 My Profile
                             </Link>
