@@ -13,3 +13,63 @@ datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
+
+model Categories {
+  id            Int             @id @default(autoincrement())
+  name          String
+  slug          String          @unique
+  created_at    DateTime        @default(now())
+
+  subcategories SubCategories[]
+}
+
+model SubCategories {
+  id          Int          @id @default(autoincrement())
+  name        String
+  slug        String       @unique
+  category_id Int
+  created_at  DateTime     @default(now())
+
+  category    Categories   @relation(fields: [category_id], references: [id])
+
+  @@index([category_id])
+}
+
+model Products {
+  id          Int          @id @default(autoincrement())
+  title       String  
+  description String
+  price       Float
+  image       String
+  brand       String
+  sku         String       @unique
+  created_at  DateTime     @default(now())
+
+  favorites   Favorites[]  
+}
+
+model Users {
+  id         Int         @id @default(autoincrement())
+  name       String
+  email      String      @unique
+  password   String
+  created_at DateTime    @default(now())
+
+  favorites  Favorites[] 
+}
+
+model Favorites {
+  id         Int      @id @default(autoincrement())
+  user_id    Int
+  product_id Int
+  created_at DateTime @default(now())
+
+  user       Users    @relation(fields: [user_id], references: [id])
+  product    Products @relation(fields: [product_id], references: [id])
+
+  // Aynı kullanıcının aynı ürünü iki kere favorilemesini engelle
+  @@unique([user_id, product_id])
+
+  @@index([user_id])
+  @@index([product_id])
+}
