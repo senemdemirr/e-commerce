@@ -1,11 +1,19 @@
 import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
 import FavoriteIcon from '@mui/icons-material/Favorite';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
+import { usePathname } from 'next/navigation';
 export default function ProductCard({ product }) {
+    const pathname = usePathname();
     const [isFavorite, setIsFavorite] = useState(false);
     const href = `/${product.categorySlug}/${product.subCategorySlug}/${product.sku}`;
+    useEffect(() => {
+        if (pathname === "/favorites") {
+            setIsFavorite(product.isFavorite);
+        }
+    }, [pathname, product.isFavorite]);
+
 
     function toggleFavorite(e) {
         e.preventDefault();
