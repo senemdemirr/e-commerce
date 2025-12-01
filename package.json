@@ -15,6 +15,7 @@
     "@mui/icons-material": "^5.15.14",
     "@mui/material": "^5.15.14",
     "@mui/system": "^5.15.14",
+    "fs": "^0.0.1-security",
     "next": "15.3.4",
     "notistack": "^3.0.2",
     "pg": "^8.16.3",
