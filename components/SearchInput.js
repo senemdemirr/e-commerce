@@ -30,7 +30,7 @@ export default function SearchInput() {
             className="w-full"
             style={{ margin: "0 auto" }}
             inputProps={{ "aria-label": "Search products" }}
-            endAdornment={<SearchIcon></SearchIcon>}
+            endAdornment={<SearchIcon color="disabled"></SearchIcon>}
          />
       </form>
    )
