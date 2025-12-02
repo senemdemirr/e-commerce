@@ -43,7 +43,7 @@
                                                             "type": "integer"
                                                         },
                                                         "name": {
-                                                            "type":"string"
+                                                            "type": "string"
                                                         },
                                                         "slug": {
                                                             "type": "string"
@@ -63,9 +63,71 @@
         "/api/products": {
             "get": {
                 "summary": "get all products",
+                "description": "Returns a list of products, optionally filtered by category and subcategory",
+                "parameters": [
+                    {
+                        "in": "query",
+                        "name": "category",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "Category slug"
+                    },
+                    {
+                        "in": "query",
+                        "name": "subcategory",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "Subcategory slug"
+                    }
+                ],
                 "responses": {
                     "200": {
-                        "description": "Successfull"
+                        "description": "Successfull",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/Product"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/products/{sku}": {
+            "get": {
+                "summary": "get product by sku",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "sku",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "Product sku"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Product detail",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Product"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Product not found"
                     }
                 }
             }
