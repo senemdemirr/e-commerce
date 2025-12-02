@@ -14,10 +14,48 @@
     "paths": {
         "/api/categories": {
             "get": {
-                "summary": "get all categories",
+                "summary": "get all categories and get sub categories",
                 "responses": {
                     "200": {
-                        "description": "Successfull"
+                        "description": "Successfull",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "object",
+                                        "properties": {
+                                            "id": {
+                                                "type": "integer"
+                                            },
+                                            "name": {
+                                                "type": "string"
+                                            },
+                                            "slug": {
+                                                "type": "string"
+                                            },
+                                            "subcategories": {
+                                                "type": "array",
+                                                "items": {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "id": {
+                                                            "type": "integer"
+                                                        },
+                                                        "name": {
+                                                            "type":"string"
+                                                        },
+                                                        "slug": {
+                                                            "type": "string"
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
                     }
                 }
             }
@@ -42,10 +80,10 @@
                 }
             }
         },
-        "/api/favorites" : {
-            "get" : {
-                "summary" : "get all favorites",
-                "responses" : {
+        "/api/favorites": {
+            "get": {
+                "summary": "get all favorites",
+                "responses": {
                     "200": {
                         "description": "Successfull"
                     }
