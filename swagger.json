@@ -22,7 +22,7 @@
                 }
             }
         },
-        "api/subcategories": {
+        "/api/subcategories": {
             "get": {
                 "summary": "get all sub categories",
                 "responses": {
@@ -32,7 +32,7 @@
                 }
             }
         },
-        "api/products": {
+        "/api/products": {
             "get": {
                 "summary": "get all products",
                 "responses": {
@@ -42,7 +42,7 @@
                 }
             }
         },
-        "api/favorites" : {
+        "/api/favorites" : {
             "get" : {
                 "summary" : "get all favorites",
                 "responses" : {
