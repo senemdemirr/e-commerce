@@ -51,3 +51,6 @@ CREATE TABLE FAVORITES(
         ON DELETE CASCADE,
     CONSTRAINT unique_favorite UNIQUE (user_id, product_id)
 );
+
+-- ON DELETE CASCADES = This sql was added so that if a category is deleted, all subcategories attached to it will be deleted.
+-- CONSTRAINT FOREIGN KEY REFERENCES = This sql shows that id is an existing id in another table. This means it is not a separate number and an irrelevant value cannot be entered.
