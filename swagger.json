@@ -21,6 +21,36 @@
                     }
                 }
             }
+        },
+        "api/subcategories": {
+            "get": {
+                "summary": "get all sub categories",
+                "responses": {
+                    "200": {
+                        "description": "Successfull"
+                    }
+                }
+            }
+        },
+        "api/products": {
+            "get": {
+                "summary": "get all products",
+                "responses": {
+                    "200": {
+                        "description": "Successfull"
+                    }
+                }
+            }
+        },
+        "api/favorites" : {
+            "get" : {
+                "summary" : "get all favorites",
+                "responses" : {
+                    "200": {
+                        "description": "Successfull"
+                    }
+                }
+            }
         }
     }
 }
