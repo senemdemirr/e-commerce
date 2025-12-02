@@ -4,7 +4,7 @@ export async function GET() {
     try {
         const res = await pool.query("SELECT * FROM favorites WHERE user_id= $1", [user]);
         return Response.json(
-            res.rows[0],
+            res.rows,
             {status: 200}
         )
         
