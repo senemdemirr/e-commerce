@@ -26,19 +26,7 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en">
       <body className={`${geistSans.variable} ${geistMono.variable}`}>
-        <Providers>
-          <Suspense fallback={null}>
-            <Header />
-          </Suspense>
-
-          <main className="container mx-auto px-4">
-            <Auth0Provider>
-              {children}
-            </Auth0Provider>
-          </main>
-
-          <Footer />
-        </Providers>
+        <Providers>{children}</Providers>
       </body>
     </html>
   );
