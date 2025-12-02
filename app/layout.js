@@ -1,10 +1,6 @@
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import Header from "@/components/Header";
-import Footer from "@/components/Footer";
 import Providers from "./providers";
-import { Suspense } from "react"; //for useSearchParams bug
-import { Auth0Provider } from "@auth0/nextjs-auth0";
 
 
 const geistSans = Geist({
