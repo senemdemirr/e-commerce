@@ -70,7 +70,8 @@
                         "name": "category",
                         "required": false,
                         "schema": {
-                            "type": "string"
+                            "type": "string",
+                            "minimum": 1
                         },
                         "description": "Category slug"
                     },
@@ -79,7 +80,8 @@
                         "name": "subCategory",
                         "required": false,
                         "schema": {
-                            "type": "string"
+                            "type": "string",
+                            "minimum": 1
                         },
                         "description": "Sub category slug"
                     }
@@ -110,7 +112,8 @@
                         "name": "sku",
                         "required": true,
                         "schema": {
-                            "type": "string"
+                            "type": "string",
+                            "minimum": 1
                         },
                         "description": "Product sku"
                     }
@@ -169,11 +172,11 @@
                     "sku": {
                         "type": "string"
                     },
-                    "categorySlug":{
-                        "type":"string"
+                    "categorySlug": {
+                        "type": "string"
                     },
-                    "subcategorySlug":{
-                        "type":"string"
+                    "subcategorySlug": {
+                        "type": "string"
                     }
                 }
             }
