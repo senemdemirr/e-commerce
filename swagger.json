@@ -160,14 +160,26 @@
                                     "items": {
                                         "type": "object",
                                         "properties": {
-                                            "id": {
-                                                "type": "integer"
+                                            "title": {
+                                                "type": "string"
                                             },
-                                            "userId": {
-                                                "type": "integer"
+                                            "description": {
+                                                "type": "string"
                                             },
-                                            "productId": {
-                                                "type": "integer"
+                                            "image": {
+                                                "type": "string"
+                                            },
+                                            "brand": {
+                                                "type": "string"
+                                            },
+                                            "sku": {
+                                                "type": "string"
+                                            },
+                                            "categorySlug": {
+                                                "type": "string"
+                                            },
+                                            "subCategorySlug": {
+                                                "type": "string"
                                             }
                                         }
                                     }
