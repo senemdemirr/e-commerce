@@ -76,12 +76,12 @@
                     },
                     {
                         "in": "query",
-                        "name": "subcategory",
+                        "name": "subCategory",
                         "required": false,
                         "schema": {
                             "type": "string"
                         },
-                        "description": "Subcategory slug"
+                        "description": "Sub category slug"
                     }
                 ],
                 "responses": {
