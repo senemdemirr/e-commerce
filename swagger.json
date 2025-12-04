@@ -138,9 +138,42 @@
         "/api/favorites": {
             "get": {
                 "summary": "get all favorites",
+                "parameters": [
+                    {
+                        "in": "query",
+                        "name": "user",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "minimum": 1
+                        },
+                        "description": "User Id"
+                    }
+                ],
                 "responses": {
                     "200": {
-                        "description": "Successfull"
+                        "description": "Successfull",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "object",
+                                        "properties": {
+                                            "id": {
+                                                "type": "integer"
+                                            },
+                                            "userId": {
+                                                "type": "integer"
+                                            },
+                                            "productId": {
+                                                "type": "integer"
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
                     }
                 }
             }
