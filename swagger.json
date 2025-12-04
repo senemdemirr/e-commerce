@@ -142,5 +142,41 @@
                 }
             }
         }
+    },
+    "components": {
+        "schemas": {
+            "Product": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "integer"
+                    },
+                    "title": {
+                        "type": "string"
+                    },
+                    "description": {
+                        "type": "string"
+                    },
+                    "price": {
+                        "type": "number"
+                    },
+                    "image": {
+                        "type": "string"
+                    },
+                    "brand": {
+                        "type": "string"
+                    },
+                    "sku": {
+                        "type": "string"
+                    },
+                    "categorySlug":{
+                        "type":"string"
+                    },
+                    "subcategorySlug":{
+                        "type":"string"
+                    }
+                }
+            }
+        }
     }
 }
