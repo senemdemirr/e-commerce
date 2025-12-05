@@ -7,7 +7,7 @@ import FavoriteBorderOutlinedIcon from '@mui/icons-material/FavoriteBorderOutlin
 import ShoppingCartOutlinedIcon from '@mui/icons-material/ShoppingCartOutlined';
 import AuthMenu from "./AuthMenu";
 
-export default function Header(){
+export default function Header({user}){
     return (
        <div className="container w-full mx-auto flex flex-col">
          <div className="bg-transparent flex flex-row justify-between items-center">
@@ -23,7 +23,7 @@ export default function Header(){
             </Link>
             <SearchInput />
             <div className="flex flex-row justify-center items-center">
-                <AuthMenu />
+                <AuthMenu user={user} />
                 {/* I used button inside Link for style and icon 
                   passHref passes href information to the button
                 */}

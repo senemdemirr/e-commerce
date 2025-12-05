@@ -3,13 +3,11 @@ import { useState, useRef } from "react";
 import { Button, Menu, MenuItem , Box} from '@mui/material';
 import Link from "next/link";
 import PersonIcon from '@mui/icons-material/Person2Outlined';
-import { useUser } from "@auth0/nextjs-auth0";
 
 
-export default function AuthMenu() {
+export default function AuthMenu({user}) {
     const [isOpen, setIsOpen] = useState(false);
     const buttonRef = useRef(null);
-    const { user } = useUser();
 
 
     function handleMouseEnter() {
