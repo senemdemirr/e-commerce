@@ -5,7 +5,7 @@ export async function GET(request) {
 
     const category = searchParams.get('category');
     const subCategory = searchParams.get('subCategory');
-    let query = `SELECT p.*, sc.slug AS subcategorySlug, c.slug AS categorySlug FROM products p LEFT JOIN sub_categories sc ON p.sub_category_id = sc.id LEFT JOIN categories c ON c.id = sc.category_id WHERE 1=1`
+    let query = `SELECT p.*, sc.slug AS subCategorySlug, c.slug AS categorySlug FROM products p LEFT JOIN sub_categories sc ON p.sub_category_id = sc.id LEFT JOIN categories c ON c.id = sc.category_id WHERE 1=1`
 
     const values = []
     try {

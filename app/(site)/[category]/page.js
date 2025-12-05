@@ -1,9 +1,18 @@
-import dataFromApi from "@/lib/data/data.json";
-import { flattenProducts } from "@/utils/flattenProducts";
 import ProductList from "@/components/ProductList";
+import React from "react";
+import { apiFetch } from "@/lib/apiFetch/fetch";
 
-export default async function CategoryPage({params}) {
-  const {category} = await params;
-  const products = flattenProducts(dataFromApi);
-  return <ProductList products={products} fixedCategorySlug={category}></ProductList>
+async function fetchProductsByCategory(category) {
+  const searchParams = new URLSearchParams();
+  if (category) searchParams.set("category", category);
+
+  return apiFetch(`/api/products?${searchParams.toString()}`);
+}
+
+export default async function CategoryPage({ params }) {
+  const { category } = await params;
+
+  const products = await fetchProductsByCategory(category);
+
+  return <ProductList products={products} />;
 }
