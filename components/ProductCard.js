@@ -20,7 +20,8 @@ export default function ProductCard({ product }) {
         setIsFavorite(!isFavorite);
     }
     return (
-        <Link href={href}>
+        <Link prefetch={false}
+            href={href}>
             <div className="bg-white cursor-pointer rounded-2xl shadow-md hover:shadow-xl transition flex flex-col overflow-hidden border border-gray-100">
                 <div className="relative">
                     <Image
