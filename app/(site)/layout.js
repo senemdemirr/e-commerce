@@ -2,11 +2,11 @@ import Footer from "@/components/Footer";
 import Header from "@/components/Header";
 import { Auth0Provider } from "@auth0/nextjs-auth0";
 import { Suspense } from "react";
-import { auth0 } from "@/lib/auth0";
+import { getOrCreateUserFromSession } from "@/lib/users";
 
 export default async function SiteLayout({ children }) {
-    const session = await auth0.getSession();
-    const user = session?.user || null;
+    const user = await getOrCreateUserFromSession();
+    
     return (
         <>
             <Suspense fallback={null}>
