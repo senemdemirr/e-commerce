@@ -188,6 +188,39 @@
                         }
                     }
                 }
+            },
+            "post": {
+                "summary": "added a favorite",
+                "description": "adds a product to user's favorite list.",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/FavoriteCreate"
+                            },
+                            "example": {
+                                "user_id": 5,
+                                "product_id": 3
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Favorite added successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Favorite"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Something went wrong"
+                    }
+                }
             }
         }
     },
@@ -222,6 +255,46 @@
                     },
                     "subcategorySlug": {
                         "type": "string"
+                    }
+                }
+            },
+            "Favorite": {
+                "type": "object",
+                "properties": {
+                    "title": {
+                        "type": "string"
+                    },
+                    "description": {
+                        "type": "string"
+                    },
+                    "brand": {
+                        "type": "string"
+                    },
+                    "price": {
+                        "type": "number"
+                    },
+                    "sku": {
+                        "type": "string"
+                    },
+                    "categorySlug": {
+                        "type": "string"
+                    },
+                    "subCategorySlug": {
+                        "type": "string"
+                    }
+                }
+            },
+            "FavoriteCreate": {
+                "type": "object",
+                "required": [
+                    "user_id,product_id"
+                ],
+                "properties": {
+                    "user_id": {
+                        "type": "integer"
+                    },
+                    "product_id": {
+                        "type": "integer"
                     }
                 }
             }
