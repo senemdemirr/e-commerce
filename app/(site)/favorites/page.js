@@ -1,5 +1,6 @@
 import ProductList from "@/components/ProductList";
 import { apiFetch } from "@/lib/apiFetch/fetch";
+import { getOrCreateUserFromSession } from "@/lib/users";
 import { Suspense } from "react";
 
 async function fetchFavorite(userId) {
@@ -9,7 +10,8 @@ async function fetchFavorite(userId) {
     return await apiFetch(`/api/favorites?${searchParams.toString()}`);
 }
 export default async function FavoritesPage() {
-    const products = await fetchFavorite(1);
+    const user = await getOrCreateUserFromSession();
+    const products = await fetchFavorite(user.id);
     return (
         <Suspense fallback={null}>
             <ProductList products={products} isFavorite={true}></ProductList>
