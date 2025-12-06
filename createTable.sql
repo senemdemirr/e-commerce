@@ -7,7 +7,9 @@ CREATE TABLE categories(
 CREATE TABLE users(
     id SERIAL PRIMARY KEY,
     auth0_id VARCHAR(200) UNIQUE NOT NULL,
-    email VARCHAR(200) UNIQUE,
+    email VARCHAR(200) UNIQUE NOT NULL,
+    name VARCHAR(200),
+    verified BOOLEAN DEFAULT FALSE,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 CREATE TABLE sub_categories(
