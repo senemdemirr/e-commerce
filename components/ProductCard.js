@@ -10,9 +10,9 @@ export default function ProductCard({ product }) {
     const href = `/${product.categorySlug}/${product.subCategorySlug}/${product.sku}`;
     useEffect(() => {
         if (pathname === "/favorites") {
-            setIsFavorite(product.isFavorite);
+            setIsFavorite(true);
         }
-    }, [pathname, product.isFavorite]);
+    }, [pathname]);
 
 
     function toggleFavorite(e) {
