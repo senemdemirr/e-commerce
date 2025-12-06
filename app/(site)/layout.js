@@ -5,8 +5,11 @@ import { Suspense } from "react";
 import { getOrCreateUserFromSession } from "@/lib/users";
 
 export default async function SiteLayout({ children }) {
-    const user = await getOrCreateUserFromSession();
-    
+    const res = await getOrCreateUserFromSession();
+    let user;
+    if(res.id){
+        user = res;
+    }
     return (
         <>
             <Suspense fallback={null}>
