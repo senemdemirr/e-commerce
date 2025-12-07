@@ -1,80 +1,43 @@
 "use client"
-import { useState, useRef } from "react";
-import { Button, Menu, MenuItem , Box} from '@mui/material';
 import Link from "next/link";
 import PersonIcon from '@mui/icons-material/Person2Outlined';
 
-
-export default function AuthMenu({user}) {
-    const [isOpen, setIsOpen] = useState(false);
-    const buttonRef = useRef(null);
-
-
-    function handleMouseEnter() {
-        setIsOpen(true);
-    }
-    function handleMouseLeave() {
-        setIsOpen(false);
-    }
+export default function AuthMenu({ user }) {
     return (
         <>
-            < div onMouseEnter={handleMouseEnter}
-                onMouseLeave={handleMouseLeave}>
-                <Button
-                    id="auth-button"
-                    ref={buttonRef}
-                    className="!text-gray-600 px-4 py-2 rounded mr-2 border-none !cursor-pointer relative"
-                    startIcon={<PersonIcon className="text-gray-600" />}
-                    aria-controls={isOpen ? 'auth-menu' : undefined}
-                    aria-haspopup="true"
-                    aria-expanded={isOpen ? 'true' : undefined}
-                >
-                    {user ? "Hesabım" : "Sign In"}
-                </Button>
-                <Menu
-                    id="auth-menu"
-                    anchorEl={buttonRef.current}
-                    open={isOpen}
-                    aria-labelledby="auth-button"
-                    anchorOrigin={{
-                        vertical: 'bottom',
-                        horizontal: 'left',
-                    }}
-                    transformOrigin={{
-                        vertical: 'top',
-                        horizontal: 'left',
-                    }}
-                    aria-hidden="false"
-                    slotProps={{
-                        paper: {
-                            onMouseEnter: handleMouseEnter,
-                            onMouseLeave: handleMouseLeave,
-                        },
-                    }}
-                >
-                    {user ? (
-                        <Box>
-                        <MenuItem>
-                        {/* To-Do read and search the auth profile. How can I use auth/profile  */}
-                            <Link href="/my-profile" className="w-full block">
-                                My Profile
-                            </Link>
-                        </MenuItem>
-                        <MenuItem>
-                            <Link href="/auth/logout" className="w-full block">
-                                Log out
-                            </Link>
-                        </MenuItem>
-                        </Box>
-                    ) : (
-                        <MenuItem>
-                            <Link href="/auth/login" className="w-full block">
-                                Sign in
-                            </Link>
-                        </MenuItem>
-                    )}
+            <ul className="px-4 py-2 flex">
+                <li className="cursor-pointer relative group">
+                    <PersonIcon sx={{ color: "#6E7982", width: "21px", height: "21px" }}></PersonIcon>
+                    <span className="ms-2 !text-gray-600 text-[14.5px]">{user ? "HESABIM" :"SIGN IN"}</span>
 
-                </Menu>
-            </div></>
+                    <ul className="invisible absolute left-0 top-full z-50 mt-2 w-48 rounded-md bg-white shadow-lg opacity-0 transition-all duration-150 group-hover:visible group-hover:opacity-100">
+                        <li>
+                            {user ? (
+                                <Link href={"/my-profile"} className="block px-4 py-2 text-sm hover:bg-gray-100"> My Profile
+                                </Link>
+                            ) 
+                            : 
+                            (
+                                <Link href={"/auth/login"} className="block px-4 py-2 text-sm hover:bg-gray-100"> Sign in
+                                </Link>
+                            )}
+                        </li>
+                        {user ? 
+                        (
+                            <Link href={"/auth/logout"} className="block px-4 py-2 text-sm hover:bg-gray-100">
+                                Log Out
+                            </Link>
+                        ) 
+                        : 
+                        (
+                            ""
+                        )
+                        }
+
+                    </ul>
+                </li>
+
+            </ul>
+        </>
     )
 } 
