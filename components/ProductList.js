@@ -1,9 +1,10 @@
 "use client";
 import ProductCard from "./ProductCard";
-import { useSearchParams, useRouter } from "next/navigation";
+import { useSearchParams, useRouter, usePathname } from "next/navigation";
 import { useMemo } from "react";
 
 export default function ProductList({ products }) {
+    const pathname = usePathname();
     const router = useRouter();
     const searchParams = useSearchParams();
     const query = searchParams.get("query") || "";
@@ -18,11 +19,14 @@ export default function ProductList({ products }) {
         }
         return list;
     }, [products, queryValue]);
-    //Rerun the filter only if the values ​​in this list change, otherwise use the old result.
+    // Rerun the filter only if the values ​​in this list change, otherwise use the old result.
     if (filtered?.length === 0) {
-        // return <div className="py-8 text-center text-gray-500">No products found</div>
-        router.push("/auth/login");
-
+        if (pathname == "/favorites") {
+            router.push("/auth/login");
+        }
+        else {
+            return <div className="py-8 text-center text-gray-500">No products found</div>
+        }
     }
 
     return (
