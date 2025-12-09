@@ -2,6 +2,7 @@ import ProductList from "@/components/ProductList";
 import { apiFetch } from "@/lib/apiFetch/fetch";
 import { getOrCreateUserFromSession } from "@/lib/users";
 import { Suspense } from "react";
+import { redirect } from "next/navigation";
 
 async function fetchFavorite(userId) {
     const searchParams = new URLSearchParams();
@@ -11,7 +12,10 @@ async function fetchFavorite(userId) {
 }
 export default async function FavoritesPage() {
     const user = await getOrCreateUserFromSession();
-    const products = await fetchFavorite(user.id);
+    const products = await fetchFavorite(user?.id);
+
+    if (!user.id) redirect("/auth/login");
+
     return (
         <Suspense fallback={null}>
             <ProductList products={products} isFavorite={true}></ProductList>

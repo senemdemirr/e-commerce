@@ -3,7 +3,7 @@ import ProductCard from "./ProductCard";
 import { useSearchParams, useRouter, usePathname } from "next/navigation";
 import { useMemo } from "react";
 
-export default function ProductList({ products }) {
+export default function ProductList({ products, user }) {
     const pathname = usePathname();
     const router = useRouter();
     const searchParams = useSearchParams();
@@ -21,12 +21,7 @@ export default function ProductList({ products }) {
     }, [products, queryValue]);
     // Rerun the filter only if the values ​​in this list change, otherwise use the old result.
     if (filtered?.length === 0) {
-        if (pathname == "/favorites") {
-            router.push("/auth/login");
-        }
-        else {
-            return <div className="py-8 text-center text-gray-500">No products found</div>
-        }
+        return <div className="py-8 text-center text-gray-500">No products found</div>
     }
 
     return (
