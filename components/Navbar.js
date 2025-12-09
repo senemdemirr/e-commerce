@@ -20,7 +20,7 @@ export default function Navbar() {
         fetchCategories();
     }, []);
     return (
-        <nav className="mx-6 lg-block">
+        <nav className="lg-block">
             <ul className="flex gap-6">
                 {categories.map((category) => (
                     <li key={category.id} className='relative group'>
