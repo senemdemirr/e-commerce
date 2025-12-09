@@ -1,12 +1,12 @@
 "use client";
 import { SnackbarProvider } from "notistack";
 
-export default function Providers({ children }) {
+export default function Providers({ children, maxSnack = 3, vertical = "top", horizontal="center", duration }) {
   return (
     <SnackbarProvider
-      maxSnack={3}
-      autoHideDuration={3000}
-      anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
+      maxSnack={maxSnack}
+      autoHideDuration={false}
+      anchorOrigin={{ vertical: vertical, horizontal: horizontal }}
     >
       {children}
     </SnackbarProvider>
