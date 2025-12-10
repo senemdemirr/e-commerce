@@ -222,6 +222,46 @@
                     }
                 }
             }
+        },
+        "/api/favorites/{id}": {
+            "delete": {
+                "summary": "Delete favorite",
+                "description": "Deletes a favorite by its id",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "id",
+                        "required": true,
+                        "schma": {
+                            "type": "object"
+                        },
+                        "description": "Favorite id"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Delete favorite is successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "message": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Favorite not found"
+                    },
+                    "500": {
+                        "description": "Server Error"
+                    }
+                }
+            }
         }
     },
     "components": {
