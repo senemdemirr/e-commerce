@@ -2,7 +2,7 @@ import { pool } from "@/db";
 
 export async function DELETE(request, { params }) {
     try {
-        const { id } = params;
+        const { id } = await params;
         if (!id) {
             return Response.json(
                 { message: "Favorite not found" },
@@ -10,19 +10,22 @@ export async function DELETE(request, { params }) {
             )
         }
         const existing = await pool.query("SELECT * FROM favorites WHERE id = $1", [id]);
+
         if (!existing.rows.length === 0) {
             return Response.json(
                 { message: "Favorite not found" },
                 { status: 404 }
             )
         }
+        else {
+            await pool.query("DELETE FROM favorites WHERE id = $1", [id]);
 
-        await pool.query("DELETE FROM favorites WHERE id = $1", [id]);
+            return Response.json(
+                { message: "Favorite deleted" },
+                { status: 200 }
+            )
+        }
 
-        return Response.json(
-            { message: "Favorite deleted" },
-            { status: 200 }
-        )
 
 
     } catch (error) {

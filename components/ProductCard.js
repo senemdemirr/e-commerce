@@ -20,8 +20,14 @@ export default function ProductCard({ product }) {
         e.preventDefault();
         setIsFavorite(!isFavorite);
     }
-    function deleteFavorite(e) {
+    async function deleteFavorite(e) {
         e.preventDefault();
+        const res = await fetch(`/api/favorites/${product.favorite_id}`,{
+            method:"DELETE"
+        });
+        if(!res.ok){
+            console.log("hata");
+        }
     }
     return (
         <Link prefetch={false}
