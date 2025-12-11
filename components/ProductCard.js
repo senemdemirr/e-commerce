@@ -5,7 +5,7 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { usePathname } from 'next/navigation';
-export default function ProductCard({ product }) {
+export default function ProductCard({ product, onDeleteFavorite }) {
     const pathname = usePathname();
     const [isFavorite, setIsFavorite] = useState(false);
     const href = `/${product.categorySlug}/${product.subCategorySlug}/${product.sku}`;
@@ -22,11 +22,14 @@ export default function ProductCard({ product }) {
     }
     async function deleteFavorite(e) {
         e.preventDefault();
-        const res = await fetch(`/api/favorites/${product.favorite_id}`,{
-            method:"DELETE"
+        const res = await fetch(`/api/favorites/${product.favorite_id}`, {
+            method: "DELETE"
         });
-        if(!res.ok){
+        if (!res.ok) {
             console.log("hata");
+        }
+        if (onDeleteFavorite) {
+            onDeleteFavorite(product.id);
         }
     }
     return (

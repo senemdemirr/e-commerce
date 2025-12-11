@@ -18,7 +18,7 @@ export default async function FavoritesPage() {
 
     return (
         <Suspense fallback={null}>
-            <ProductList products={products} isFavorite={true}></ProductList>
+            <ProductList products={products} isFavoritePage={true}></ProductList>
         </Suspense>
     );
 }
