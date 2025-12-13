@@ -4,9 +4,10 @@ import CloseIcon from '@mui/icons-material/Close';
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 export default function ProductCard({ product, onDeleteFavorite }) {
     const pathname = usePathname();
+    const router = useRouter();
     const [isFavorite, setIsFavorite] = useState(false);
     const href = `/${product.categorySlug}/${product.subCategorySlug}/${product.sku}`;
     useEffect(() => {
@@ -30,6 +31,7 @@ export default function ProductCard({ product, onDeleteFavorite }) {
         }
         if (onDeleteFavorite) {
             onDeleteFavorite(product.id);
+            router.refresh();
         }
     }
     return (
