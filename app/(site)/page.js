@@ -1,9 +1,13 @@
-import dataFromApi from "@/lib/data/data.json";
-import { flattenProducts } from "@/utils/flattenProducts";
 import ProductList from "@/components/ProductList";
+import { apiFetch } from "@/lib/apiFetch/fetch";
 import { Suspense } from "react";
-export default function Home() {
-  const products = flattenProducts(dataFromApi);
+
+async function fetchProducts(){
+  return await apiFetch(`/api/products`);
+}
+
+export default async function Home() {
+  const products = await fetchProducts();
   return (
     <>
       <Suspense fallback={null}>
