@@ -1,11 +1,9 @@
 "use client";
 import ProductCard from "./ProductCard";
-import { useSearchParams, useRouter, usePathname } from "next/navigation";
+import { useSearchParams} from "next/navigation";
 import { useMemo, useState } from "react";
 
-export default function ProductList({ products, isFavoritePage = false }) {
-    const pathname = usePathname();
-    const router = useRouter();
+export default function ProductList({ products, isFavoritePage = false}) {
     const searchParams = useSearchParams();
     const query = searchParams.get("query") || "";
     const queryValue = query.trim().toLocaleLowerCase('tr');
