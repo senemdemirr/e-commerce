@@ -1,8 +1,10 @@
 "use client"
 import Link from "next/link";
 import PersonIcon from '@mui/icons-material/Person2Outlined';
+import { useUser } from "@/context/UserContext";
 
-export default function AuthMenu({ user }) {
+export default function AuthMenu() {
+    const user = useUser();
     return (
         <>
             <ul className="px-4 py-2 flex">
