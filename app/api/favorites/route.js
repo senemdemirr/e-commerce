@@ -22,9 +22,14 @@ export async function GET(request) {
 export async function POST(request) {
     try {
         const body = await request.json();
-        const { user_id, product_id } = body;
-        await pool.query("INSERT INTO favorites(user_id,product_id) VALUES($1,$2)",[user_id,product_id]);
-        
+        const { user_id, product_id, favorite } = body;
+        if (favorite) {
+            await pool.query("INSERT INTO favorites(user_id,product_id) VALUES($1,$2)", [user_id, product_id]);
+        }
+        else{
+            await pool.query("DELETE FROM favorites WHERE user_id = $1 AND product_id = $2", [user_id,product_id]);
+        }
+
         return Response.json({ message: "Succesfully" }, { status: 200 });
     } catch (error) {
         console.log("/api/favorites POST error: ", error);
