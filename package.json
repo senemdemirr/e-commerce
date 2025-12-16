@@ -23,8 +23,8 @@
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "react-hook-form": "^7.60.0",
-    "swagger-ui-dist": "^5.30.3",
-    "swagger-ui-react": "^5.30.3"
+    "swagger-ui-dist": "^5.31.0",
+    "swagger-ui-react": "^5.31.0"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",
