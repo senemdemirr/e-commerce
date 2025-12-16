@@ -34,7 +34,6 @@ export default function ProductCard({ product, onDeleteFavorite }) {
                 })
             });
             const data = await res.json();
-            console.log(data);
 
     }
     async function deleteFavorite(e) {
