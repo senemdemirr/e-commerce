@@ -5,7 +5,10 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { usePathname, useRouter } from 'next/navigation';
+import { useUser } from '@/context/UserContext';
+
 export default function ProductCard({ product, onDeleteFavorite }) {
+    const user = useUser();
     const pathname = usePathname();
     const router = useRouter();
     const [isFavorite, setIsFavorite] = useState(false);
@@ -16,10 +19,27 @@ export default function ProductCard({ product, onDeleteFavorite }) {
         }
     }, [pathname]);
 
-
-    function updateFavorite(e) {
+    async function updateFavorite(e) {
         e.preventDefault();
         setIsFavorite(!isFavorite);
+        if (isFavorite == false) {
+            const res = await fetch(`/api/favorites`, {
+                method: 'POST',
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    product_id: product.id,
+                    user_id: user.id
+                })
+            });
+            const data = await res.json();
+            console.log(data);
+
+        }
+        else {
+            deleteFavorite(e);
+        }
     }
     async function deleteFavorite(e) {
         e.preventDefault();

@@ -19,3 +19,18 @@ export async function GET(request) {
         )
     }
 }
+export async function POST(request) {
+    try {
+        const body = await request.json();
+        const { user_id, product_id } = body;
+        await pool.query("INSERT INTO favorites(user_id,product_id) VALUES($1,$2)",[user_id,product_id]);
+        
+        return Response.json({ message: "Succesfully" }, { status: 200 });
+    } catch (error) {
+        console.log("/api/favorites POST error: ", error);
+        return Response.json(
+            { message: "Something went wrong" },
+            { status: 500 }
+        )
+    }
+}
