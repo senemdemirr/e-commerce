@@ -141,7 +141,7 @@
                 "parameters": [
                     {
                         "in": "query",
-                        "name": "user",
+                        "name": "userId",
                         "required": true,
                         "schema": {
                             "type": "string",
