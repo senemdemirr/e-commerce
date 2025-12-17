@@ -32,6 +32,9 @@ a {
   color: inherit;
   text-decoration: none;
 }
+.swagger-ui{
+  padding: 10px !important;
+}
 
 @media (prefers-color-scheme: dark) {
   html {
