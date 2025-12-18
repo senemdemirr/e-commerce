@@ -20,15 +20,15 @@ export default function AuthMenu() {
                             ) 
                             : 
                             (
-                                <Link href={"/auth/login"} className="block px-4 py-2 text-sm hover:bg-gray-100"> Sign in
-                                </Link>
+                                <a href="/auth/login" className="block px-4 py-2 text-sm hover:bg-gray-100"> Sign in
+                                </a>
                             )}
                         </li>
                         {user ? 
                         (
-                            <Link href={"/auth/logout"} className="block px-4 py-2 text-sm hover:bg-gray-100">
+                            <a href="/auth/logout" className="block px-4 py-2 text-sm hover:bg-gray-100">
                                 Log Out
-                            </Link>
+                            </a>
                         ) 
                         : 
                         (
