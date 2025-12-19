@@ -1,52 +1,55 @@
 import Image from "next/image";
 import Link from "next/link";
-import SearchInput from "./SearchInput";
-import Navbar from "./Navbar";
+import SearchInput from "@/components/SearchInput";
+import Navbar from "@/components/Navbar";
 import { Button } from "@mui/material";
-import FavoriteBorderOutlinedIcon from '@mui/icons-material/FavoriteBorderOutlined';
+import FavoriteBorderOutlinedIcon from "@mui/icons-material/FavoriteBorderOutlined";
 import ShoppingCartOutlinedIcon from '@mui/icons-material/ShoppingCartOutlined';
-import AuthMenu from "./AuthMenu";
+import AuthMenu from "@/components/AuthMenu";
+import { getOrCreateUserFromSession } from "@/lib/users";
 
-export default function Header(){
+export default async function Header() {
+    const user = await getOrCreateUserFromSession();
+    const favoritesHref = user ? "/favorites" : "/auth/login";
     return (
-       <div className="container w-full mx-auto flex flex-col">
-         <div className="bg-transparent flex flex-row justify-between items-center">
-            <Link href="/" passHref>
-                <Image
-                    src="/e-commerce_logo.png"
-                    alt="E-Commerce Logo"
-                    width={200}
-                    height={50}
-                    className="cursor-pointer"
-                    priority
-                />
-            </Link>
-            <SearchInput />
-            <div className="flex flex-row justify-center items-center">
-                <AuthMenu />
-                {/* I used button inside Link for style and icon 
+        <div className="container w-full mx-auto flex flex-col">
+            <div className="bg-transparent flex flex-row justify-between items-center">
+                <Link href="/" passHref>
+                    <Image
+                        src="/e-commerce_logo.png"
+                        alt="E-Commerce Logo"
+                        width={200}
+                        height={50}
+                        className="cursor-pointer"
+                        priority
+                    />
+                </Link>
+                <SearchInput />
+                <div className="flex flex-row justify-center items-center">
+                    <AuthMenu />
+                    {/* I used button inside Link for style and icon 
                   passHref passes href information to the button
                 */}
+                        <a href={favoritesHref}>
+                            <Button
+                                className="!text-gray-600 px-4 py-2 rounded hover:!bg-transparent mr-2"
+                                startIcon={<FavoriteBorderOutlinedIcon />}
+                            >
+                                My Favorites
+                            </Button>
+                        </a>
 
-                <Link href="/favorites" passHref>
-                    <Button
-                        className="!text-gray-600 px-4 py-2 rounded hover:!bg-transparent mr-2 border-none cursor-pointer"
-                        startIcon={<FavoriteBorderOutlinedIcon />}
-                    >
-                        My Favorite
-                    </Button>
-                </Link>
-                <Link href="/basket" passHref>
-                    <Button
-                        className="!text-gray-600 px-4 py-2 rounded hover:!bg-transparent border-none cursor-pointer"
-                        startIcon={<ShoppingCartOutlinedIcon />}
-                    >
-                        My Basket
-                    </Button>
-                </Link>
+                    <Link href="/basket" passHref>
+                        <Button
+                            className="!text-gray-600 px-4 py-2 rounded hover:!bg-transparent border-none cursor-pointer"
+                            startIcon={<ShoppingCartOutlinedIcon />}
+                        >
+                            My Basket
+                        </Button>
+                    </Link>
+                </div>
             </div>
-        </div> 
-        <Navbar />
-       </div>   
+            <Navbar />
+        </div>
     );
 }
