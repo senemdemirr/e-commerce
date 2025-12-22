@@ -42,3 +42,7 @@ next-env.d.ts
 
 
 /db.js
+/tmp.json
+/convert.js
+/importDb_cities.js
+/output.json
