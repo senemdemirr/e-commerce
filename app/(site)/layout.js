@@ -14,8 +14,9 @@ export default async function SiteLayout({ children }) {
         user = res;
     }
     return (
-        <>
-            <UserProvider user={user}>
+
+        <UserProvider user={user}>
+            <div className="min-h-screen flex flex-col">
                 <Suspense fallback={null}>
                     <Header />
                 </Suspense>
@@ -27,14 +28,15 @@ export default async function SiteLayout({ children }) {
                             :
                             ("")
                     }
-                    <main className="bg-[#F6F7F7]">
+                    <main className="bg-[#F6F7F7] flex-1">
                         <Auth0Provider>
                             {children}
                         </Auth0Provider>
                     </main>
                 </Providers>
                 <Footer />
-            </UserProvider >
-        </>
+            </div>
+        </UserProvider >
+
     )
 }
