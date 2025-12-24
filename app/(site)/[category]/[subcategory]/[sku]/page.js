@@ -3,6 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import AddShoppingCartIcon from '@mui/icons-material/AddShoppingCart';
 import { apiFetch } from "@/lib/apiFetch/fetch";
+import Image from "next/image";
 
 async function fetchProductBySku(sku) {
     return await apiFetch(`/api/products/${sku}`);
@@ -27,8 +28,15 @@ export default async function ProductDetailPage({ params }) {
                 <span className="text-gray-700"> /{product.sku} </span>
             </nav>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                <div className="bg-gray-50 p-4 rounded-lg flex items-center justify-center">
-                    <img src={product.image} alt={product.title} className="max-h-96 object-contain" />
+                <div className=" p-4 rounded-lg flex items-center justify-center">
+                    <Image
+                        src={product.image}
+                        alt={product.title}
+                        className="max-h-full object-cover"
+                        width={300}
+                        height={300}
+                        loading='lazy'
+                    />
                 </div>
                 <div>
                     <h1 className="text-3xl font-bold mb-2">{product.title}</h1>
