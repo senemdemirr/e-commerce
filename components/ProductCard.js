@@ -22,6 +22,7 @@ export default function ProductCard({ product, onDeleteFavorite }) {
     async function updateFavorite(e) {
         e.preventDefault();
         setIsFavorite(!isFavorite);
+        if(!user) return;
             const res = await fetch(`/api/favorites`, {
                 method: 'POST',
                 headers: {
