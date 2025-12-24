@@ -21,7 +21,7 @@ export default function SearchInput() {
 
 
    return (
-      <form onSubmit={onSubmit} role="search" className="w-full max-w-md border-gray-300 border-1 rounded-sm px-2 py-1 shadow-none ">
+      <form onSubmit={onSubmit} role="search" className="w-full max-w-md border-gray-300 px-2 py-1 pl-4 shadow-none rounded-full bg-[#f1f3f2] placeholder:text-[#6d7e73]">
          <Input
             type="search"
             placeholder="Search products..."

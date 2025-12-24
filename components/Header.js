@@ -12,13 +12,13 @@ export default async function Header() {
     const user = await getOrCreateUserFromSession();
     const favoritesHref = user ? "/favorites" : "/auth/login";
     return (
-        <div className="container w-full mx-auto flex flex-col">
-            <div className="bg-transparent flex flex-row justify-between items-center">
+        <div className=" w-full flex flex-col">
+            <div className="container mx-auto bg-transparent flex flex-row justify-between items-center">
                 <Link href="/" passHref>
                     <Image
-                        src="/e-commerce_logo.png"
+                        src="/e-commerce_logo.jpg"
                         alt="E-Commerce Logo"
-                        width={200}
+                        width={130}
                         height={50}
                         className="cursor-pointer"
                         priority
