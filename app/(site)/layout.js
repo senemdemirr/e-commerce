@@ -28,7 +28,7 @@ export default async function SiteLayout({ children }) {
                             :
                             ("")
                     }
-                    <main className="bg-[#F6F7F7] flex-1">
+                    <main className="bg-[#F6F7F7] flex-1 pb-[53px]">
                         <Auth0Provider>
                             {children}
                         </Auth0Provider>
