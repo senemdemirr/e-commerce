@@ -17,7 +17,7 @@ export default async function SiteLayout({ children }) {
         <>
             <UserProvider user={user}>
                 <Suspense fallback={null}>
-                    <Header/>
+                    <Header />
                 </Suspense>
                 <Providers>
                     {
@@ -27,14 +27,14 @@ export default async function SiteLayout({ children }) {
                             :
                             ("")
                     }
-                    <main className="container mx-auto">
+                    <main className="bg-[#F6F7F7]">
                         <Auth0Provider>
                             {children}
                         </Auth0Provider>
                     </main>
                 </Providers>
                 <Footer />
-            </UserProvider>
+            </UserProvider >
         </>
     )
 }
