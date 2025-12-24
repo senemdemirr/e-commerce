@@ -57,7 +57,7 @@ export default function ProductCard({ product, onDeleteFavorite }) {
                     <Image
                         src={product.image}
                         alt={product.title}
-                        className="h-64 w-full object-contain bg-white p-2"
+                        className="h-full w-full bg-white"
                         loading='lazy'
                         width={300}
                         height={300}
