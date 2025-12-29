@@ -15,7 +15,7 @@ export default function AuthMenu() {
                     <ul className="invisible absolute left-0 top-full z-50 mt-2 w-48 rounded-md bg-white shadow-lg opacity-0 transition-all duration-150 group-hover:visible group-hover:opacity-100">
                         <li>
                             {user ? (
-                                <Link href={"/my-profile"} className="block px-4 py-2 text-sm hover:bg-gray-100"> My Profile
+                                <Link href={"/my-profile/user-information"} className="block px-4 py-2 text-sm hover:bg-gray-100"> My Profile
                                 </Link>
                             ) 
                             : 
