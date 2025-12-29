@@ -1,4 +1,4 @@
-import ProfileSidebar from "@/components/ProfileSidebar/ProfileSidebar";
+import ProfileSidebar from "./components/ProfileSidebar/ProfileSidebar";
 import { UserProvider } from "@/context/UserContext";
 import { getOrCreateUserFromSession } from "@/lib/users";
 
