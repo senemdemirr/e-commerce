@@ -23,6 +23,7 @@
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "react-hook-form": "^7.60.0",
+    "sass": "^1.97.1",
     "swagger-ui-dist": "^5.31.0",
     "swagger-ui-react": "^5.31.0"
   },
