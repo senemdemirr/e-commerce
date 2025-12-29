@@ -1,0 +1,57 @@
+.page {
+
+    font-family: 'Work Sans', sans-serif !important;
+    font-weight: 500 !important;
+
+    span,
+    p,
+    button ,h6{
+        font-family: inherit;
+    }
+
+    .listItem {
+        color: #6D7E73;
+
+        &:first-child {
+            border-radius: 12px 12px 0px 0px;
+        }
+
+        &:last-child {
+            border-radius: 0px 0px 12px 12px;
+        }
+
+        &.active {
+
+            background-color: rgb(141 200 161 / 0.1);
+            color: #131614;
+
+            &::before {
+                content: "";
+                position: absolute;
+                left: 0;
+                top: 0;
+                height: 100%;
+                border-left: 4px solid rgb(141 200 161);
+
+            }
+
+        }
+
+        &:hover {
+            span {
+                color: #131614;
+            }
+
+            .icon {
+                svg {
+                    color: #8DC8A1;
+                }
+            }
+        }
+
+        span {
+            font-family: inherit;
+            font-weight: 500 !important;
+        }
+    }
+}
