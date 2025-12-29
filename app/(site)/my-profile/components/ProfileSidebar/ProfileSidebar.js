@@ -48,9 +48,9 @@ export default function ProfileSidebar() {
                     )
                 })}
             </List>
-            <Link className="flex flex-row cursor-pointer">
+            <Link className="flex flex-row cursor-pointer !text-[#131614] !mt-8 justify-center !no-underline">
                 <LogoutIcon></LogoutIcon>
-                <Typography>Log Out</Typography>
+                <Typography className="!ml-2 !font-extrabold">Log Out</Typography>
             </Link>
         </Box>
     );
