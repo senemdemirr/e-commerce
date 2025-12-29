@@ -31,6 +31,9 @@ a {
 .swagger-ui{
   padding: 10px !important;
 }
+.MuiButtonBase-root{
+  font-family: inherit !important;
+}
 
 @media (prefers-color-scheme: dark) {
   html {
