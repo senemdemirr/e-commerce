@@ -1,34 +1,37 @@
 "use client";
 import { Button } from "@mui/base";
-import {
-    InputAdornment,
-    FormControl,
-    OutlinedInput,
-    FormLabel,
-    FormHelperText,
-} from "@mui/material";
-import { useForm, Controller } from "react-hook-form";
+import { InputAdornment, FormControl, OutlinedInput, FormLabel, FormHelperText } from "@mui/material";
+import { useForm } from "react-hook-form";
 import MailOutlineIcon from "@mui/icons-material/Mail";
 import PhoneIphoneIcon from "@mui/icons-material/PhoneIphone";
 import { useEffect } from "react";
+import { useUser } from "@/context/UserContext";
 
 export default function UserInfo() {
+    const user = useUser();
+
     const maxInputCharacter = 100;
     const maxInputErrorMessage = "Max 100 characters";
-    const phoneRegex = "/^\d*$/";
+    const phoneRegex = /^\d*$/;
     const phoneErrorMessage = "Only numbers are allowed"
     const phoneMaxLength = 11;
-    const {
-        register,
-        handleSubmit,
-        control,
-        formState: { errors },
-    } = useForm();
 
+    const { register, handleSubmit, reset, formState: { errors } } = useForm();
+
+    useEffect(() => {
+        if (user) {
+            reset({
+                name: user.name,
+                surname: user.surname,
+                email: user.email,
+                phone: user.phone
+            });
+        }
+    }, [user, reset]);
+    
     const onSubmit = (data) => {
         console.log(data);
     };
-    
 
     return (
         <form onSubmit={handleSubmit(onSubmit)} className="w-full pr-10">
@@ -44,7 +47,6 @@ export default function UserInfo() {
                             },
                         })}
                         size="small"
-                        value={"Senem"}
                         className="w-full !rounded-xl border-gray-200 focus:!border-[#8DC8A1] p-1 !text-[#131614] !text-sm"
                     />
                     <FormHelperText>{errors.name?.message}</FormHelperText>
@@ -71,13 +73,13 @@ export default function UserInfo() {
                 <FormLabel className="!text-[#131614] !text-sm !font-bold my-2">E-mail</FormLabel>
                 <OutlinedInput
                     disabled
+                    {...register("email")}
                     startAdornment={
                         <InputAdornment position="start">
                             <MailOutlineIcon sx={{ color: "#9CA3AF" }} />
                         </InputAdornment>
                     }
                     size="small"
-
                     className="bg-[#F9FAFB] w-full !rounded-xl border-gray-200 p-1 !text-[#131614] !text-sm"
                 />
             </FormControl>
