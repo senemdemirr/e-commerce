@@ -28,7 +28,7 @@ export default function UserInfo() {
             });
         }
     }, [user, reset]);
-    
+
     const onSubmit = (data) => {
         console.log(data);
     };
@@ -112,7 +112,7 @@ export default function UserInfo() {
                 <FormHelperText>{errors.phone?.message}</FormHelperText>
             </FormControl>
 
-            <Button type="submit" className="mt-4 w-auto px-8 h-12 rounded-lg font-bold flex items-center justify-center gap-2 bg-[#8DC8A1] text-white">Save</Button>
+            <Button type="submit" className="cursor-pointer mt-4 w-auto px-8 h-12 rounded-lg font-bold flex items-center justify-center gap-2 bg-[#8DC8A1] text-white">Save</Button>
         </form>
     );
 }
