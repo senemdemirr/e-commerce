@@ -286,6 +286,33 @@
                     }
                 ]
             }
+        },
+        "/api/my-profile/user-information": {
+            "put": {
+                "summary": "Update my profile",
+                "description": "Updates the user information",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/UserInformation"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Profile updated"
+                    },
+                    "400": {
+                        "description": "Validation error"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    }
+                }
+            }
         }
     },
     "components": {
@@ -359,6 +386,23 @@
                     },
                     "product_id": {
                         "type": "integer"
+                    }
+                }
+            },
+            "UserInformation": {
+                "type": "object",
+                "properties": {
+                    "name": {
+                        "type": "string",
+                        "maxLength": 100
+                    },
+                    "surname": {
+                        "type": "string",
+                        "maxLength": 100
+                    },
+                    "phone": {
+                        "type": "string",
+                        "pattern": "^[0-9]{0,11}$"
                     }
                 }
             }
