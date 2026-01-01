@@ -21,7 +21,7 @@ export default function ProfileSidebar() {
     return (
         <Box component="aside" className={`flex flex-col w-72 ${styles.page}`}>
             <Box className="bg-white min-h-48 rounded-xl p-6 shadow-sm border !border-gray-100 flex flex-col items-center text-center justify-center">
-                <Typography variant="h6" className="text-[#131614] text-lg !font-semibold">{user?.name}</Typography>
+                <Typography variant="h6" className="text-[#131614] text-lg !font-semibold">{user?.name} {user?.surname}</Typography>
                 <Typography className="text-[#6D7E73] !text-sm">{user?.email}</Typography>
             </Box>
             <List className="!mt-4 !p-0 bg-white rounded-xl shadow-sm border !border-gray-100 flex flex-col">
