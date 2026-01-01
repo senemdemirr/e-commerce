@@ -19,7 +19,7 @@ export default function ProfileSidebar() {
     const pathname = usePathname();
 
     return (
-        <Box component="aside" className={`flex flex-col w-72 ${styles.page}`}>
+        <Box component="aside" className={`flex flex-col lg-w-72 md-w-full ${styles.page}`}>
             <Box className="bg-white min-h-48 rounded-xl p-6 shadow-sm border !border-gray-100 flex flex-col items-center text-center justify-center">
                 <Typography variant="h6" className="text-[#131614] text-lg !font-semibold">{user?.name} {user?.surname}</Typography>
                 <Typography className="text-[#6D7E73] !text-sm">{user?.email}</Typography>

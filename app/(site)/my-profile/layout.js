@@ -10,9 +10,9 @@ export default async function MyProfileLayout({ children }) {
     }
     return (
         <UserProvider user={user}>
-            <div className="container flex flex-row w-full mx-auto py-8 justify-between">
+            <div className="container flex lg:flex-row flex-col w-full mx-auto py-8 justify-between">
                 <ProfileSidebar></ProfileSidebar>
-                <div className="container bg-white rounded-xl shadow-sm border !border-gray-100 flex-1 ml-8 ">
+                <div className="container bg-white rounded-xl shadow-sm border !border-gray-100 flex-1 lg:ml-8 ">
                     {children}
                 </div>
             </div>
