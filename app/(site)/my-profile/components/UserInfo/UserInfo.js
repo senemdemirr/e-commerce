@@ -29,8 +29,22 @@ export default function UserInfo() {
         }
     }, [user, reset]);
 
-    const onSubmit = (data) => {
-        console.log(data);
+    const onSubmit = async (data) => {
+        const res = await fetch("/api/my-profile/user-information",{
+            method:"PUT",
+            headers:{"Content-Type":"application/json"},
+            body:JSON.stringify({
+                name:data.name,
+                surname:data.surname,
+                phone:data.phone
+            })
+        });
+        const dataJson = await res?.json();
+        if(!res.ok){
+            console.log("Error",dataJson);
+            return;
+        }
+        console.log("Updated user",dataJson);
     };
 
     return (
@@ -112,7 +126,7 @@ export default function UserInfo() {
                 <FormHelperText>{errors.phone?.message}</FormHelperText>
             </FormControl>
 
-            <Button type="submit" className="cursor-pointer mt-4 w-auto px-8 h-12 rounded-lg font-bold flex items-center justify-center gap-2 bg-[#8DC8A1] text-white">Save</Button>
+            <Button type="submit" className="cursor-pointer mt-4 w-auto px-8 h-12 rounded-lg font-bold flex items-center justify-center gap-2 bg-[#8DC8A1] text-white hover:!bg-[#7AB38D]">Save</Button>
         </form>
     );
 }
