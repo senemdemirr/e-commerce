@@ -17,10 +17,15 @@ const menuItems = [
 export default function ProfileSidebar() {
     const user = useUser();
     const pathname = usePathname();
+    const firstOfName = user?.name?.charAt(0);
+    const firstOfSurname = user?.surname?.charAt(0);
 
     return (
         <Box component="aside" className={`flex flex-col lg-w-72 md-w-full ${styles.page}`}>
             <Box className="bg-white min-h-48 rounded-xl p-6 shadow-sm border !border-gray-100 flex flex-col items-center text-center justify-center">
+                <Box className="bg-[#F0B48C] w-20 h-20 flex items-center justify-center rounded-full border-4 border-[#f1f3f2]">
+                    <Typography className="text-white !text-2xl !font-bold">{firstOfName}{firstOfSurname}</Typography>
+                </Box>
                 <Typography variant="h6" className="text-[#131614] text-lg !font-semibold">{user?.name} {user?.surname}</Typography>
                 <Typography className="text-[#6D7E73] !text-sm">{user?.email}</Typography>
             </Box>
