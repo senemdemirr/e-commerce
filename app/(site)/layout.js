@@ -6,6 +6,7 @@ import { Suspense } from "react";
 import { getOrCreateUserFromSession } from "@/lib/users";
 import EmailVerified from "@/components/EmailVerified";
 import Providers from "../providers";
+import Breadcrumbs from "@/components/Breadcrumbs";
 
 export default async function SiteLayout({ children }) {
     const res = await getOrCreateUserFromSession();
@@ -29,6 +30,7 @@ export default async function SiteLayout({ children }) {
                             ("")
                     }
                     <main className="bg-[#F6F7F7] flex-1 pb-[53px]">
+                        <Breadcrumbs></Breadcrumbs>
                         <Auth0Provider>
                             {children}
                         </Auth0Provider>
