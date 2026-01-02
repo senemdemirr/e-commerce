@@ -8,7 +8,7 @@ export async function PUT(request) {
 
     try {
         if (!session.user) {
-            return NextResponse.json(
+            return Response.json(
                 { message: "Unauthorized" },
                 { status: 401 }
             )
@@ -19,12 +19,12 @@ export async function PUT(request) {
         
         const result = await pool.query("UPDATE users SET name=$1,surname=$2,phone=$3 WHERE auth0_sub=$4 RETURNING *", [name, surname, phone, user.sub]);
         
-        return NextResponse.json(result.rows[0],{ status: 200 });
+        return Response.json(result.rows[0],{ status: 200 });
 
     }
     catch (error) {
         console.log("/api/my-profile/user-information error: ", error);
-        return NextResponse.json(
+        return Response.json(
             { message: "Something went wrong" },
             { status: 500 }
         )
