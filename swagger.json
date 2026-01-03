@@ -314,7 +314,7 @@
                 }
             }
         },
-         "/api/my-profile/user-adresses": {
+         "/api/my-profile/my-adresses": {
             "get": {
                 "summary": "get all adresses",
                 "parameters": [
