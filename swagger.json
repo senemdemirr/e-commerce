@@ -323,7 +323,7 @@
                         "name": "userId",
                         "required": true,
                         "schema": {
-                            "type": "string",
+                            "type": "integer",
                             "minimum": 1
                         },
                         "description": "User Id"
