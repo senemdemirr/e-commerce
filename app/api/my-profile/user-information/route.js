@@ -1,7 +1,5 @@
-import { useUser } from "@/context/UserContext";
 import { pool } from "@/db";
 import { auth0 } from "@/lib/auth0";
-import { NextResponse } from "next/server";
 
 export async function PUT(request) {
     const session = await auth0.getSession();
