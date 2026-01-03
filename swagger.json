@@ -314,7 +314,7 @@
                 }
             }
         },
-         "/api/my-profile/my-addresses": {
+        "/api/my-profile/my-addresses": {
             "get": {
                 "summary": "get all adresses",
                 "parameters": [
@@ -351,11 +351,11 @@
                                             "recipient_last_name": {
                                                 "type": "string"
                                             },
-                                            "recipient_phone":{
-                                                "type":"string"
+                                            "recipient_phone": {
+                                                "type": "string"
                                             },
-                                            "address_line":{
-                                                "type":"string"
+                                            "address_line": {
+                                                "type": "string"
                                             }
                                         }
                                     }
@@ -363,11 +363,105 @@
                             }
                         }
                     },
-                    "401":{
-                        "description":"Unauthorized"
+                    "401": {
+                        "description": "Unauthorized"
                     },
-                    "500":{
-                        "description":"Server Error"
+                    "500": {
+                        "description": "Server Error"
+                    }
+                }
+            },
+            "post": {
+                "summary": "added a address",
+                "description": "add a address",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/MyAddress"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successfull"
+                    },
+                    "500": {
+                        "description": "Server Error"
+                    }
+                }
+            }
+        },
+        "/api/my-profile/my-addresses/{id}": {
+            "put": {
+                "summary": "Update an address",
+                "description": "Update an existing address by id",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "id",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "minimum": 1
+                        },
+                        "description": "Address id"
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/MyAddress"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successfull"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    },
+                    "400": {
+                        "description": "Address not found"
+                    },
+                    "500": {
+                        "description": "Server Error"
+                    }
+                }
+            },
+            "delete": {
+                "summary": "delete an address",
+                "description": "delete an address",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "id",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "minimum": 1
+                        },
+                        "description": "Address id"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successfull"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    },
+                    "404": {
+                        "description": "Address not found"
+                    },
+                    "500": {
+                        "description": "Server Error"
                     }
                 }
             }
@@ -461,6 +555,35 @@
                     "phone": {
                         "type": "string",
                         "pattern": "^[0-9]{0,11}$"
+                    }
+                }
+            },
+            "MyAddress": {
+                "type": "object",
+                "properties": {
+                    "address_title": {
+                        "type": "string"
+                    },
+                    "recipient_first_name": {
+                        "type": "string"
+                    },
+                    "recipient_last_name": {
+                        "type": "string"
+                    },
+                    "recipient_phone": {
+                        "type": "string"
+                    },
+                    "address_line": {
+                        "type": "string"
+                    },
+                    "city_id": {
+                        "type": "integer"
+                    },
+                    "district_id": {
+                        "type": "integer"
+                    },
+                    "neighborhood_id": {
+                        "type": "integer"
                     }
                 }
             }
