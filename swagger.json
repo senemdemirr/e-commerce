@@ -313,6 +313,64 @@
                     }
                 }
             }
+        },
+         "/api/my-profile/user-adresses": {
+            "get": {
+                "summary": "get all adresses",
+                "parameters": [
+                    {
+                        "in": "query",
+                        "name": "userId",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "minimum": 1
+                        },
+                        "description": "User Id"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successfull",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "object",
+                                        "properties": {
+                                            "id": {
+                                                "type": "integer"
+                                            },
+                                            "address_title": {
+                                                "type": "string"
+                                            },
+                                            "recipient_first_name": {
+                                                "type": "string"
+                                            },
+                                            "recipient_last_name": {
+                                                "type": "string"
+                                            },
+                                            "recipient_phone":{
+                                                "type":"string"
+                                            },
+                                            "address_line":{
+                                                "type":"string"
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "401":{
+                        "description":"Unauthorized"
+                    },
+                    "500":{
+                        "description":"Server Error"
+                    }
+                }
+            }
         }
     },
     "components": {
