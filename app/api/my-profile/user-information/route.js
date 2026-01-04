@@ -17,7 +17,7 @@ export async function PUT(request) {
         
         const result = await pool.query("UPDATE users SET name=$1,surname=$2,phone=$3 WHERE auth0_sub=$4 RETURNING *", [name, surname, phone, user.sub]);
         
-        return Response.json(result.rows[0],{ status: 200 });
+        return Response.json({message:"Successfully"},{ status: 200 });
 
     }
     catch (error) {
