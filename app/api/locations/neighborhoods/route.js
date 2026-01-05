@@ -1,11 +1,11 @@
 import { pool } from "@/db";
 
 export async function GET(request) {
-    const searchParams = new URL(request.url);
+    const { searchParams } = new URL(request.url);
     const districtId = searchParams.get("districtId");
 
     try {
-        const result = await pool.query("SELECT id,name FROM neighborhood WHERE district_id = $1", [districtId]);
+        const result = await pool.query("SELECT id,name FROM neighborhoods WHERE district_id = $1", [districtId]);
 
         return Response.json(
             result.rows,
