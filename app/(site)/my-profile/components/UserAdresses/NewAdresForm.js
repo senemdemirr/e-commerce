@@ -1,9 +1,8 @@
 "use client";
-import { Button } from "@mui/base";
-import { InputAdornment, FormControl, OutlinedInput, FormLabel, FormHelperText, Autocomplete, TextField } from "@mui/material";
+import {Button, InputAdornment, FormControl, OutlinedInput, FormLabel, FormHelperText, Autocomplete, TextField } from "@mui/material";
 import { Controller, useForm } from "react-hook-form";
 import PhoneIphoneIcon from "@mui/icons-material/PhoneIphone";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useUser } from "@/context/UserContext";
 
 
@@ -16,7 +15,7 @@ export default function NewAdresForm() {
     const phoneErrorMessage = "Only numbers are allowed"
     const phoneMaxLength = 11;
 
-    const { register, handleSubmit, reset, control, watch, formState: { errors } } = useForm({
+    const { register, handleSubmit, control, watch,setValue, formState: { errors } } = useForm({
         defaultValues: {
             city_id: null,
             district_id: null,
