@@ -3,22 +3,25 @@ import { Button, InputAdornment, FormControl, OutlinedInput, FormLabel, FormHelp
 import { Controller, useForm } from "react-hook-form";
 import PhoneIphoneIcon from "@mui/icons-material/PhoneIphone";
 import { useEffect, useState } from "react";
-import { useUser } from "@/context/UserContext";
 import "./form.css";
 import CheckIcon from '@mui/icons-material/Check';
+import { apiFetch } from "@/lib/apiFetch/fetch";
 
 
-export default function NewAdresForm() {
-    const user = useUser();
-
+export default function NewAdresForm({ mode, initialData, onSuccess, onCancel }) {
     const maxInputCharacter = 200;
     const maxInputErrorMessage = "Max 200 characters";
     const phoneRegex = /^\d*$/;
     const phoneErrorMessage = "Only numbers are allowed"
     const phoneMaxLength = 11;
 
-    const { register, handleSubmit, control, watch, setValue, formState: { errors } } = useForm({
+    const { register, handleSubmit, control, watch, reset, formState: { errors } } = useForm({
         defaultValues: {
+            address_title: "",
+            address_line: "",
+            recipient_first_name: "",
+            recipient_last_name: "",
+            recipient_phone: "",
             city_id: null,
             district_id: null,
             neighborhood_id: null,
@@ -73,13 +76,10 @@ export default function NewAdresForm() {
                 setLoadingDistricts(false);
             }
         };
-
-        setValue("district_id", null);
-        setValue("neighborhood_id", null);
         setNeighborhoods([]);
 
         fetchDistricts();
-    }, [selectedCityId, setValue]);
+    }, [selectedCityId]);
 
     useEffect(() => {
         const fetchNeighborhoods = async () => {
@@ -101,32 +101,50 @@ export default function NewAdresForm() {
             }
         };
 
-        setValue("neighborhood_id", null);
-
         fetchNeighborhoods();
-    }, [selectedDistrictId, setValue]);
+    }, [selectedDistrictId]);
+
+    useEffect(() => {
+        if (mode === "edit" && initialData) {
+            reset({
+                address_title: initialData.address_title ?? "",
+                address_line: initialData.address_line ?? "",
+                recipient_first_name: initialData.recipient_first_name ?? "",
+                recipient_last_name: initialData.recipient_last_name ?? "",
+                recipient_phone: initialData.recipient_phone ?? "",
+                city_id: initialData.city_id ?? null,
+                district_id: initialData.district_id ?? null,
+                neighborhood_id: initialData.neighborhood_id ?? null,
+            })
+        }
+        else {
+            reset();
+        }
+    }, [mode, initialData, reset])
+    console.log("initialData", initialData);
 
     const onSubmit = async (data) => {
-        const res = await fetch("/api/my-profile/my-addresses", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-                address_title: data.address_title,
-                recipient_first_name: data.recipient_first_name,
-                recipient_last_name: data.recipient_last_name,
-                recipient_phone: data.recipient_phone,
-                city_id: data.city_id,
-                district_id: data.district_id,
-                neighborhood_id: data.neighborhood_id,
-                address_line: data.address_line
-            })
-        });
-        const dataJson = await res?.json();
-        if (!res.ok) {
-            console.log("Error", dataJson);
-            return;
+        try {
+            if (mode == "create") {
+                const res = await apiFetch("/api/my-profile/my-addresses", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(data)
+                });
+            }
+            else {
+                const res = await apiFetch(`/api/my-profile/my-addresses/${initialData.id}`, {
+                    method: "PUT",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(data)
+                });
+            }
+            onSuccess?.()
         }
-        console.log("Updated user", dataJson);
+        catch (error) {
+            console.log(error);
+        }
+
     };
     return (
         <form onSubmit={handleSubmit(onSubmit)} className="w-full pr-10">
@@ -219,8 +237,8 @@ export default function NewAdresForm() {
                                 loading={loadingCities}
                                 value={cities.find((c) => c.id === field.value) || null}
                                 onChange={(_, option) => field.onChange(option ? option.id : null)}
-                                getOptionLabel={(opt) => opt.name ?? null}
-                                isOptionEqualToValue={(opt, value) => opt.id === value.id}
+                                getOptionLabel={(opt) => opt?.name ?? ""}
+                                isOptionEqualToValue={(opt, value) => opt.id === value?.id}
                                 renderInput={(params) => (
                                     <TextField
                                         {...params}
@@ -266,7 +284,7 @@ export default function NewAdresForm() {
                     <Controller
                         name="neighborhood_id"
                         control={control}
-                        disabled={selectedDistrictId}
+                        disabled={!selectedDistrictId}
                         render={({ field }) => (
                             <Autocomplete
                                 options={neighborhoods}
@@ -288,21 +306,20 @@ export default function NewAdresForm() {
                     />
                 </FormControl>
             </div>
-            <FormControl fullWidth error={!!errors.address_title}>
+            <FormControl fullWidth error={!!errors.address_line}>
                 <FormLabel className="!mb-2 !mt-4">ADDRESS</FormLabel>
                 <OutlinedInput
-                    {...register("address_title", {
-                        required: "Address title is required",
+                    {...register("address_line", {
+                        required: "Address is required",
                         maxLength: {
                             value: maxInputCharacter,
                             message: maxInputErrorMessage,
                         },
                     })}
-                    rows={3}
                     className="w-full !rounded-xl border-gray-200 focus:!border-[#8DC8A1] p-1"
                     placeholder="Street, building number, apartment number and other address details..."
                 />
-                <FormHelperText>{errors.address_title?.message}</FormHelperText>
+                <FormHelperText>{errors.address_line?.message}</FormHelperText>
             </FormControl>
             <Button
                 startIcon={<CheckIcon />}
