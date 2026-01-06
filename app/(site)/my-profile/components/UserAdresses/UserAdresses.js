@@ -12,25 +12,44 @@ import NewAdresForm from "./NewAdresForm";
 export default function UserAdresses() {
     const [addresses, setAddresses] = useState([]);
     const [loading, setLoading] = useState(true);
-    const [openNewAddress, setOpenNewAddress] = useState(false);
+    const [openModal, setOpenModal] = useState(false);
+    const [mode, setMode] = useState("create");
+    const [selectedAddress, setSelectedAddress] = useState(null);
 
-    const handleOpen = () => {
-        setOpenNewAddress(true);
+    const fetchAddresses = async () => {
+        try {
+            const res = await apiFetch("/api/my-profile/my-addresses");
+            setAddresses(res);
+            setLoading(false);
+        } catch (error) {
+            console.log(error);
+        }
+    }
+
+    const handleOpenCreate = () => {
+        setMode("create");
+        setSelectedAddress(null);
+        setOpenModal(true);
+    }
+    const handleOpenEdit = (item) => {
+        setMode("edit");
+        setSelectedAddress(item);
+        setOpenModal(true);
     }
     const handleClose = () => {
-        setOpenNewAddress(false);
+        setMode("create");
+        setSelectedAddress(null);
+        setOpenModal(false);
+    }
+    const handleSuccess = async () => {
+        await fetchAddresses();
+        handleClose();
+    };
+    const handleDelete = async () => {
+
     }
 
     useEffect(() => {
-        const fetchAddresses = async () => {
-            try {
-                const res = await apiFetch("/api/my-profile/my-addresses");
-                setAddresses(res);
-                setLoading(false);
-            } catch (error) {
-                console.log(error);
-            }
-        }
         fetchAddresses();
     }, []);
 
@@ -42,23 +61,28 @@ export default function UserAdresses() {
                     variant="text"
                     startIcon={<AddCircleOutlineIcon />}
                     className="!rounded-lg !text-[#8DC8A1] !font-bold"
-                    onClick={handleOpen}
+                    onClick={handleOpenCreate}
                 >Add new address</Button>
             </div>
             <Dialog
-                open={openNewAddress}
+                open={openModal}
                 onClose={handleClose}
                 fullWidth
                 maxWidth="md"
             >
                 <DialogTitle className="flex flex-row justify-between items-center">
-                    Add new adress
+                    {mode === "create" ? "Add new adress" : "Edit address"}
                     <IconButton onClick={handleClose}>
                         <CloseIcon></CloseIcon>
                     </IconButton>
                 </DialogTitle>
                 <DialogContent >
-                    <NewAdresForm></NewAdresForm>
+                    <NewAdresForm
+                        mode={mode}
+                        initialData={selectedAddress}
+                        onCancel={handleClose}
+                        onSuccess={handleSuccess}
+                    ></NewAdresForm>
                 </DialogContent>
             </Dialog>
             {loading ?
@@ -78,10 +102,14 @@ export default function UserAdresses() {
                                         <Typography className="!ml-2  !font-bold !text-base">{item.address_title}</Typography>
                                     </div>
                                     <div className="flex flex-row opacity-0 group-hover:opacity-100 transition-opacitiy duration-200">
-                                        <div className="cursor-pointer text-[#6D7E73] w-10 h-10 hover:bg-[#8DC8A11A] hover:text-[#8DC8A1] rounded-full flex items-center justify-center">
+                                        <div
+                                            onClick={() => handleOpenEdit(item)}
+                                            className="cursor-pointer text-[#6D7E73] w-10 h-10 hover:bg-[#8DC8A11A] hover:text-[#8DC8A1] rounded-full flex items-center justify-center">
                                             <EditOutlinedIcon />
                                         </div>
-                                        <div className="cursor-pointer text-[#6D7E73] w-10 h-10 hover:bg-red-50 hover:text-red-500 rounded-full flex items-center justify-center">
+                                        <div 
+                                        onClick={() => handleDelete(item)}
+                                        className="cursor-pointer text-[#6D7E73] w-10 h-10 hover:bg-red-50 hover:text-red-500 rounded-full flex items-center justify-center">
                                             <DeleteOutlineOutlinedIcon />
                                         </div>
                                     </div>
