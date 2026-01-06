@@ -121,7 +121,6 @@ export default function NewAdresForm({ mode, initialData, onSuccess, onCancel })
             reset();
         }
     }, [mode, initialData, reset])
-    console.log("initialData", initialData);
 
     const onSubmit = async (data) => {
         try {
