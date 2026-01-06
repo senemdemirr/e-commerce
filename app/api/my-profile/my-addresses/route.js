@@ -24,7 +24,7 @@ export async function GET(request) {
             );
         }
 
-        const result = await pool.query("SELECT ua.id , ua.address_title,ua.address_line,ua.recipient_first_name, ua.recipient_last_name, ua.recipient_phone , n.name as neighborhood_name, d.name as district_name , c.name as city_name FROM user_addresses ua JOIN neighborhoods n ON n.id = ua.neighborhood_id JOIN districts d ON n.district_id = d.id JOIN cities c ON d.city_id = c.id WHERE user_id=$1", [userId]);
+        const result = await pool.query("SELECT ua.id , ua.address_title,ua.address_line,ua.recipient_first_name, ua.recipient_last_name, ua.recipient_phone , n.name as neighborhood_name, n.id as neighborhood_id, d.name as district_name ,d.id as district_id, c.name as city_name,c.id as city_id FROM user_addresses ua JOIN neighborhoods n ON n.id = ua.neighborhood_id JOIN districts d ON n.district_id = d.id JOIN cities c ON d.city_id = c.id WHERE user_id=$1", [userId]);
 
         return Response.json(
             result.rows,
@@ -51,11 +51,11 @@ export async function POST(request) {
                 { status: 401 }
             )
         }
-        await pool.query("INSERT INTO user_addresses(user_id,recipient_first_name, recipient_last_name, recipient_phone,city_id,district_id,neighborhood_id,address_title,address_line) VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9)",[userId,recipient_first_name,recipient_last_name,recipient_phone,city_id,district_id,neighborhood_id,address_title,address_line]);
+        await pool.query("INSERT INTO user_addresses(user_id,recipient_first_name, recipient_last_name, recipient_phone,city_id,district_id,neighborhood_id,address_title,address_line) VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9)", [userId, recipient_first_name, recipient_last_name, recipient_phone, city_id, district_id, neighborhood_id, address_title, address_line]);
 
         return Response.json(
-            {message:"Successfully"},
-            {status:200}
+            { message: "Successfully" },
+            { status: 200 }
         )
 
     } catch (error) {
