@@ -1,14 +1,16 @@
 "use client";
-import { InputAdornment, FormControl, OutlinedInput, FormLabel, FormHelperText, Button} from "@mui/material";
+import { InputAdornment, FormControl, OutlinedInput, FormLabel, FormHelperText, Button } from "@mui/material";
 import { useForm } from "react-hook-form";
 import MailOutlineIcon from "@mui/icons-material/Mail";
 import PhoneIphoneIcon from "@mui/icons-material/PhoneIphone";
 import { useEffect } from "react";
 import { useUser } from "@/context/UserContext";
+import { useSnackbar } from "notistack";
+
 
 export default function UserInfo() {
     const user = useUser();
-
+    const { enqueueSnackbar } = useSnackbar();
     const maxInputCharacter = 100;
     const maxInputErrorMessage = "Max 100 characters";
     const phoneRegex = /^\d*$/;
@@ -29,21 +31,22 @@ export default function UserInfo() {
     }, [user, reset]);
 
     const onSubmit = async (data) => {
-        const res = await fetch("/api/my-profile/user-information",{
-            method:"PUT",
-            headers:{"Content-Type":"application/json"},
-            body:JSON.stringify({
-                name:data.name,
-                surname:data.surname,
-                phone:data.phone
+        const res = await fetch("/api/my-profile/user-information", {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                name: data.name,
+                surname: data.surname,
+                phone: data.phone
             })
         });
         const dataJson = await res?.json();
-        if(!res.ok){
-            console.log("Error",dataJson);
+        enqueueSnackbar("User information updated successfully", { variant: "success" })
+
+        if (!res.ok) {
+            enqueueSnackbar("Something went wrong", { variant: "error" })
             return;
         }
-        console.log("Updated user",dataJson);
     };
 
     return (
