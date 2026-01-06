@@ -51,16 +51,14 @@ export default function UserAdresses() {
                 fullWidth
                 maxWidth="md"
             >
-                <DialogTitle>
+                <DialogTitle className="flex flex-row justify-between items-center">
                     Add new adress
                     <IconButton onClick={handleClose}>
                         <CloseIcon></CloseIcon>
                     </IconButton>
                 </DialogTitle>
-                <DialogContent dividers>
-                    <NewAdresForm
-                        
-                    ></NewAdresForm>
+                <DialogContent >
+                    <NewAdresForm></NewAdresForm>
                 </DialogContent>
             </Dialog>
             {loading ?

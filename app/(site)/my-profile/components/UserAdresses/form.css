@@ -1,0 +1,13 @@
+.MuiOutlinedInput-root{
+    height: 45px !important;
+    border-radius: 0.75rem !important;
+    background-color: white;
+}
+.MuiDialog-paper{
+    background-color: #F9FAFB !important;
+}
+.MuiFormLabel-root {
+    color: #6D7E73 !important;
+    font-size: 12px !important;
+    font-weight: 700 !important;
+}
