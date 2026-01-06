@@ -1,5 +1,5 @@
 "use client";
-import { Typography, Button, CircularProgress, Dialog, DialogTitle, IconButton, DialogContent } from "@mui/material";
+import { Typography, Button, CircularProgress, Dialog, DialogTitle, IconButton, DialogContent, DialogActions } from "@mui/material";
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 import { useEffect, useState } from "react";
 import { apiFetch } from "@/lib/apiFetch/fetch";
@@ -16,13 +16,19 @@ export default function UserAdresses() {
     const [mode, setMode] = useState("create");
     const [selectedAddress, setSelectedAddress] = useState(null);
 
+    const [openConfirm, setOpenConfirm] = useState(false);
+    const [addressToDelete, setAddressToDelete] = useState(null);
+    const [deleting, setDeleting] = useState(false);
+
     const fetchAddresses = async () => {
         try {
+            setLoading(true);
             const res = await apiFetch("/api/my-profile/my-addresses");
             setAddresses(res);
-            setLoading(false);
         } catch (error) {
             console.log(error);
+        } finally {
+            setLoading(false);
         }
     }
 
@@ -45,9 +51,37 @@ export default function UserAdresses() {
         await fetchAddresses();
         handleClose();
     };
-    const handleDelete = async () => {
 
-    }
+    const openConfirmDelete = (item) => {
+        setAddressToDelete(item);
+        setOpenConfirm(true);
+    };
+
+    const closeConfirm = () => {
+        setOpenConfirm(false);
+        setAddressToDelete(null);
+    };
+
+    const handleDeleteConfirmed = async () => {
+        if (!addressToDelete?.id) return;
+
+        try {
+            setDeleting(true);
+
+            await apiFetch(`/api/my-profile/my-addresses/${addressToDelete.id}`, {
+                method: "DELETE",
+            });
+
+            setAddresses((prev) => prev.filter((a) => a.id !== addressToDelete.id));
+            // await fetchAddresses();
+
+            closeConfirm();
+        } catch (error) {
+            console.log(error);
+        } finally {
+            setDeleting(false);
+        }
+    };
 
     useEffect(() => {
         fetchAddresses();
@@ -64,30 +98,42 @@ export default function UserAdresses() {
                     onClick={handleOpenCreate}
                 >Add new address</Button>
             </div>
-            <Dialog
-                open={openModal}
-                onClose={handleClose}
-                fullWidth
-                maxWidth="md"
-            >
+            <Dialog open={openModal} onClose={handleClose} fullWidth maxWidth="md">
                 <DialogTitle className="flex flex-row justify-between items-center">
                     {mode === "create" ? "Add new adress" : "Edit address"}
                     <IconButton onClick={handleClose}>
-                        <CloseIcon></CloseIcon>
+                        <CloseIcon />
                     </IconButton>
                 </DialogTitle>
-                <DialogContent >
+                <DialogContent>
                     <NewAdresForm
                         mode={mode}
                         initialData={selectedAddress}
                         onCancel={handleClose}
                         onSuccess={handleSuccess}
-                    ></NewAdresForm>
+                    />
                 </DialogContent>
+            </Dialog>
+            <Dialog open={openConfirm} onClose={closeConfirm}>
+                <DialogContent>
+                    Are you sure you want to delete?
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={closeConfirm} disabled={deleting}>
+                        Cancel
+                    </Button>
+                    <Button
+                        onClick={handleDeleteConfirmed}
+                        disabled={deleting || !addressToDelete}
+                        color="error"
+                    >
+                        {deleting ? "Deleting..." : "Delete"}
+                    </Button>
+                </DialogActions>
             </Dialog>
             {loading ?
                 <div className="flex flex-row justify-center items-center mt-6">
-                    <CircularProgress sx={{ color: "#8DC8A1" }}></CircularProgress>
+                    <CircularProgress sx={{ color: "#8DC8A1" }} />
                 </div>
                 :
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
@@ -107,9 +153,9 @@ export default function UserAdresses() {
                                             className="cursor-pointer text-[#6D7E73] w-10 h-10 hover:bg-[#8DC8A11A] hover:text-[#8DC8A1] rounded-full flex items-center justify-center">
                                             <EditOutlinedIcon />
                                         </div>
-                                        <div 
-                                        onClick={() => handleDelete(item)}
-                                        className="cursor-pointer text-[#6D7E73] w-10 h-10 hover:bg-red-50 hover:text-red-500 rounded-full flex items-center justify-center">
+                                        <div
+                                            onClick={() => openConfirmDelete(item)}
+                                            className="cursor-pointer text-[#6D7E73] w-10 h-10 hover:bg-red-50 hover:text-red-500 rounded-full flex items-center justify-center">
                                             <DeleteOutlineOutlinedIcon />
                                         </div>
                                     </div>
