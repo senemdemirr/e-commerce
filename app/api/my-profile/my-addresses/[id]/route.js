@@ -1,3 +1,4 @@
+import { pool } from "@/db";
 export async function PUT(request, { params }) {
     try {
         const body = await request.json();
