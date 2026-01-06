@@ -28,30 +28,38 @@ export async function PUT(request, { params }) {
     }
 
 }
-export async function DELETE({ params }) {
-    const { id } = await params;
+export async function DELETE(request,{ params }) {
 
-    if (!id) {
+    try {
+        const { id } = await params;
+        console.log("id",id);
+        if (!id) {
+            return Response.json(
+                { message: "It is not found" },
+                { status: 404 }
+            )
+        }
+
+        const existing = await pool.query("SELECT * FROM user_addresses WHERE id=$1", [id]);
+
+        if (!existing.rows.length === 0) {
+            return Response.json(
+                { message: "It is not found" },
+                { status: 404 }
+            );
+        }
+        else {
+            await pool.query("DELETE FROM user_addresses WHERE id=$1", [id]);
+
+            return Response.json(
+                { message: "It is deleted" },
+                { status: 200 }
+            )
+        }
+    } catch (error) {
         return Response.json(
-            { message: "It is not found" },
-            { status: 404 }
-        )
-    }
-
-    const existing = await pool.query("SELECT * FROM user_addresses WHERE id=$1", [id]);
-
-    if (!existing.rows.length === 0) {
-        return Response.json(
-            { message: "It is not found" },
-            { status: 404 }
-        );
-    }
-    else {
-        await pool.query("DELETE FROM user_addresses WHERE id=$1", [id]);
-
-        return Response.json(
-            { message: "It is deleted" },
-            { status: 200 }
+            { message: `Something went wrong: ${error}` },
+            { status: 500 }
         )
     }
 
