@@ -3,7 +3,7 @@ import { Box, Link, List, ListItem, ListItemButton, ListItemIcon, ListItemText, 
 import { useUser } from "@/context/UserContext";
 import PersonIcon from '@mui/icons-material/Person';
 import LocationOnIcon from '@mui/icons-material/LocationOn';
-import LockIcon from '@mui/icons-material/Lock';
+// import LockIcon from '@mui/icons-material/Lock';
 import LogoutIcon from '@mui/icons-material/Logout';
 import { usePathname } from "next/navigation";
 import styles from "./ProfileSidebar.module.scss";
@@ -11,7 +11,7 @@ import styles from "./ProfileSidebar.module.scss";
 const menuItems = [
     { label: "My user information", href: "/my-profile/user-information", icon: <PersonIcon></PersonIcon> },
     { label: "My adresses", href: "/my-profile/my-adresses", icon: <LocationOnIcon></LocationOnIcon> },
-    { label: "Change to password", href: "/my-profile/change-password", icon: <LockIcon></LockIcon> }
+    // { label: "Change to password", href: "/my-profile/change-password", icon: <LockIcon></LockIcon> }
 ]
 
 export default function ProfileSidebar() {
@@ -53,10 +53,6 @@ export default function ProfileSidebar() {
                     )
                 })}
             </List>
-            <Link className="flex flex-row cursor-pointer !text-[#131614] !mt-8 justify-center !no-underline">
-                <LogoutIcon></LogoutIcon>
-                <Typography className="!ml-2 !font-extrabold">Log Out</Typography>
-            </Link>
         </Box>
     );
 }
