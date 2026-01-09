@@ -1,5 +1,5 @@
 import fs from "fs";
-import { pool } from "./db.js";
+import { pool } from "./lib/db.js";
 
 const data = JSON.parse(fs.readFileSync("./lib/data/data.json", "utf-8"));
 

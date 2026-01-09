@@ -1,4 +1,4 @@
-import { pool } from "@/db";
+import { pool } from "@/lib/db";
 import { auth0 } from "@/lib/auth0";
 
 export async function PUT(request) {

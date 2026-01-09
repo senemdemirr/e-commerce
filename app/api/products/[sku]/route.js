@@ -1,4 +1,4 @@
-import { pool } from "@/db";
+import { pool } from "@/lib/db";
 
 export async function GET(request, { params }) {
     //I'll use request parameter for the token

@@ -1,4 +1,4 @@
-import { pool } from "@/db";
+import { pool } from "@/lib/db";
 export async function PUT(request, { params }) {
     try {
         const body = await request.json();
