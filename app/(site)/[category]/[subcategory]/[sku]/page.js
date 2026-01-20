@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import AddShoppingCartIcon from '@mui/icons-material/AddShoppingCart';
 import { apiFetch } from "@/lib/apiFetch/fetch";
 import Image from "next/image";
+import AddToCartButton from "./AddToCartButton";
 
 async function fetchProductBySku(sku) {
     return await apiFetch(`/api/products/${sku}`);
@@ -36,7 +37,7 @@ export default async function ProductDetailPage({ params }) {
                     <p className="text-gray-800 mb-6">{product.description}</p>
                     <span className="text-2xl font-semibold text-orange-500">{product.price} <span className="text-lg font-medium">TL</span></span>
                     <div className="mt-6">
-                        <Button className="!bg-orange-500 !text-white !px-6 py-2 rounded-lg hover:bg-orange-600 transition" startIcon={<AddShoppingCartIcon></AddShoppingCartIcon>}>Add to Cart</Button>
+                        <AddToCartButton product={product}/>
                     </div>
                 </div>
 
