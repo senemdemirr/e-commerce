@@ -4,9 +4,9 @@ import SearchInput from "@/components/SearchInput";
 import Navbar from "@/components/Navbar";
 import { Button } from "@mui/material";
 import FavoriteBorderOutlinedIcon from "@mui/icons-material/FavoriteBorderOutlined";
-import ShoppingCartOutlinedIcon from '@mui/icons-material/ShoppingCartOutlined';
 import AuthMenu from "@/components/AuthMenu";
 import { getOrCreateUserFromSession } from "@/lib/users";
+import BasketButton from "./BasketButton";
 
 export default async function Header() {
     const user = await getOrCreateUserFromSession();
@@ -39,14 +39,7 @@ export default async function Header() {
                             </Button>
                         </a>
 
-                    <Link href="/basket" passHref>
-                        <Button
-                            className="!text-gray-600 px-4 py-2 rounded hover:!bg-transparent border-none cursor-pointer"
-                            startIcon={<ShoppingCartOutlinedIcon />}
-                        >
-                            My Basket
-                        </Button>
-                    </Link>
+                    <BasketButton/>
                 </div>
             </div>
             <Navbar />
