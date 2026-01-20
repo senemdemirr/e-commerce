@@ -7,6 +7,7 @@ import { getOrCreateUserFromSession } from "@/lib/users";
 import EmailVerified from "@/components/EmailVerified";
 import Providers from "../providers";
 import Breadcrumbs from "@/components/Breadcrumbs";
+import { CartProvider } from "@/context/CartContext";
 
 export default async function SiteLayout({ children }) {
     const res = await getOrCreateUserFromSession();
@@ -17,27 +18,29 @@ export default async function SiteLayout({ children }) {
     return (
 
         <UserProvider user={user}>
-            <div className="min-h-screen flex flex-col">
-                <Suspense fallback={null}>
-                    <Header />
-                </Suspense>
-                <Providers>
-                    {
-                        user && (user.email_verified == false)
-                            ?
-                            <EmailVerified></EmailVerified>
-                            :
-                            ("")
-                    }
-                    <main className="bg-[#F6F7F7] flex-1 pb-[53px]">
-                        <Breadcrumbs></Breadcrumbs>
-                        <Auth0Provider>
-                            {children}
-                        </Auth0Provider>
-                    </main>
-                </Providers>
-                <Footer />
-            </div>
+            <CartProvider>
+                <div className="min-h-screen flex flex-col">
+                    <Suspense fallback={null}>
+                        <Header />
+                    </Suspense>
+                    <Providers>
+                        {
+                            user && (user.email_verified == false)
+                                ?
+                                <EmailVerified></EmailVerified>
+                                :
+                                ("")
+                        }
+                        <main className="bg-[#F6F7F7] flex-1 pb-[53px]">
+                            <Breadcrumbs></Breadcrumbs>
+                            <Auth0Provider>
+                                {children}
+                            </Auth0Provider>
+                        </main>
+                    </Providers>
+                    <Footer />
+                </div>
+            </CartProvider>
         </UserProvider >
 
     )
