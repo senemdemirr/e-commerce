@@ -90,11 +90,11 @@ export default function UserAdresses() {
     return (
         <div className="container">
             <div className="flex flex-row justify-between items-center mb-5">
-                <Typography className="!text-[#131614] !font-bold">My Addresses</Typography>
+                <Typography className="!text-text-main !font-bold">My Addresses</Typography>
                 <Button
                     variant="text"
                     startIcon={<AddCircleOutlineIcon />}
-                    className="!rounded-lg !text-[#8DC8A1] !font-bold"
+                    className="!rounded-lg !text-primary !font-bold"
                     onClick={handleOpenCreate}
                 >Add new address</Button>
             </div>
@@ -133,16 +133,16 @@ export default function UserAdresses() {
             </Dialog>
             {loading ?
                 <div className="flex flex-row justify-center items-center mt-6">
-                    <CircularProgress sx={{ color: "#8DC8A1" }} />
+                    <CircularProgress sx={{ color: "var(--color-primary)" }} />
                 </div>
                 :
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
                     {addresses.map((item) => {
                         return (
-                            <div key={item.id} className="group relative rounded-xl border border-gray-200  bg-white p-5 transition-all hover:border-[#8DC8A1] hover:shadow-md">
+                            <div key={item.id} className="group relative rounded-xl border border-gray-200  bg-white p-5 transition-all hover:border-primary hover:shadow-md">
                                 <div className="group flex flex-row justify-between items-center">
                                     <div className="flex flex-row items-center">
-                                        <div className="w-12 h-12 text-[#8DC8A1] bg-[#8DC8A11A] rounded-full flex items-center justify-center">
+                                        <div className="w-12 h-12 text-primary bg-primary/10 rounded-full flex items-center justify-center">
                                             <HomeOutlinedIcon />
                                         </div>
                                         <Typography className="!ml-2  !font-bold !text-base">{item.address_title}</Typography>
@@ -150,20 +150,20 @@ export default function UserAdresses() {
                                     <div className="flex flex-row opacity-0 group-hover:opacity-100 transition-opacitiy duration-200">
                                         <div
                                             onClick={() => handleOpenEdit(item)}
-                                            className="cursor-pointer text-[#6D7E73] w-10 h-10 hover:bg-[#8DC8A11A] hover:text-[#8DC8A1] rounded-full flex items-center justify-center">
+                                            className="cursor-pointer text-text-muted w-10 h-10 hover:bg-primary/10 hover:text-primary rounded-full flex items-center justify-center">
                                             <EditOutlinedIcon />
                                         </div>
                                         <div
                                             onClick={() => openConfirmDelete(item)}
-                                            className="cursor-pointer text-[#6D7E73] w-10 h-10 hover:bg-red-50 hover:text-red-500 rounded-full flex items-center justify-center">
+                                            className="cursor-pointer text-text-muted w-10 h-10 hover:bg-red-50 hover:text-red-500 rounded-full flex items-center justify-center">
                                             <DeleteOutlineOutlinedIcon />
                                         </div>
                                     </div>
                                 </div>
                                 <Typography className="!font-medium !my-2 !text-sm">{item.recipient_first_name} {item.recipient_last_name}</Typography>
-                                <Typography className="!text-xs !mb-2 !text-[#6D7E73]">{item.recipient_phone}</Typography>
-                                <Typography className="!text-sm !mb-2 !text-[#6D7E73]">{item.neighborhood_name} {item.address_line}</Typography>
-                                <Typography className="!text-xs !text-[#6D7E73] !font-bold">{item.district_name} / {item.city_name}</Typography>
+                                <Typography className="!text-xs !mb-2 !text-text-muted">{item.recipient_phone}</Typography>
+                                <Typography className="!text-sm !mb-2 !text-text-muted">{item.neighborhood_name} {item.address_line}</Typography>
+                                <Typography className="!text-xs !text-text-muted !font-bold">{item.district_name} / {item.city_name}</Typography>
                             </div>
                         )
                     })}

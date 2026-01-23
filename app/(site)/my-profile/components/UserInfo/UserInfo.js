@@ -53,7 +53,7 @@ export default function UserInfo() {
         <form onSubmit={handleSubmit(onSubmit)} className="w-full pr-10">
             <div className="w-full flex flex-row gap-6 mb-0">
                 <FormControl fullWidth error={!!errors.name}>
-                    <FormLabel className="!text-[#131614] !text-sm !font-bold my-2">Name</FormLabel>
+                    <FormLabel className="!text-text-main !text-sm !font-bold my-2">Name</FormLabel>
                     <OutlinedInput
                         {...register("name", {
                             required: "Name is required",
@@ -63,13 +63,13 @@ export default function UserInfo() {
                             },
                         })}
                         size="small"
-                        className="w-full !rounded-xl border-gray-200 focus:!border-[#8DC8A1] p-1 !text-[#131614] !text-sm"
+                        className="w-full !rounded-xl border-gray-200 focus:!border-primary p-1 !text-text-main !text-sm"
                     />
                     <FormHelperText>{errors.name?.message}</FormHelperText>
                 </FormControl>
 
                 <FormControl fullWidth error={!!errors.surname}>
-                    <FormLabel className="!text-[#131614] !text-sm !font-bold my-2">Surname</FormLabel>
+                    <FormLabel className="!text-text-main !text-sm !font-bold my-2">Surname</FormLabel>
                     <OutlinedInput
                         {...register("surname", {
                             required: "Surname is required",
@@ -79,14 +79,14 @@ export default function UserInfo() {
                             },
                         })}
                         size="small"
-                        className=" w-full !rounded-xl border-gray-200 focus:!border-[#8DC8A1] p-1 !text-[#131614] !text-sm"
+                        className=" w-full !rounded-xl border-gray-200 focus:!border-primary p-1 !text-text-main !text-sm"
                     />
                     <FormHelperText>{errors.surname?.message}</FormHelperText>
                 </FormControl>
             </div>
 
             <FormControl fullWidth>
-                <FormLabel className="!text-[#131614] !text-sm !font-bold my-2">E-mail</FormLabel>
+                <FormLabel className="!text-text-main !text-sm !font-bold my-2">E-mail</FormLabel>
                 <OutlinedInput
                     disabled
                     {...register("email")}
@@ -96,11 +96,11 @@ export default function UserInfo() {
                         </InputAdornment>
                     }
                     size="small"
-                    className="bg-[#F9FAFB] w-full !rounded-xl border-gray-200 p-1 !text-[#131614] !text-sm"
+                    className="bg-background-light w-full !rounded-xl border-gray-200 p-1 !text-text-main !text-sm"
                 />
             </FormControl>
             <FormControl fullWidth error={!!errors.phone}>
-                <FormLabel className="!text-[#131614] !text-sm !font-bold my-2">Phone</FormLabel>
+                <FormLabel className="!text-text-main !text-sm !font-bold my-2">Phone</FormLabel>
                 <OutlinedInput
                     {...register("phone", {
                         pattern: {
@@ -123,12 +123,12 @@ export default function UserInfo() {
                         </InputAdornment>
                     }
                     size="small"
-                    className="w-full !rounded-xl border-gray-200 focus:!border-[#8DC8A1] p-1 !text-[#131614] !text-sm"
+                    className="w-full !rounded-xl border-gray-200 focus:!border-primary p-1 !text-text-main !text-sm"
                 />
                 <FormHelperText>{errors.phone?.message}</FormHelperText>
             </FormControl>
 
-            <Button type="submit" className="cursor-pointer !mt-4 w-auto px-8 h-10 rounded-lg font-bold flex items-center justify-center gap-2 !bg-[#8DC8A1] !text-white hover:!bg-[#7AB38D]">Save</Button>
+            <Button type="submit" className="cursor-pointer !mt-4 w-auto px-8 h-10 rounded-lg font-bold flex items-center justify-center gap-2 !bg-primary !text-white hover:!bg-primary-dark">Save</Button>
         </form>
     );
 }

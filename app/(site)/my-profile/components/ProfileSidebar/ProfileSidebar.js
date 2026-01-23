@@ -23,11 +23,11 @@ export default function ProfileSidebar() {
     return (
         <Box component="aside" className={`flex flex-col lg-w-72 md-w-full ${styles.page}`}>
             <Box className="bg-white min-h-48 rounded-xl p-6 shadow-sm border !border-gray-100 flex flex-col items-center text-center justify-center">
-                <Box className="bg-[#F0B48C] w-20 h-20 flex items-center justify-center rounded-full border-4 border-[#f1f3f2]">
+                <Box className="bg-accent w-20 h-20 flex items-center justify-center rounded-full border-4 border-[#f1f3f2]">
                     <Typography className="text-white !text-2xl !font-bold">{firstOfName}{firstOfSurname}</Typography>
                 </Box>
-                <Typography variant="h6" className="text-[#131614] text-lg !font-semibold">{user?.name} {user?.surname}</Typography>
-                <Typography className="text-[#6D7E73] !text-sm">{user?.email}</Typography>
+                <Typography variant="h6" className="text-text-main text-lg !font-semibold">{user?.name} {user?.surname}</Typography>
+                <Typography className="text-text-muted !text-sm">{user?.email}</Typography>
             </Box>
             <List className="!mt-4 !p-0 bg-white rounded-xl shadow-sm border !border-gray-100 flex flex-col">
                 {menuItems.map((item) => {
@@ -44,7 +44,7 @@ export default function ProfileSidebar() {
                                 component={Link}
                                 className="!p-3 "
                             >
-                                <ListItemIcon className={`${isActive ? "!text-[#8DC8A1]" : "!text-[#6D7E73]"} ${styles.icon}`}>
+                                <ListItemIcon className={`${isActive ? "!text-primary" : "!text-text-muted"} ${styles.icon}`}>
                                     {item.icon}
                                 </ListItemIcon>
                                 <ListItemText primary={item.label} className="subpixel-antialiased"></ListItemText>

@@ -158,7 +158,7 @@ export default function NewAdresForm({ mode, initialData, onSuccess, onCancel })
                         },
                     })}
                     size="small"
-                    className="w-full !rounded-xl border-gray-200 focus:!border-[#8DC8A1] p-1"
+                    className="w-full !rounded-xl border-gray-200 focus:!border-primary p-1"
                 />
                 <FormHelperText>{errors.address_title?.message}</FormHelperText>
             </FormControl>
@@ -175,7 +175,7 @@ export default function NewAdresForm({ mode, initialData, onSuccess, onCancel })
                             },
                         })}
                         size="small"
-                        className=" w-full !rounded-xl border-gray-200 focus:!border-[#8DC8A1] p-1"
+                        className=" w-full !rounded-xl border-gray-200 focus:!border-primary p-1"
                     />
                     <FormHelperText>{errors.recipient_first_name?.message}</FormHelperText>
                 </FormControl>
@@ -190,7 +190,7 @@ export default function NewAdresForm({ mode, initialData, onSuccess, onCancel })
                             },
                         })}
                         size="small"
-                        className=" w-full !rounded-xl border-gray-200 focus:!border-[#8DC8A1] p-1"
+                        className=" w-full !rounded-xl border-gray-200 focus:!border-primary p-1"
                     />
                     <FormHelperText>{errors.recipient_last_name?.message}</FormHelperText>
                 </FormControl>
@@ -220,7 +220,7 @@ export default function NewAdresForm({ mode, initialData, onSuccess, onCancel })
                             </InputAdornment>
                         }
                         size="small"
-                        className="w-full !rounded-xl border-gray-200 focus:!border-[#8DC8A1] p-1"
+                        className="w-full !rounded-xl border-gray-200 focus:!border-primary p-1"
                     />
                     <FormHelperText>{errors.recipient_phone?.message}</FormHelperText>
                 </FormControl>
@@ -315,7 +315,7 @@ export default function NewAdresForm({ mode, initialData, onSuccess, onCancel })
                             message: maxInputErrorMessage,
                         },
                     })}
-                    className="w-full !rounded-xl border-gray-200 focus:!border-[#8DC8A1] p-1"
+                    className="w-full !rounded-xl border-gray-200 focus:!border-primary p-1"
                     placeholder="Street, building number, apartment number and other address details..."
                 />
                 <FormHelperText>{errors.address_line?.message}</FormHelperText>
@@ -323,7 +323,7 @@ export default function NewAdresForm({ mode, initialData, onSuccess, onCancel })
             <Button
                 startIcon={<CheckIcon />}
                 type="submit"
-                className="float-right cursor-pointer !mt-4 w-auto px-8 h-10 rounded-lg !bg-[#8DC8A1] !text-white hover:!bg-[#7AB38D]">
+                className="float-right cursor-pointer !mt-4 w-auto px-8 h-10 rounded-lg !bg-primary !text-white hover:!bg-primary-dark">
                 Save
             </Button>
         </form>
