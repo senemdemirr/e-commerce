@@ -15,17 +15,17 @@ async function getActiveCart(userId) {
 export async function GET() {
     try {
         const user = await getOrCreateUserFromSession();
-        if (!user) {
+        if (!user.id) {
             return Response.json(
                 { message: "Unauthorized" },
                 { status: 401 }
             )
         }
         const cart = await getActiveCart(user.id);
-        const itemsRes = await pool.query("SELECT ci.id as id, ci.product_id, ci.quantity,ci.unit_price,p.title,p.image,p.brand,p.sku FROM cart_items ci JOIN products p ON p.id = ci.product_id WHERE ci.cart_id=$1", [cart.id]);
+        const itemsRes = await pool.query("SELECT ci.id as id, ci.product_id, ci.quantity,ci.unit_price,(ci.quantity * ci.unit_price) AS total_price,p.title,p.image,p.brand,p.sku FROM cart_items ci JOIN products p ON p.id = ci.product_id WHERE ci.cart_id=$1", [cart.id]);
 
         return Response.json(
-            { cartId: cart.id, totalQuantity: itemsRes.rows.length }, { status: 200 }
+            { cartId: cart.id, totalQuantity: itemsRes.rows.length, items: itemsRes.rows }, { status: 200 }
         )
 
 
