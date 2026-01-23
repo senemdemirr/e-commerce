@@ -1,4 +1,5 @@
 @import 'tailwindcss';
+@config '../tailwind.config.mjs';
 @import url('https://fonts.googleapis.com/css2?family=Work+Sans:ital,wght@0,100..900;1,100..900&display=swap');
 
 
@@ -7,9 +8,11 @@
   --foreground: #171717;
 }
 
-html, body {
+html,
+body {
   height: 100%;
 }
+
 body {
   max-width: 100vw;
   overflow-x: hidden;
@@ -29,10 +32,12 @@ a {
   color: inherit;
   text-decoration: none;
 }
-.swagger-ui{
+
+.swagger-ui {
   padding: 10px !important;
 }
-.MuiButtonBase-root{
+
+.MuiButtonBase-root {
   font-family: inherit !important;
 }
 
