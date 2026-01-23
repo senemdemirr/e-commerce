@@ -7,6 +7,7 @@ import { createContext, useContext } from "react";
 const CartContext = createContext(null);
 
 export function CartProvider({ children }) {
+    const [items, setItems] = useState([]);
     const [quantity, setQuantity] = useState(0);
     const [loading, setLoading] = useState(false);
     const router = useRouter();
@@ -17,6 +18,9 @@ export function CartProvider({ children }) {
                 const res = await apiFetch("/api/cart");
                 if (res?.totalQuantity) {
                     setQuantity(res.totalQuantity);
+                }
+                if(res?.items){
+                    setItems(res.items);
                 }
             } catch (error) {
                 console.log(error);
@@ -50,7 +54,7 @@ export function CartProvider({ children }) {
 
     return (
         <CartContext.Provider
-            value={{ addToCart, quantity, loading }}
+            value={{items, addToCart, quantity, loading }}
         >
             {children}
         </CartContext.Provider>
