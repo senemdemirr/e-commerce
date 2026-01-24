@@ -12,20 +12,23 @@ export function CartProvider({ children }) {
     const [loading, setLoading] = useState(false);
     const router = useRouter();
 
-    useEffect(() => {
-        const fetchCart = async () => {
-            try {
-                const res = await apiFetch("/api/cart");
-                if (res?.totalQuantity) {
-                    setQuantity(res.totalQuantity);
-                }
-                if(res?.items){
-                    setItems(res.items);
-                }
-            } catch (error) {
-                console.log(error);
+    const fetchCart = async () => {
+        try {
+            const res = await apiFetch("/api/cart");
+            if (res?.totalQuantity !== undefined) {
+                setQuantity(res.totalQuantity);
             }
+            if (res?.items) {
+                setItems(res.items);
+            } else {
+                setItems([]);
+            }
+        } catch (error) {
+            console.log(error);
         }
+    }
+
+    useEffect(() => {
         fetchCart();
     }, []);
 
@@ -37,9 +40,10 @@ export function CartProvider({ children }) {
                 body: JSON.stringify({ productSku: product.sku, quantity })
             });
 
-            if (res.totalQuantity) {
+            if (res.totalQuantity !== undefined) {
                 setQuantity(res.totalQuantity);
             }
+            await fetchCart(); // Refresh items to get correct IDs if needed
         } catch (error) {
             console.log(error);
         }
@@ -51,10 +55,47 @@ export function CartProvider({ children }) {
         }
     }
 
+    const updateItemQuantity = async (itemId, newQuantity) => {
+        if (newQuantity < 1) return;
+        try {
+            // Optimistic update
+            setItems(prevItems => prevItems.map(item =>
+                item.id === itemId
+                    ? { ...item, quantity: newQuantity, total_price: Number(item.unit_price) * newQuantity }
+                    : item
+            ));
+
+            await apiFetch('/api/cart', {
+                method: 'PUT',
+                body: JSON.stringify({ itemId, quantity: newQuantity })
+            });
+            // Ideally we re-fetch to ensure consistency but optimistic is faster
+            // fetchCart();
+        } catch (error) {
+            console.error(error);
+            fetchCart(); // Revert on error
+        }
+    };
+
+    const removeFromCart = async (itemId) => {
+        try {
+            // Optimistic update
+            setItems(prevItems => prevItems.filter(item => item.id !== itemId));
+            setQuantity(prev => Math.max(0, prev - 1));
+
+            await apiFetch(`/api/cart?itemId=${itemId}`, {
+                method: 'DELETE'
+            });
+            fetchCart(); // Synch to be sure
+        } catch (error) {
+            console.error(error);
+            fetchCart();
+        }
+    };
 
     return (
         <CartContext.Provider
-            value={{items, addToCart, quantity, loading }}
+            value={{ items, addToCart, updateItemQuantity, removeFromCart, quantity, loading }}
         >
             {children}
         </CartContext.Provider>

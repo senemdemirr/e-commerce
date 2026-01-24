@@ -16,6 +16,7 @@
     "@mui/material": "^5.15.14",
     "@mui/system": "^5.15.14",
     "fs": "^0.0.1-security",
+    "iyzipay": "^2.0.64",
     "next": "^15.3.8",
     "notistack": "^3.0.2",
     "path": "^0.12.7",
