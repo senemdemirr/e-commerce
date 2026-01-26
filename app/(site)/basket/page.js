@@ -60,7 +60,7 @@ export default function BasketPage() {
                             My Cart
                         </h1>
                         <span className="text-sm font-medium text-text-muted dark:text-gray-400">
-                            {items.length} Items Listed
+                            {items.reduce((acc, item) => acc + item.quantity, 0)} Items Added
                         </span>
                     </div>
                     <div className="mt-4 flex w-full flex-col gap-2">
@@ -106,6 +106,18 @@ export default function BasketPage() {
                                     <p className="text-sm text-text-muted dark:text-gray-400">
                                         {item.brand ? `Brand: ${item.brand}` : ''}
                                     </p>
+                                    <div className="flex gap-4 mt-1">
+                                        {item.selected_size && (
+                                            <p className="text-sm font-medium text-text-muted dark:text-gray-400">
+                                                Size: <span className="text-text-main dark:text-white">{item.selected_size}</span>
+                                            </p>
+                                        )}
+                                        {item.selected_color && (
+                                            <p className="text-sm font-medium text-text-muted dark:text-gray-400">
+                                                Color: <span className="text-text-main dark:text-white">{item.selected_color}</span>
+                                            </p>
+                                        )}
+                                    </div>
                                     <p className="mt-1 text-sm text-green-600 font-medium flex items-center gap-1">
                                         <CheckCircle className="text-sm" fontSize="small" /> In Stock
                                     </p>

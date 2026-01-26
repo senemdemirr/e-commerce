@@ -9,7 +9,7 @@ export async function GET(request, { params }) {
     }
 
     try {
-        const res = await pool.query(`SELECT p.title,p.brand,p.price,p.image,p.sku, sc.slug AS "subCategorySlug", c.slug AS "categorySlug" FROM products p LEFT JOIN sub_categories sc ON p.sub_category_id = sc.id LEFT JOIN categories c ON c.id = sc.category_id WHERE p.sku = $1`, [sku]);
+        const res = await pool.query(`SELECT p.title, p.brand, p.price, p.image, p.sku, p.description, p.colors, p.sizes, p.details, sc.slug AS "subCategorySlug", c.slug AS "categorySlug" FROM products p LEFT JOIN sub_categories sc ON p.sub_category_id = sc.id LEFT JOIN categories c ON c.id = sc.category_id WHERE p.sku = $1`, [sku]);
         if (res.rows.length === 0) {
             return Response(
                 JSON.stringify({ message: "Product not found" }),

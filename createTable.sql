@@ -32,6 +32,9 @@ CREATE TABLE products(
     price DECIMAL(10,2) NOT NULL,
     image TEXT,
     brand VARCHAR(200),
+    colors JSONB DEFAULT '[]',
+    sizes TEXT[] DEFAULT '{}',
+    details JSONB DEFAULT '{}',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT fk_product_subcategory 
         FOREIGN KEY(sub_category_id) 

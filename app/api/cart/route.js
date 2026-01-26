@@ -34,6 +34,8 @@ export async function GET() {
                 p.image,
                 p.brand,
                 p.sku,
+                ci.selected_size,
+                ci.selected_color,
                 c.slug as category_slug,
                 sc.slug as subcategory_slug
             FROM cart_items ci 
@@ -44,8 +46,10 @@ export async function GET() {
             ORDER BY ci.id ASC
         `, [cart.id]);
 
+        const totalQuantity = itemsRes.rows.reduce((acc, current) => acc + current.quantity, 0);
+
         return NextResponse.json(
-            { cartId: cart.id, totalQuantity: itemsRes.rows.length, items: itemsRes.rows }, { status: 200 }
+            { cartId: cart.id, totalQuantity, items: itemsRes.rows }, { status: 200 }
         )
 
 
@@ -60,7 +64,7 @@ export async function GET() {
 export async function POST(request) {
     try {
         const body = await request.json();
-        const { productSku, quantity = 1 } = body;
+        const { productSku, quantity = 1, selectedSize = null, selectedColor = null } = body;
 
         const user = await getOrCreateUserFromSession();
 
@@ -81,19 +85,23 @@ export async function POST(request) {
         const product_price = await pool.query("SELECT price FROM products WHERE id=$1", [productId]);
         const productPrice = product_price.rows[0].price;
 
-        const isExistingProductInCart = await pool.query("SELECT * FROM cart_items WHERE cart_id=$1 AND product_id=$2", [cart.id, productId]);
+        const isExistingProductInCart = await pool.query(
+            "SELECT * FROM cart_items WHERE cart_id=$1 AND product_id=$2 AND (selected_size=$3 OR (selected_size IS NULL AND $3 IS NULL)) AND (selected_color=$4 OR (selected_color IS NULL AND $4 IS NULL))",
+            [cart.id, productId, selectedSize, selectedColor]
+        );
 
         if (isExistingProductInCart.rows.length > 0) {
             await pool.query("UPDATE cart_items SET quantity=quantity + $1, updated_at = NOW() WHERE id=$2", [quantity, isExistingProductInCart.rows[0].id]);
         }
         else {
-            await pool.query("INSERT INTO cart_items(cart_id,product_id,quantity,unit_price) VALUES($1,$2,$3,$4)", [cart.id, productId, quantity, productPrice]);
+            await pool.query("INSERT INTO cart_items(cart_id,product_id,quantity,unit_price,selected_size,selected_color) VALUES($1,$2,$3,$4,$5,$6)", [cart.id, productId, quantity, productPrice, selectedSize, selectedColor]);
         }
 
-        const currentRes = await pool.query("SELECT ci.id ,ci.product_id,ci.quantity,ci.unit_price,p.title,p.image,p.brand FROM cart_items ci JOIN products p ON p.id = ci.product_id WHERE ci.cart_id=$1", [cart.id]);
+        const totalRes = await pool.query("SELECT SUM(quantity) as total FROM cart_items WHERE cart_id=$1", [cart.id]);
+        const totalQuantity = parseInt(totalRes.rows[0].total) || 0;
 
         return NextResponse.json(
-            { message: "Successfully", totalQuantity: currentRes.rows.length },
+            { message: "Successfully", totalQuantity },
             { status: 200 }
         )
 

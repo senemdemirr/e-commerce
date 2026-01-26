@@ -37,13 +37,19 @@ export function CartProvider({ children }) {
         try {
             const res = await apiFetch('/api/cart', {
                 method: "POST",
-                body: JSON.stringify({ productSku: product.sku, quantity })
+                body: JSON.stringify({
+                    productSku: product.sku,
+                    quantity,
+                    selectedSize: product.selectedSize,
+                    selectedColor: product.selectedColor
+                })
             });
 
             if (res.totalQuantity !== undefined) {
                 setQuantity(res.totalQuantity);
             }
-            await fetchCart(); // Refresh items to get correct IDs if needed
+            // Update items locally or fetch
+            await fetchCart();
         } catch (error) {
             console.log(error);
         }
@@ -59,11 +65,17 @@ export function CartProvider({ children }) {
         if (newQuantity < 1) return;
         try {
             // Optimistic update
-            setItems(prevItems => prevItems.map(item =>
-                item.id === itemId
-                    ? { ...item, quantity: newQuantity, total_price: Number(item.unit_price) * newQuantity }
-                    : item
-            ));
+            setItems(prevItems => {
+                const newItems = prevItems.map(item =>
+                    item.id === itemId
+                        ? { ...item, quantity: newQuantity, total_price: Number(item.unit_price) * newQuantity }
+                        : item
+                );
+                // Update total quantity based on all items
+                const newTotal = newItems.reduce((acc, item) => acc + item.quantity, 0);
+                setQuantity(newTotal);
+                return newItems;
+            });
 
             await apiFetch('/api/cart', {
                 method: 'PUT',
@@ -80,8 +92,12 @@ export function CartProvider({ children }) {
     const removeFromCart = async (itemId) => {
         try {
             // Optimistic update
-            setItems(prevItems => prevItems.filter(item => item.id !== itemId));
-            setQuantity(prev => Math.max(0, prev - 1));
+            setItems(prevItems => {
+                const newItems = prevItems.filter(item => item.id !== itemId);
+                const newTotal = newItems.reduce((acc, item) => acc + item.quantity, 0);
+                setQuantity(newTotal);
+                return newItems;
+            });
 
             await apiFetch(`/api/cart?itemId=${itemId}`, {
                 method: 'DELETE'

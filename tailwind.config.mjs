@@ -12,6 +12,8 @@ export default {
                 "primary-dark": "#7ab38e",
                 "secondary": "#A0C8A0", // Soft Green
                 "accent": "#F0B48C", // Pastel Orange
+                "accent-champagne": "#e8d5c4",
+                "text-dark": "#131614",
                 "background-light": "#f8f9fa",
                 "background-dark": "#151d18",
                 "surface-light": "#ffffff",
