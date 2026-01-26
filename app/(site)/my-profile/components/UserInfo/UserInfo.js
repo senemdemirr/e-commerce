@@ -50,8 +50,8 @@ export default function UserInfo() {
     };
 
     return (
-        <form onSubmit={handleSubmit(onSubmit)} className="w-full pr-10">
-            <div className="w-full flex flex-row gap-6 mb-0">
+        <form onSubmit={handleSubmit(onSubmit)} className="w-full pr-4 md:pr-10">
+            <div className="w-full flex flex-col md:flex-row gap-6 mb-0">
                 <FormControl fullWidth error={!!errors.name}>
                     <FormLabel className="!text-text-main !text-sm !font-bold my-2">Name</FormLabel>
                     <OutlinedInput

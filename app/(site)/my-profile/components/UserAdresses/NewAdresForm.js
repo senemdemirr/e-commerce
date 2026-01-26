@@ -146,7 +146,7 @@ export default function NewAdresForm({ mode, initialData, onSuccess, onCancel })
 
     };
     return (
-        <form onSubmit={handleSubmit(onSubmit)} className="w-full pr-10">
+        <form onSubmit={handleSubmit(onSubmit)} className="w-full pr-4 md:pr-10">
             <FormControl fullWidth error={!!errors.address_title}>
                 <FormLabel className="!mb-2 !mt-4">ADDRESS TITLE</FormLabel>
                 <OutlinedInput
@@ -163,7 +163,7 @@ export default function NewAdresForm({ mode, initialData, onSuccess, onCancel })
                 <FormHelperText>{errors.address_title?.message}</FormHelperText>
             </FormControl>
 
-            <div className="flex flex-row justify-between gap-6">
+            <div className="flex flex-col md:flex-row justify-between gap-6">
                 <FormControl fullWidth error={!!errors.recipient_first_name}>
                     <FormLabel className="!mb-2 !mt-4">NAME</FormLabel>
                     <OutlinedInput
@@ -195,7 +195,7 @@ export default function NewAdresForm({ mode, initialData, onSuccess, onCancel })
                     <FormHelperText>{errors.recipient_last_name?.message}</FormHelperText>
                 </FormControl>
             </div>
-            <div className="flex flex-row justify-between gap-6 items-center">
+            <div className="flex flex-col md:flex-row justify-between gap-6 items-center">
                 <FormControl fullWidth error={!!errors.recipient_phone}>
                     <FormLabel className="!mb-2 !mt-4">PHONE</FormLabel>
                     <OutlinedInput
@@ -250,7 +250,7 @@ export default function NewAdresForm({ mode, initialData, onSuccess, onCancel })
                     />
                 </FormControl>
             </div>
-            <div className="flex flex-row justify-between gap-6 items-center">
+            <div className="flex flex-col md:flex-row justify-between gap-6 items-center">
                 <FormControl fullWidth error={!!errors.district_id}>
                     <FormLabel className="!mb-2 !mt-4">DISTRICT</FormLabel>
                     <Controller

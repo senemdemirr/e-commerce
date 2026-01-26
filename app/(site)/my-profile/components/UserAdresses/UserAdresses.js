@@ -89,7 +89,7 @@ export default function UserAdresses() {
 
     return (
         <div className="container">
-            <div className="flex flex-row justify-between items-center mb-5">
+            <div className="flex flex-col sm:flex-row justify-between items-center mb-5 gap-4 sm:gap-0">
                 <Typography className="!text-text-main !font-bold">My Addresses</Typography>
                 <Button
                     variant="text"
@@ -147,7 +147,7 @@ export default function UserAdresses() {
                                         </div>
                                         <Typography className="!ml-2  !font-bold !text-base">{item.address_title}</Typography>
                                     </div>
-                                    <div className="flex flex-row opacity-0 group-hover:opacity-100 transition-opacitiy duration-200">
+                                    <div className="flex flex-row opacity-100 lg:opacity-0 lg:group-hover:opacity-100 transition-opacity duration-200">
                                         <div
                                             onClick={() => handleOpenEdit(item)}
                                             className="cursor-pointer text-text-muted w-10 h-10 hover:bg-primary/10 hover:text-primary rounded-full flex items-center justify-center">

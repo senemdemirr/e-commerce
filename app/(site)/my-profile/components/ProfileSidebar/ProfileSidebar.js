@@ -21,7 +21,7 @@ export default function ProfileSidebar() {
     const firstOfSurname = user?.surname?.charAt(0);
 
     return (
-        <Box component="aside" className={`flex flex-col lg-w-72 md-w-full ${styles.page}`}>
+        <Box component="aside" className={`flex flex-col lg:w-72 w-full ${styles.page}`}>
             <Box className="bg-white min-h-48 rounded-xl p-6 shadow-sm border !border-gray-100 flex flex-col items-center text-center justify-center">
                 <Box className="bg-accent w-20 h-20 flex items-center justify-center rounded-full border-4 border-[#f1f3f2]">
                     <Typography className="text-white !text-2xl !font-bold">{firstOfName}{firstOfSurname}</Typography>

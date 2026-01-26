@@ -13,7 +13,7 @@ export default async function MyProfileLayout({ children }) {
         <UserProvider user={user}>
             <div className="container flex lg:flex-row flex-col w-full mx-auto py-8 justify-between">
                 <ProfileSidebar></ProfileSidebar>
-                <div className="container bg-white rounded-xl shadow-sm border !border-gray-100 flex-1 lg:ml-8 ">
+                <div className="container bg-white rounded-xl shadow-sm border !border-gray-100 flex-1 lg:ml-8 mt-6 lg:mt-0">
                     <Providers>
                         {children}
                     </Providers>

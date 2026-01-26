@@ -31,7 +31,7 @@ export default async function SiteLayout({ children }) {
                                 :
                                 ("")
                         }
-                        <main className="bg-[#F6F7F7] flex-1 pb-[53px]">
+                        <main className="bg-[#F6F7F7] flex-1 pb-[53px] px-4 md:px-8">
                             <Breadcrumbs></Breadcrumbs>
                             <Auth0Provider>
                                 {children}

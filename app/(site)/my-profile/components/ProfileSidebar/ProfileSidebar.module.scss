@@ -11,13 +11,14 @@
 
     .listItem {
         color: #6D7E73;
+        overflow: hidden;
 
         &:first-child {
-            border-radius: 12px 12px 0px 0px;
+            border-radius: 1.5rem 1.5rem 0px 0px;
         }
 
         &:last-child {
-            border-radius: 0px 0px 12px 12px;
+            border-radius: 0px 0px 1.5rem 1.5rem;
         }
 
         &.active {
