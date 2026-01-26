@@ -41,7 +41,8 @@ export function CartProvider({ children }) {
                     productSku: product.sku,
                     quantity,
                     selectedSize: product.selectedSize,
-                    selectedColor: product.selectedColor
+                    selectedColor: product.selectedColor,
+                    selectedColorHex: product.selectedColorHex
                 })
             });
 

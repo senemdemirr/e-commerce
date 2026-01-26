@@ -36,6 +36,7 @@ export async function GET() {
                 p.sku,
                 ci.selected_size,
                 ci.selected_color,
+                ci.selected_color_hex,
                 c.slug as category_slug,
                 sc.slug as subcategory_slug
             FROM cart_items ci 
@@ -64,12 +65,17 @@ export async function GET() {
 export async function POST(request) {
     try {
         const body = await request.json();
-        const { productSku, quantity = 1, selectedSize = null, selectedColor = null } = body;
+        let { productSku, quantity = 1, selectedSize = null, selectedColor = null, selectedColorHex = null } = body;
+
+        // Normalize empty values to null for consistent DB checks
+        selectedSize = selectedSize || null;
+        selectedColor = selectedColor || null;
+        selectedColorHex = selectedColorHex || null;
 
         const user = await getOrCreateUserFromSession();
 
-        if (!user.id) {
-            return NextResponse.json(
+        if (user instanceof NextResponse || !user.id) {
+            return user instanceof NextResponse ? user : NextResponse.json(
                 { message: "Unauthorized" },
                 { status: 401 }
             )
@@ -94,7 +100,7 @@ export async function POST(request) {
             await pool.query("UPDATE cart_items SET quantity=quantity + $1, updated_at = NOW() WHERE id=$2", [quantity, isExistingProductInCart.rows[0].id]);
         }
         else {
-            await pool.query("INSERT INTO cart_items(cart_id,product_id,quantity,unit_price,selected_size,selected_color) VALUES($1,$2,$3,$4,$5,$6)", [cart.id, productId, quantity, productPrice, selectedSize, selectedColor]);
+            await pool.query("INSERT INTO cart_items(cart_id,product_id,quantity,unit_price,selected_size,selected_color,selected_color_hex) VALUES($1,$2,$3,$4,$5,$6,$7)", [cart.id, productId, quantity, productPrice, selectedSize, selectedColor, selectedColorHex]);
         }
 
         const totalRes = await pool.query("SELECT SUM(quantity) as total FROM cart_items WHERE cart_id=$1", [cart.id]);
@@ -106,8 +112,9 @@ export async function POST(request) {
         )
 
     } catch (error) {
+        console.error("POST /api/cart error:", error);
         return NextResponse.json(
-            { message: `Something went wrong: ${error}` },
+            { message: `Something went wrong: ${error.message || error}` },
             { status: 500 }
         )
     }

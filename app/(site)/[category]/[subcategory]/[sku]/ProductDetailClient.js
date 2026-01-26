@@ -1,14 +1,11 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
-import Image from 'next/image';
+import React, { useState } from 'react';
 import { useCart } from "@/context/CartContext";
 import {
-    Button,
     Tabs,
     Tab,
     Box,
-    Typography
 } from '@mui/material';
 
 // MUI Icons
@@ -23,7 +20,6 @@ import DryCleaningIcon from '@mui/icons-material/DryCleaning';
 export default function ProductDetailClient({ product }) {
     const { addToCart, loading } = useCart();
 
-    // Process colors: handle both old (string array) and new (object array) formats
     const colors = Array.isArray(product.colors) ? product.colors : [];
     const initialColor = colors.length > 0
         ? (typeof colors[0] === 'object' ? colors[0] : { name: colors[0], hex: colors[0] })
@@ -38,6 +34,7 @@ export default function ProductDetailClient({ product }) {
         addToCart({
             ...product,
             selectedColor: selectedColor.name,
+            selectedColorHex: selectedColor.hex,
             selectedSize
         }, quantity);
     };
@@ -49,11 +46,8 @@ export default function ProductDetailClient({ product }) {
     return (
         <div className="flex-grow flex justify-center w-full px-4 md:px-10 py-5">
             <div className="flex flex-col max-w-7xl w-full">
-                {/* Product Main Section */}
                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-16">
-                    {/* Left Column: Gallery */}
                     <div className="lg:col-span-7 flex flex-col gap-4">
-                        {/* Main Image */}
                         <div className="w-full aspect-[3/4] md:aspect-[4/3] lg:aspect-[1/1] bg-gray-100 dark:bg-gray-800 rounded-2xl overflow-hidden relative group">
                             <div
                                 className="w-full h-full bg-center bg-no-repeat bg-cover transition-transform duration-500 group-hover:scale-105"
@@ -68,9 +62,7 @@ export default function ProductDetailClient({ product }) {
                         </div>
                     </div>
 
-                    {/* Right Column: Details */}
                     <div className="lg:col-span-5 flex flex-col pt-2">
-                        {/* Title & Rating */}
                         <div className="mb-4 border-b border-[#f1f3f2] dark:border-[#2a362f] pb-6">
                             <div className="flex justify-between items-start mb-2">
                                 <h1 className="text-3xl md:text-4xl font-bold text-text-dark dark:text-white leading-tight">
@@ -81,15 +73,12 @@ export default function ProductDetailClient({ product }) {
                                 <span className="text-3xl font-bold text-primary">₺{product.price}</span>
                             </div>
                         </div>
-
-                        {/* Description Short */}
                         <div className="mb-8">
                             <p className="text-[#6d7e73] dark:text-[#a0aead] leading-relaxed">
                                 {product.description}
                             </p>
                         </div>
 
-                        {/* Color Variants */}
                         {colors.length > 0 && (
                             <div className="mb-6">
                                 <h3 className="text-sm font-bold text-text-dark dark:text-white uppercase tracking-wider mb-3">
@@ -115,7 +104,6 @@ export default function ProductDetailClient({ product }) {
                             </div>
                         )}
 
-                        {/* Size Variants */}
                         {product.sizes && product.sizes.length > 0 && (
                             <div className="mb-8">
                                 <div className="flex justify-between items-center mb-3">
@@ -143,10 +131,8 @@ export default function ProductDetailClient({ product }) {
                             </div>
                         )}
 
-                        {/* Actions */}
                         <div className="flex flex-col gap-4 mt-auto">
                             <div className="flex gap-4 h-12">
-                                {/* Quantity */}
                                 <div className="flex items-center border border-[#e5e7eb] dark:border-[#2a362f] rounded-lg bg-white dark:bg-[#1e2823] px-2">
                                     <button
                                         onClick={() => setQuantity(Math.max(1, quantity - 1))}
@@ -167,7 +153,6 @@ export default function ProductDetailClient({ product }) {
                                         <AddIcon sx={{ fontSize: 18 }} />
                                     </button>
                                 </div>
-                                {/* Add to Cart */}
                                 <button
                                     onClick={handleAddToCart}
                                     disabled={loading}
@@ -185,7 +170,6 @@ export default function ProductDetailClient({ product }) {
                     </div>
                 </div>
 
-                {/* Tabbed Content Section */}
                 <div className="mt-20 border-t border-[#f1f3f2] dark:border-[#2a362f] pt-10">
                     <Box sx={{ borderBottom: 1, borderColor: 'divider', mb: 4 }}>
                         <Tabs

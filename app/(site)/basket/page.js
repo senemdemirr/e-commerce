@@ -106,16 +106,25 @@ export default function BasketPage() {
                                     <p className="text-sm text-text-muted dark:text-gray-400">
                                         {item.brand ? `Brand: ${item.brand}` : ''}
                                     </p>
-                                    <div className="flex gap-4 mt-1">
+                                    <div className="flex flex-wrap gap-4 mt-1">
                                         {item.selected_size && (
-                                            <p className="text-sm font-medium text-text-muted dark:text-gray-400">
-                                                Size: <span className="text-text-main dark:text-white">{item.selected_size}</span>
+                                            <p className="text-sm font-medium text-text-muted dark:text-gray-400 flex items-center gap-1">
+                                                Size: <span className="font-bold text-text-dark dark:text-white bg-gray-100 dark:bg-gray-800 px-2 py-0.5 rounded text-xs">{item.selected_size}</span>
                                             </p>
                                         )}
                                         {item.selected_color && (
-                                            <p className="text-sm font-medium text-text-muted dark:text-gray-400">
-                                                Color: <span className="text-text-main dark:text-white">{item.selected_color}</span>
-                                            </p>
+                                            <div className="flex items-center gap-2 text-sm font-medium text-text-muted dark:text-gray-400">
+                                                <span>Color:</span>
+                                                <div className="flex items-center gap-1.5 bg-gray-50 dark:bg-gray-800/50 px-2 py-0.5 rounded">
+                                                    {item.selected_color_hex && (
+                                                        <div
+                                                            className="w-3 h-3 rounded-full border border-gray-200"
+                                                            style={{ backgroundColor: item.selected_color_hex }}
+                                                        />
+                                                    )}
+                                                    <span className="text-xs font-bold text-text-dark dark:text-white">{item.selected_color}</span>
+                                                </div>
+                                            </div>
                                         )}
                                     </div>
                                     <p className="mt-1 text-sm text-green-600 font-medium flex items-center gap-1">
