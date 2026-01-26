@@ -1,5 +1,5 @@
 "use client";
-import { Typography, Button, CircularProgress, Dialog, DialogTitle, IconButton, DialogContent, DialogActions } from "@mui/material";
+import { Typography, Button, Dialog, DialogTitle, IconButton, DialogContent, DialogActions } from "@mui/material";
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 import { useEffect, useState } from "react";
 import { apiFetch } from "@/lib/apiFetch/fetch";
@@ -8,6 +8,7 @@ import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
 import DeleteOutlineOutlinedIcon from '@mui/icons-material/DeleteOutlineOutlined';
 import CloseIcon from '@mui/icons-material/Close';
 import NewAdresForm from "./NewAdresForm";
+import Loading from "@/components/Loading";
 
 export default function UserAdresses() {
     const [addresses, setAddresses] = useState([]);
@@ -132,9 +133,7 @@ export default function UserAdresses() {
                 </DialogActions>
             </Dialog>
             {loading ?
-                <div className="flex flex-row justify-center items-center mt-6">
-                    <CircularProgress sx={{ color: "var(--color-primary)" }} />
-                </div>
+                <Loading />
                 :
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
                     {addresses.map((item) => {
