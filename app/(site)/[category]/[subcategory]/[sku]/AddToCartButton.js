@@ -3,11 +3,11 @@ import { useCart } from "@/context/CartContext";
 import AddShoppingCartIcon from '@mui/icons-material/AddShoppingCart';
 import { Button } from "@mui/material";
 
-export default function AddToCartButton({ product }) {
+export default function AddToCartButton({ product, quantity }) {
     const { addToCart, loading } = useCart();
 
     const handleClick = () => {
-        addToCart(product, 1);
+        addToCart(product, quantity);
     }
 
     return (
