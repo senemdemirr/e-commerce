@@ -51,14 +51,12 @@ export function CartProvider({ children }) {
             }
             // Update items locally or fetch
             await fetchCart();
+            await new Promise(resolve => setTimeout(resolve, 2000));
+            router.push("/basket");
         } catch (error) {
             console.log(error);
-        }
-        finally {
-            setTimeout(() => {
-                setLoading(false);
-                router.push("/basket");
-            }, 2000);
+        } finally {
+            setLoading(false);
         }
     }
 
