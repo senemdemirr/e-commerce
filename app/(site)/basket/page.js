@@ -33,9 +33,6 @@ export default function BasketPage() {
         return (
             <main className="flex-grow container mx-auto max-w-7xl px-4 py-8 lg:px-8">
                 <div className="flex flex-col items-center justify-center gap-6 py-20 text-center">
-                    <div className="rounded-full bg-surface-light p-6 shadow-sm dark:bg-surface-dark">
-                        <span className="material-symbols-outlined text-4xl text-text-muted">shopping_basket</span>
-                    </div>
                     <h2 className="text-2xl font-bold text-text-main dark:text-white">Your Cart is Empty</h2>
                     <p className="text-text-muted dark:text-gray-400">You haven't added any items to your cart yet.</p>
                     <Link
