@@ -22,7 +22,7 @@ export default function BasketPage() {
         (acc, item) => acc + (Number(item.total_price) || (Number(item.unit_price) * item.quantity)),
         0
     );
-    const shipping = items.length > 0 ? 50.0 : 0;
+    const shipping = subtotal >= 1000 ? 0 : 49.90;
     const total = subtotal + shipping;
 
     const handleCheckout = () => {
@@ -192,7 +192,9 @@ export default function BasketPage() {
                             </div>
                             <div className="flex justify-between text-sm text-text-muted dark:text-gray-400">
                                 <span>Shipping</span>
-                                <span className="font-medium text-primary">₺{shipping.toFixed(2)}</span>
+                                <span className={`font-medium ${shipping === 0 ? "text-green-500" : "text-primary"}`}>
+                                    {shipping === 0 ? "Free" : `₺${shipping.toFixed(2)}`}
+                                </span>
                             </div>
                         </div>
                         <div className="mb-8 flex items-end justify-between">
