@@ -140,11 +140,6 @@ export default function CheckoutPage() {
         return { months, years, currentMonth, currentYearShort };
     };
 
-    const handleDateSelect = (month, year) => {
-        setExpireMonth(month);
-        setExpireYear(year);
-        setShowDatePicker(false);
-    };
 
     const isDateDisabled = (month, year) => {
         const { currentMonth, currentYearShort } = generateMonthsAndYears();
@@ -456,7 +451,7 @@ export default function CheckoutPage() {
 
                             <div className="flex items-center gap-2 pt-2">
                                 <input
-                                    className="w-5 h-5 rounded border-gray-300 text-primary focus:ring-primary"
+                                    className="checkbox-transparent-primary"
                                     id="save_card"
                                     type="checkbox"
                                     checked={saveCard}
@@ -529,7 +524,7 @@ export default function CheckoutPage() {
                         <div className="mt-4 flex flex-col gap-2">
                             <div className="flex items-start gap-2 text-[11px] text-gray-400">
                                 <input
-                                    className="mt-0.5 rounded border-gray-300 text-primary"
+                                    className="checkbox-transparent-primary !w-6 !h-5"
                                     type="checkbox"
                                     checked={agreedToTerms}
                                     onChange={(e) => setAgreedToTerms(e.target.checked)}
