@@ -41,8 +41,36 @@ a {
   font-family: inherit !important;
 }
 
-@media (prefers-color-scheme: dark) {
-  html {
-    color-scheme: dark;
-  }
+/* Custom Checkbox: Transparent background, primary icon */
+.checkbox-transparent-primary {
+  appearance: none;
+  -webkit-appearance: none;
+  background-color: transparent !important;
+  border: 1.5px solid #d1d5db;
+  /* gray-300 */
+  border-radius: 0.25rem;
+  cursor: pointer;
+  position: relative;
+  width: 1.25rem;
+  /* w-5 */
+  height: 1.25rem;
+  /* h-5 */
+}
+
+.checkbox-transparent-primary:checked {
+  border-color: #8dc8a1 !important;
+  /* primary */
+}
+
+.checkbox-transparent-primary:checked::after {
+  content: '';
+  position: absolute;
+  top: 15%;
+  left: 35%;
+  width: 25%;
+  height: 50%;
+  border: solid #8dc8a1;
+  /* primary */
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg);
 }
