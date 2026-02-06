@@ -1,7 +1,6 @@
 import ManageAccountsIcon from '@mui/icons-material/ManageAccounts';
 import LockIcon from '@mui/icons-material/Lock';
 import LocationOnIcon from '@mui/icons-material/LocationOn';
-import CreditCardIcon from '@mui/icons-material/CreditCard';
 import UserInfo from "../components/UserInfo/UserInfo";
 import UserAdresses from "../components/UserAdresses/UserAdresses";
 import ChangePassword from "../components/ChangePassword/ChangePassword";
@@ -30,13 +29,6 @@ export default async function Section({ params }) {
             title: "Password Change",
             description: "To ensure the security of your account, update your password regularly.",
             icon: LockIcon
-        },
-        {
-            slug: "saved-cards",
-            component: () => <div className="p-8 text-center text-text-muted">Saved cards feature coming soon.</div>,
-            title: "Saved Cards",
-            description: "Manage your saved payment methods securely.",
-            icon: CreditCardIcon
         }
     ]
     const current = pagesAndInformation.find((page) => page.slug === param.section);
