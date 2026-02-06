@@ -186,10 +186,8 @@ export default function CheckoutPage() {
             });
 
             if (res.order) {
-                setSuccess(true);
-                setTimeout(() => {
-                    router.push(`/my-profile/orders`);
-                }, 2000);
+                const { order_number, total_amount, subtotal, shipping_cost } = res.order;
+                router.push(`/checkout/success?orderNumber=${order_number}&total=${total_amount}&subtotal=${subtotal}&shipping=${shipping_cost}`);
             } else {
                 setError(res.message || res.error || "Payment failed");
             }
@@ -205,17 +203,6 @@ export default function CheckoutPage() {
         return (
             <div className="flex items-center justify-center min-h-[50vh]">
                 <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
-            </div>
-        );
-    }
-
-    if (success) {
-        return (
-            <div className="max-w-[1200px] mx-auto w-full px-4 py-8">
-                <div className="bg-green-50 border border-green-200 text-green-800 px-4 py-3 rounded-xl">
-                    <h3 className="font-bold text-lg">Order Placed Successfully!</h3>
-                    <p>Redirecting to your orders...</p>
-                </div>
             </div>
         );
     }
@@ -366,7 +353,7 @@ export default function CheckoutPage() {
                                         <div className="absolute top-full left-0 bg-white dark:bg-surface-dark border border-gray-200 dark:border-gray-700 rounded-xl shadow-2xl z-50 overflow-hidden w-72">
                                             <div className="p-3 border-b border-gray-100 dark:border-gray-800 flex justify-between items-center bg-gray-50 dark:bg-gray-900">
                                                 <h4 className="font-bold text-xs uppercase tracking-wider text-gray-500">Select Expiration</h4>
-                                                <button onClick={() => setShowDatePicker(false)} className="text-gray-400 hover:text-gray-600 px-2 text-xl">&times;</button>
+                                                <button type="button" onClick={() => setShowDatePicker(false)} className="text-gray-400 hover:text-gray-600 px-2 text-xl">&times;</button>
                                             </div>
                                             <div className="flex h-64">
                                                 {/* Months Column */}
@@ -378,6 +365,7 @@ export default function CheckoutPage() {
                                                             const disabled = expireYear ? isDateDisabled(m.value, expireYear) : false;
                                                             return (
                                                                 <button
+                                                                    type="button"
                                                                     key={m.value}
                                                                     disabled={disabled}
                                                                     onClick={() => setExpireMonth(m.value)}
@@ -398,6 +386,7 @@ export default function CheckoutPage() {
                                                         const { years } = generateMonthsAndYears();
                                                         return years.map(y => (
                                                             <button
+                                                                type="button"
                                                                 key={y.value}
                                                                 onClick={() => {
                                                                     setExpireYear(y.label);
@@ -417,6 +406,7 @@ export default function CheckoutPage() {
                                             </div>
                                             {expireMonth && expireYear && (
                                                 <button
+                                                    type="button"
                                                     onClick={() => setShowDatePicker(false)}
                                                     className="w-full py-3 bg-primary text-white font-bold text-sm hover:bg-primary-dark transition-colors"
                                                 >
@@ -505,7 +495,7 @@ export default function CheckoutPage() {
 
                         <button
                             onClick={handleSubmitOrder}
-                            disabled={processing}
+                            disabled={processing || !agreedToTerms}
                             className="w-full bg-primary hover:bg-primary-dark text-white font-bold py-4 rounded-xl shadow-lg shadow-primary/20 transition-all flex items-center justify-center gap-2 group disabled:opacity-50 disabled:cursor-not-allowed"
                         >
                             {processing ? (
