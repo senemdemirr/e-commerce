@@ -28,7 +28,7 @@ export default function AuthMenu() {
                             (
                                 <>
                                     <a href="/my-profile/orders" className="block px-4 py-2 text-sm hover:bg-gray-100">
-                                        My Orders
+                                        All My Orders
                                     </a>
                                     <a href="/auth/logout" className="block px-4 py-2 text-sm hover:bg-gray-100">
                                         Log Out

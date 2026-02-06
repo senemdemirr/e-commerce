@@ -76,7 +76,7 @@ export default function MyOrdersPage() {
             <Box className="relative h-32 bg-gradient-to-r from-primary/20 via-secondary/10 to-background-light dark:from-primary/10 dark:to-surface-dark p-6 flex items-end">
                 <Box className="relative z-10 w-full flex justify-between items-end">
                     <Box>
-                        <h2 className="text-2xl font-bold text-text-main dark:text-white mb-1">My Orders</h2>
+                        <h2 className="text-2xl font-bold text-text-main dark:text-white mb-1">All My Orders</h2>
                         <p className="text-text-muted dark:text-gray-400 text-sm">You can track all your orders here.</p>
                     </Box>
                     <Box className="hidden sm:block">
