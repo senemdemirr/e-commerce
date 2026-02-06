@@ -11,14 +11,16 @@ export default async function MyProfileLayout({ children }) {
     }
     return (
         <UserProvider user={user}>
-            <div className="container flex lg:flex-row flex-col w-full mx-auto py-8 justify-between">
-                <ProfileSidebar></ProfileSidebar>
-                <div className="container bg-white rounded-xl shadow-sm border !border-gray-100 flex-1 lg:ml-8 mt-6 lg:mt-0">
-                    <Providers>
-                        {children}
-                    </Providers>
+            <main className="flex-grow w-full max-w-7xl mx-auto px-4 md:px-10 py-8">
+                <div className="flex flex-col lg:flex-row gap-8 min-h-[600px]">
+                    <ProfileSidebar />
+                    <div className="flex-1 bg-surface-light dark:bg-surface-dark rounded-xl shadow-sm border border-gray-100 dark:border-gray-800 overflow-hidden flex flex-col">
+                        <Providers>
+                            {children}
+                        </Providers>
+                    </div>
                 </div>
-            </div>
+            </main>
         </UserProvider >
     )
 }
