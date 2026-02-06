@@ -162,11 +162,14 @@ export async function POST(request) {
             });
         }
 
+        // Calculate final paid price from basket items to avoid mismatch errors
+        const finalPaidPrice = basketItems.reduce((acc, item) => acc + parseFloat(item.price), 0).toFixed(2);
+
         const paymentRequest = {
             locale: Iyzipay.LOCALE.TR,
             conversationId: orderNumber,
-            price: subtotal.toFixed(2),
-            paidPrice: totalAmount.toFixed(2),
+            price: finalPaidPrice, // subtotal including shipping
+            paidPrice: finalPaidPrice,
             currency: Iyzipay.CURRENCY.TRY,
             installment: '1',
             basketId: cart.id.toString(),
