@@ -21,7 +21,6 @@ export async function GET(request, { params }) {
         }
 
         const order = orderResult.rows[0];
-        console.log("orderrr", order);
 
         // Dynamic status calculation
         const getDynamicStatus = (createdAt, dbStatus) => {
