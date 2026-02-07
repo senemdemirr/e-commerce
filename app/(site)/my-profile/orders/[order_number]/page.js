@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState, use } from "react";
+import { useEffect, useState, use, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { apiFetch } from "@/lib/apiFetch/fetch";
 import { Box, Typography, CircularProgress, Button, Divider } from "@mui/material";
@@ -11,6 +11,9 @@ import HomeIcon from '@mui/icons-material/Home';
 import LocationOnIcon from '@mui/icons-material/LocationOn';
 import CreditCardIcon from '@mui/icons-material/CreditCard';
 import SupportAgentIcon from '@mui/icons-material/SupportAgent';
+import html2canvas from 'html2canvas';
+import { jsPDF } from 'jspdf';
+import Invoice from "@/components/Invoice";
 
 export default function OrderDetailsPage({ params }) {
     const { order_number } = use(params);
@@ -18,6 +21,36 @@ export default function OrderDetailsPage({ params }) {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const router = useRouter();
+    const invoiceRef = useRef(null);
+
+    const handleDownloadInvoice = async () => {
+        if (!invoiceRef.current) return;
+        try {
+            const canvas = await html2canvas(invoiceRef.current, {
+                scale: 2,
+                useCORS: true,
+                logging: false,
+                backgroundColor: '#ffffff', // Ensure white background
+                windowWidth: 1200, // Ensure desktop layout is captured
+            });
+
+            const imgData = canvas.toDataURL('image/png');
+            const pdf = new jsPDF({
+                orientation: 'portrait',
+                unit: 'px',
+                format: 'a4',
+            });
+
+            const imgProps = pdf.getImageProperties(imgData);
+            const pdfWidth = pdf.internal.pageSize.getWidth();
+            const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
+
+            pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
+            pdf.save(`invoice-${order.order_number}.pdf`);
+        } catch (error) {
+            console.error("Error generating PDF:", error);
+        }
+    };
 
     useEffect(() => {
         const fetchOrderDetails = async () => {
@@ -80,7 +113,7 @@ export default function OrderDetailsPage({ params }) {
                     </p>
                 </Box>
                 <Box className="flex gap-3">
-                    <button className="flex items-center gap-2 rounded-xl h-11 px-6 bg-background-light dark:bg-white/10 text-text-dark dark:text-white text-sm font-bold hover:bg-primary/10 transition-colors">
+                    <button onClick={handleDownloadInvoice} className="flex items-center gap-2 rounded-xl h-11 px-6 bg-background-light dark:bg-white/10 text-text-dark dark:text-white text-sm font-bold hover:bg-primary/10 transition-colors">
                         <DescriptionIcon sx={{ fontSize: 20 }} />
                         <span>Download Invoice</span>
                     </button>
@@ -211,6 +244,10 @@ export default function OrderDetailsPage({ params }) {
                     </Box>
                 </Box>
             </Box>
+            {/* Hidden Invoice Component for PDF Generation */}
+            <div style={{ position: "absolute", top: -9999, left: -9999 }}>
+                <Invoice order={order} ref={invoiceRef} />
+            </div>
         </main>
     );
 }
