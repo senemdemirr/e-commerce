@@ -113,7 +113,7 @@ function OrderSuccessContent() {
                                         <span className="truncate">Ana Sayfaya Dön</span>
                                     </button>
                                     <button
-                                        onClick={() => router.push('/my-profile/orders')}
+                                        onClick={() => router.push(`/my-profile/orders/${orderNumber.replace('#', '')}`)}
                                         className="flex min-w-[140px] cursor-pointer items-center justify-center gap-2 overflow-hidden rounded-xl h-14 px-8 bg-[#f1f3f2] dark:bg-surface-dark text-text-dark dark:text-white text-base font-bold leading-normal tracking-wide grow hover:bg-gray-200 dark:hover:bg-gray-800 transition-all active:scale-95 border border-transparent dark:border-gray-700"
                                     >
                                         <ReceiptLongIcon />

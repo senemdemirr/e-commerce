@@ -1,5 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import { apiFetch } from "@/lib/apiFetch/fetch";
 import { Typography, Button, Box, Chip, CircularProgress } from "@mui/material";
 import ShoppingBasketIcon from '@mui/icons-material/ShoppingBasket';
@@ -10,6 +11,7 @@ import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 
 export default function MyOrdersPage() {
+    const router = useRouter();
     const [orders, setOrders] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -117,7 +119,10 @@ export default function MyOrdersPage() {
                                         <span className="text-xs font-black">{statusInfo.label}</span>
                                     </Box>
                                 </Box>
-                                <button className="h-10 px-6 rounded-lg border border-primary/30 text-primary text-xs font-black hover:bg-primary/10 transition-colors flex items-center justify-center gap-2">
+                                <button
+                                    onClick={() => router.push(`/my-profile/orders/${order.order_number}`)}
+                                    className="h-10 px-6 rounded-lg border border-primary/30 text-primary text-xs font-black hover:bg-primary/10 transition-colors flex items-center justify-center gap-2"
+                                >
                                     <VisibilityIcon sx={{ fontSize: 18 }} />
                                     Order Details
                                 </button>
