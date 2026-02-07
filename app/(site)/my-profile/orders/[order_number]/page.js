@@ -63,16 +63,6 @@ export default function OrderDetailsPage({ params }) {
         return new Date(dateString).toLocaleDateString('en-US', options);
     };
 
-    // Helper for status classes
-    const getStatusLabel = (status) => {
-        switch (status?.toLowerCase()) {
-            case 'delivered': return 'Delivered';
-            case 'shipped': return 'Shipped';
-            case 'processing': return 'Processing';
-            case 'paid': return 'Paid';
-            default: return status || 'Pending';
-        }
-    };
 
     return (
         <main className="flex flex-col flex-1 max-w-[1200px] w-full mx-auto px-4 md:px-10 py-6 gap-6 bg-white dark:bg-surface-dark">
@@ -82,7 +72,7 @@ export default function OrderDetailsPage({ params }) {
                     <Box className="flex items-center gap-3">
                         <h1 className="text-text-dark dark:text-white text-3xl font-black leading-tight tracking-tight">Order Details</h1>
                         <span className="px-3 py-1 bg-primary/20 text-primary text-xs font-black rounded-full border border-primary/30 uppercase tracking-wider">
-                            {getStatusLabel(order.status)}
+                            {order.status_label}
                         </span>
                     </Box>
                     <p className="text-text-muted dark:text-white/60 text-base font-normal">
