@@ -22,6 +22,21 @@ export async function GET(request, { params }) {
 
         const order = orderResult.rows[0];
 
+        // Dynamic status calculation
+        const getDynamicStatus = (createdAt, dbStatus) => {
+            if (dbStatus === 'cancelled') return 'cancelled';
+            const orderDate = new Date(createdAt);
+            const now = new Date();
+            const diffInHours = (now - orderDate) / (1000 * 60 * 60);
+
+            if (diffInHours >= 96) return 'delivered'; // 4 days
+            if (diffInHours >= 24) return 'shipped';   // 1 day
+            if (diffInHours >= 3) return 'preparing'; // 3 hours
+            return 'order_received';
+        };
+
+        order.status = getDynamicStatus(order.created_at, order.status);
+
         // Fetch order items with product details if possible, or just the order_items
         const itemsResult = await pool.query(
             `SELECT oi.*, p.title, p.sku, p.image 
@@ -33,12 +48,15 @@ export async function GET(request, { params }) {
 
         order.items = itemsResult.rows;
 
-        // Fetch address details
-        const addressResult = await pool.query(
-            `SELECT * FROM user_addresses WHERE id = $1`,
-            [order.shipping_address_id]
-        );
-        order.shipping_address = addressResult.rows[0];
+        // Format shipping address from order snapshot columns
+        order.shipping_address = {
+            full_name: order.shipping_full_name,
+            phone_number: order.shipping_phone,
+            address_line: order.shipping_address,
+            city: order.shipping_city,
+            district: order.shipping_district,
+            postal_code: order.shipping_postal_code
+        };
 
         return NextResponse.json({ order }, { status: 200 });
     } catch (error) {
