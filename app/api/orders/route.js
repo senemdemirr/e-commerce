@@ -27,8 +27,22 @@ export async function GET() {
 
         const orders = ordersResult.rows;
 
-        // Fetch items for each order
+        // Dynamic status calculation helper
+        const getDynamicStatus = (createdAt, dbStatus) => {
+            if (dbStatus === 'cancelled') return 'cancelled';
+            const orderDate = new Date(createdAt);
+            const now = new Date();
+            const diffInHours = (now - orderDate) / (1000 * 60 * 60);
+
+            if (diffInHours >= 96) return 'delivered';
+            if (diffInHours >= 24) return 'shipped';
+            if (diffInHours >= 3) return 'preparing';
+            return 'order_received';
+        };
+
+        // Fetch items for each order and update status
         for (let order of orders) {
+            order.status = getDynamicStatus(order.created_at, order.status);
             const itemsResult = await pool.query(
                 `SELECT * FROM order_items WHERE order_id = $1`,
                 [order.id]
