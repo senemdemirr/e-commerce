@@ -238,7 +238,7 @@ export default function OrderDetailsPage({ params }) {
                             <span className="text-text-dark dark:text-white font-black text-lg">Total</span>
                             <span className="text-accent font-black text-2xl tracking-tighter">{parseFloat(order.total_amount).toLocaleString('en-US', { minimumFractionDigits: 2 })} TL</span>
                         </Box>
-                        <button className="w-full mt-4 bg-background-light dark:bg-white/10 text-text-dark dark:text-white font-bold py-3 rounded-xl hover:bg-primary hover:text-white transition-all">
+                        <button onClick={() => router.push(`/my-profile/orders/${order.order_number}/cancel`)} className="w-full mt-4 bg-background-light dark:bg-white/10 text-text-dark dark:text-white font-bold py-3 rounded-xl hover:bg-primary hover:text-white transition-all">
                             Cancel Order
                         </button>
                     </Box>
