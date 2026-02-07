@@ -210,8 +210,9 @@ export async function POST(request) {
                          (user_id, order_number, status, subtotal, shipping_cost, total_amount,
                           shipping_address_id, shipping_full_name, shipping_phone, shipping_address,
                           shipping_city, shipping_district, shipping_postal_code,
-                          payment_method, payment_status, iyzico_payment_id, iyzico_conversation_id)
-                         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17)
+                          payment_method, payment_status, iyzico_payment_id, iyzico_conversation_id,
+                          card_mask, card_family, card_bank)
+                         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20)
                          RETURNING *`,
                         [
                             user.id,
@@ -230,7 +231,10 @@ export async function POST(request) {
                             'credit_card',
                             'completed',
                             result.paymentId,
-                            result.conversationId
+                            result.conversationId,
+                            `${result.binNumber} **** ${result.lastFourDigits}`,
+                            result.cardFamily || result.cardAssociation,
+                            result.cardBankName
                         ]
                     );
 
