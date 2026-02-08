@@ -15,6 +15,8 @@ export default function MyOrdersPage() {
     const [orders, setOrders] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const [currentPage, setCurrentPage] = useState(1);
+    const ordersPerPage = 5;
 
     useEffect(() => {
         const fetchOrders = async () => {
@@ -37,6 +39,16 @@ export default function MyOrdersPage() {
     const formatDate = (dateString) => {
         const options = { day: 'numeric', month: 'long', year: 'numeric' };
         return new Date(dateString).toLocaleDateString('tr-TR', options);
+    };
+
+    // Calculate pagination
+    const indexOfLastOrder = currentPage * ordersPerPage;
+    const indexOfFirstOrder = indexOfLastOrder - ordersPerPage;
+    const currentOrders = orders.slice(indexOfFirstOrder, indexOfLastOrder);
+    const totalPages = Math.ceil(orders.length / ordersPerPage);
+
+    const handlePageChange = (pageNumber) => {
+        setCurrentPage(pageNumber);
     };
 
     const getStatusInfo = (status) => {
@@ -110,7 +122,7 @@ export default function MyOrdersPage() {
                         <Typography className="text-text-muted">You don't have any orders yet.</Typography>
                     </Box>
                 ) : (
-                    orders.map((order) => {
+                    currentOrders.map((order) => {
                         const statusInfo = getStatusInfo(order.status);
                         return (
                             <Box
@@ -149,15 +161,35 @@ export default function MyOrdersPage() {
             </Box>
 
             {/* Pagination Section (Placeholder as in the design) */}
-            {orders.length > 0 && (
+            {orders.length > ordersPerPage && (
                 <Box className="p-6 border-t border-gray-100 dark:border-gray-800 flex justify-center">
                     <nav className="flex items-center gap-2">
-                        <button className="size-9 rounded-lg border border-gray-200 dark:border-gray-700 flex items-center justify-center hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
+                        <button
+                            onClick={() => handlePageChange(Math.max(1, currentPage - 1))}
+                            disabled={currentPage === 1}
+                            className={`size-9 rounded-lg border border-gray-200 dark:border-gray-700 flex items-center justify-center transition-colors ${currentPage === 1 ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-50 dark:hover:bg-gray-800'}`}
+                        >
                             <ChevronLeftIcon sx={{ fontSize: 20 }} />
                         </button>
-                        <button className="size-9 rounded-lg bg-primary text-white flex items-center justify-center font-bold text-sm">1</button>
-                        <button className="size-9 rounded-lg border border-gray-200 dark:border-gray-700 flex items-center justify-center hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors text-sm font-medium">2</button>
-                        <button className="size-9 rounded-lg border border-gray-200 dark:border-gray-700 flex items-center justify-center hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
+
+                        {Array.from({ length: totalPages }, (_, i) => i + 1).map((number) => (
+                            <button
+                                key={number}
+                                onClick={() => handlePageChange(number)}
+                                className={`size-9 rounded-lg flex items-center justify-center font-bold text-sm transition-colors ${currentPage === number
+                                        ? 'bg-primary text-white'
+                                        : 'border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800'
+                                    }`}
+                            >
+                                {number}
+                            </button>
+                        ))}
+
+                        <button
+                            onClick={() => handlePageChange(Math.min(totalPages, currentPage + 1))}
+                            disabled={currentPage === totalPages}
+                            className={`size-9 rounded-lg border border-gray-200 dark:border-gray-700 flex items-center justify-center transition-colors ${currentPage === totalPages ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-50 dark:hover:bg-gray-800'}`}
+                        >
                             <ChevronRightIcon sx={{ fontSize: 20 }} />
                         </button>
                     </nav>
