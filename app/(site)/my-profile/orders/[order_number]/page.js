@@ -56,10 +56,10 @@ export default function OrderDetailsPage({ params }) {
         const fetchOrderDetails = async () => {
             try {
                 const res = await apiFetch(`/api/orders/${order_number}`);
-                if (res.order) {
+                if (res && res.order) {
                     setOrder(res.order);
                 } else {
-                    setError(res.message || "Order not found");
+                    setError(res?.message || "Order not found");
                 }
             } catch (err) {
                 console.error("Error fetching order details:", err);
