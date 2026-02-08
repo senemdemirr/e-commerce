@@ -2,6 +2,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { apiFetch } from "@/lib/apiFetch/fetch";
+import { useCart } from "@/context/CartContext";
 import NewAdresForm from "@/app/(site)/my-profile/components/UserAdresses/NewAdresForm";
 import LocationOnIcon from '@mui/icons-material/LocationOn';
 import CreditCardIcon from '@mui/icons-material/CreditCard';
@@ -21,6 +22,7 @@ export default function CheckoutPage() {
     const [processing, setProcessing] = useState(false);
     const [error, setError] = useState(null);
     const [success, setSuccess] = useState(false);
+    const { fetchCart } = useCart();
 
     // Data states
     const [addresses, setAddresses] = useState([]);
@@ -187,6 +189,7 @@ export default function CheckoutPage() {
 
             if (res.order) {
                 const { order_number, total_amount, subtotal, shipping_cost } = res.order;
+                fetchCart(); // Clear cart in context
                 router.push(`/checkout/success?orderNumber=${order_number}&total=${total_amount}&subtotal=${subtotal}&shipping=${shipping_cost}`);
             } else {
                 setError(res.message || res.error || "Payment failed");
