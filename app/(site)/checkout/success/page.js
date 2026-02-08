@@ -28,7 +28,7 @@ function OrderSuccessContent() {
         end.setDate(end.getDate() + 5);
 
         const options = { day: 'numeric', month: 'long' };
-        setEstimateDate(`${start.toLocaleDateString('tr-TR', options)} - ${end.toLocaleDateString('tr-TR', options)}`);
+        setEstimateDate(`${start.toLocaleDateString('en-US', options)} - ${end.toLocaleDateString('en-US', options)}`);
     }, []);
 
     return (
@@ -48,10 +48,10 @@ function OrderSuccessContent() {
                             {/* HeadlineText */}
                             <div className="max-w-[720px] mx-auto">
                                 <h1 className="text-text-dark dark:text-white tracking-tight text-[32px] md:text-[40px] font-black leading-tight pb-3 pt-2">
-                                    Siparişiniz İçin Teşekkür Ederiz!
+                                    Thank You For Your Order!
                                 </h1>
                                 <p className="text-text-muted dark:text-gray-400 text-lg font-normal leading-normal pb-8">
-                                    Siparişiniz başarıyla alındı ve ekibimiz tarafından özenle hazırlanmaya başlandı.
+                                    Your order has been successfully received and is being carefully prepared by our team.
                                 </p>
                             </div>
 
@@ -68,13 +68,13 @@ function OrderSuccessContent() {
                                         <div className="flex items-center justify-between border-b border-dashed border-gray-200 dark:border-gray-700 pb-4">
                                             <div className="text-left">
                                                 <p className="text-text-dark dark:text-white text-xl font-bold leading-tight tracking-tight">
-                                                    Sipariş Özeti
+                                                    Order Summary
                                                 </p>
                                                 <p className="text-primary font-bold text-sm mt-1">{orderNumber}</p>
                                             </div>
                                             <div className="text-right">
                                                 <p className="text-text-muted dark:text-gray-400 text-[10px] font-bold uppercase tracking-widest">
-                                                    Tahmini Teslimat
+                                                    Estimated Delivery
                                                 </p>
                                                 <div className="flex items-center gap-2 text-accent font-bold">
                                                     <CalendarTodayIcon sx={{ fontSize: 14 }} />
@@ -84,17 +84,17 @@ function OrderSuccessContent() {
                                         </div>
                                         <div className="flex flex-col gap-2">
                                             <div className="flex justify-between text-sm">
-                                                <span className="text-text-muted dark:text-gray-400">Ürünler</span>
+                                                <span className="text-text-muted dark:text-gray-400">Products</span>
                                                 <span className="font-semibold text-text-dark dark:text-white">₺{parseFloat(subtotal).toLocaleString('tr-TR', { minimumFractionDigits: 2 })}</span>
                                             </div>
                                             <div className="flex justify-between text-sm">
-                                                <span className="text-text-muted dark:text-gray-400">Kargo</span>
+                                                <span className="text-text-muted dark:text-gray-400">Shipping</span>
                                                 <span className={`font-semibold ${parseFloat(shipping) === 0 ? 'text-primary' : 'text-text-dark dark:text-white'}`}>
-                                                    {parseFloat(shipping) === 0 ? 'Ücretsiz' : `₺${parseFloat(shipping).toLocaleString('tr-TR', { minimumFractionDigits: 2 })}`}
+                                                    {parseFloat(shipping) === 0 ? 'Free' : `₺${parseFloat(shipping).toLocaleString('tr-TR', { minimumFractionDigits: 2 })}`}
                                                 </span>
                                             </div>
                                             <div className="flex justify-between text-lg font-black pt-2 border-t border-gray-100 dark:border-gray-800 mt-2">
-                                                <span className="text-text-dark dark:text-white">Toplam</span>
+                                                <span className="text-text-dark dark:text-white">Total</span>
                                                 <span className="text-text-dark dark:text-white text-2xl">₺{parseFloat(total).toLocaleString('tr-TR', { minimumFractionDigits: 2 })}</span>
                                             </div>
                                         </div>
@@ -110,14 +110,14 @@ function OrderSuccessContent() {
                                         className="flex min-w-[140px] cursor-pointer items-center justify-center gap-2 overflow-hidden rounded-xl h-14 px-8 bg-primary text-white text-base font-bold leading-normal tracking-wide grow shadow-lg shadow-primary/20 hover:bg-primary-dark transition-all active:scale-95"
                                     >
                                         <HomeIcon />
-                                        <span className="truncate">Ana Sayfaya Dön</span>
+                                        <span className="truncate">Return to Home</span>
                                     </button>
                                     <button
                                         onClick={() => router.push(`/my-profile/orders/${orderNumber.replace('#', '')}`)}
                                         className="flex min-w-[140px] cursor-pointer items-center justify-center gap-2 overflow-hidden rounded-xl h-14 px-8 bg-[#f1f3f2] dark:bg-surface-dark text-text-dark dark:text-white text-base font-bold leading-normal tracking-wide grow hover:bg-gray-200 dark:hover:bg-gray-800 transition-all active:scale-95 border border-transparent dark:border-gray-700"
                                     >
                                         <ReceiptLongIcon />
-                                        <span className="truncate">Sipariş Detayları</span>
+                                        <span className="truncate">Order Details</span>
                                     </button>
                                 </div>
                             </div>
