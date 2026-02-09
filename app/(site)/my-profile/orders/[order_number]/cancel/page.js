@@ -47,7 +47,7 @@ export default function CancelOrderPage({ params }) {
             <div className="p-12 text-center">
                 <h6 className="text-red-500 font-bold text-xl">{error || "Sipariş bulunamadı."}</h6>
                 <button onClick={() => router.push('/my-profile/orders')} className="mt-4 text-primary font-bold hover:underline">
-                    Siparişlerime Dön
+                    Back to Orders
                 </button>
             </div>
         );
