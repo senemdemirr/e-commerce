@@ -105,7 +105,7 @@ export default function OrderDetailsPage({ params }) {
                     <Box className="flex items-center gap-3">
                         <h1 className="text-text-dark dark:text-white text-3xl font-black leading-tight tracking-tight">Order Details</h1>
                         <span className="px-3 py-1 bg-primary/20 text-primary text-xs font-black rounded-full border border-primary/30 uppercase tracking-wider">
-                            {order.status_label}
+                            {order.status}
                         </span>
                     </Box>
                     <p className="text-text-muted dark:text-white/60 text-base font-normal">
@@ -133,7 +133,7 @@ export default function OrderDetailsPage({ params }) {
                         </Box>
                     </Box>
                     <Box className="flex flex-col items-center md:items-start gap-2 relative z-10">
-                        <Box className={`size-10 rounded-full flex items-center justify-center text-white ${['processing', 'shipped', 'delivered'].includes(order.status?.toLowerCase()) ? 'bg-primary' : 'bg-gray-200 dark:bg-white/10 text-gray-400'}`}>
+                        <Box className={`size-10 rounded-full flex items-center justify-center text-white ${['Preparing', 'Shipped', 'Delivered'].includes(order.status) ? 'bg-primary' : 'bg-gray-200 dark:bg-white/10 text-gray-400'}`}>
                             <InventoryIcon sx={{ fontSize: 20 }} />
                         </Box>
                         <Box className="flex flex-col items-center md:items-start">
@@ -141,15 +141,15 @@ export default function OrderDetailsPage({ params }) {
                         </Box>
                     </Box>
                     <Box className="flex flex-col items-center md:items-start gap-2 relative z-10">
-                        <Box className={`size-10 rounded-full flex items-center justify-center text-white ${['shipped', 'delivered'].includes(order.status?.toLowerCase()) ? 'bg-primary ring-4 ring-primary/20' : 'bg-gray-200 dark:bg-white/10 text-gray-400'}`}>
+                        <Box className={`size-10 rounded-full flex items-center justify-center text-white ${['Shipped', 'Delivered'].includes(order.status) ? 'bg-primary ring-4 ring-primary/20' : 'bg-gray-200 dark:bg-white/10 text-gray-400'}`}>
                             <LocalShippingIcon sx={{ fontSize: 20 }} />
                         </Box>
                         <Box className="flex flex-col items-center md:items-start">
-                            <p className={`text-sm font-black ${order.status?.toLowerCase() === 'shipped' ? 'text-primary' : 'text-text-dark dark:text-white'}`}>Shipped</p>
+                            <p className={`text-sm font-black ${order.status === 'Shipped' ? 'text-primary' : 'text-text-dark dark:text-white'}`}>Shipped</p>
                         </Box>
                     </Box>
-                    <Box className={`flex flex-col items-center md:items-start gap-2 relative z-10 ${order.status?.toLowerCase() === 'delivered' ? '' : 'opacity-40'}`}>
-                        <Box className={`size-10 rounded-full flex items-center justify-center text-white ${order.status?.toLowerCase() === 'delivered' ? 'bg-primary' : 'bg-gray-200 dark:bg-white/10 text-gray-400'}`}>
+                    <Box className={`flex flex-col items-center md:items-start gap-2 relative z-10 ${order.status === 'Delivered' ? '' : 'opacity-40'}`}>
+                        <Box className={`size-10 rounded-full flex items-center justify-center text-white ${order.status === 'Delivered' ? 'bg-primary' : 'bg-gray-200 dark:bg-white/10 text-gray-400'}`}>
                             <HomeIcon sx={{ fontSize: 20 }} />
                         </Box>
                         <Box className="flex flex-col items-center md:items-start">
@@ -159,7 +159,7 @@ export default function OrderDetailsPage({ params }) {
                     </Box>
                     {/* Progress Line Desktop */}
                     <Box className="hidden md:block absolute top-5 left-10 right-10 h-0.5 bg-gray-200 dark:bg-white/10 -z-0">
-                        <Box className="bg-primary h-full transition-all duration-1000" style={{ width: order.status?.toLowerCase() === 'delivered' ? '100%' : order.status?.toLowerCase() === 'shipped' ? '66%' : order.status?.toLowerCase() === 'processing' ? '33%' : '0%' }}></Box>
+                        <Box className="bg-primary h-full transition-all duration-1000" style={{ width: order.status === 'Delivered' ? '100%' : order.status === 'Shipped' ? '66%' : order.status === 'Preparing' ? '33%' : '0%' }}></Box>
                     </Box>
                 </Box>
             </Box>

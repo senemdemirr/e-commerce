@@ -20,29 +20,15 @@ export async function GET() {
              FROM orders o
              LEFT JOIN order_items oi ON o.id = oi.order_id
              WHERE o.user_id = $1
-             GROUP BY o.id
+             GROUP BY o.id, o.status, o.user_id, o.order_number, o.subtotal, o.shipping_cost, o.total_amount, o.shipping_address_id, o.shipping_full_name, o.shipping_phone, o.shipping_address, o.shipping_city, o.shipping_district, o.shipping_postal_code, o.payment_method, o.payment_status, o.iyzico_payment_id, o.iyzico_conversation_id, o.created_at, o.updated_at, o.card_mask, o.card_family, o.card_bank
              ORDER BY o.created_at DESC`,
             [user.id]
         );
 
         const orders = ordersResult.rows;
 
-        // Dynamic status calculation helper
-        const getDynamicStatus = (createdAt, dbStatus) => {
-            if (dbStatus === 'cancelled') return 'cancelled';
-            const orderDate = new Date(createdAt);
-            const now = new Date();
-            const diffInHours = (now - orderDate) / (1000 * 60 * 60);
-
-            if (diffInHours >= 96) return 'delivered';
-            if (diffInHours >= 24) return 'shipped';
-            if (diffInHours >= 3) return 'preparing';
-            return 'order_received';
-        };
-
-        // Fetch items for each order and update status
+        // Fetch items for each order
         for (let order of orders) {
-            order.status = getDynamicStatus(order.created_at, order.status);
             const itemsResult = await pool.query(
                 `SELECT * FROM order_items WHERE order_id = $1`,
                 [order.id]

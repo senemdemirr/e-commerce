@@ -217,7 +217,7 @@ export async function POST(request) {
                         [
                             user.id,
                             orderNumber,
-                            'order_received',
+                            8,
                             subtotal,
                             shippingCost,
                             totalAmount,

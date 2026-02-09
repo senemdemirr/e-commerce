@@ -52,32 +52,32 @@ export default function MyOrdersPage() {
     };
 
     const getStatusInfo = (status) => {
-        switch (status?.toLowerCase()) {
-            case 'delivered':
+        switch (status) {
+            case 'Delivered':
                 return {
                     label: 'Delivered',
                     icon: <CheckCircleIcon sx={{ fontSize: 16 }} className="fill-current" />,
                     className: 'bg-secondary/10 text-secondary border border-secondary/20'
                 };
-            case 'shipped':
+            case 'Shipped':
                 return {
                     label: 'In the cargo',
                     icon: <LocalShippingIcon sx={{ fontSize: 16 }} className="fill-current" />,
                     className: 'bg-accent/10 text-accent border border-accent/20'
                 };
-            case 'cancelled':
+            case 'Cancelled':
                 return {
                     label: 'Cancelled',
                     icon: <CancelIcon sx={{ fontSize: 16 }} className="fill-current" />,
                     className: 'bg-error/10 text-error border border-error/20'
                 };
-            case 'order_received':
+            case 'Order Received':
                 return {
                     label: 'Order Received',
                     icon: null,
                     className: 'bg-gray-100 text-gray-500 border border-gray-200'
                 };
-            case 'preparing':
+            case 'Preparing':
                 return {
                     label: 'Preparing',
                     icon: null,

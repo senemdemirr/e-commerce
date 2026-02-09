@@ -12,7 +12,7 @@ export async function GET(request, { params }) {
         }
 
         const orderResult = await pool.query(
-            `SELECT o.*, os.title as status_label FROM orders o JOIN order_status os ON o.status = os.code WHERE o.order_number = $1 AND o.user_id = $2`,
+            `SELECT * FROM orders  WHERE order_number = $1 AND user_id = $2`,
             [order_number, user.id]
         );
 

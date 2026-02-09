@@ -66,7 +66,7 @@ export default function CancelOrderPage({ params }) {
         return new Date(dateString).toLocaleDateString('tr-TR', options);
     };
 
-    const isDelivered = order.status === 'delivered';
+    const isDelivered = order.status === 'Delivered';
 
     // --- CANCEL ORDER UI (New Design) ---
     if (!isDelivered) {
@@ -100,9 +100,9 @@ export default function CancelOrderPage({ params }) {
                                         <h3 className="font-bold text-lg text-text-dark dark:text-white">Sipariş Özeti</h3>
                                     </div>
                                     <span className="px-3 py-1 bg-primary/10 text-primary text-sm font-bold rounded-full capitalize">
-                                        {order.status === 'order_received' ? 'Sipariş Alındı' :
-                                            order.status === 'preparing' ? 'Hazırlanıyor' :
-                                                order.status === 'shipped' ? 'Kargoda' : order.status}
+                                        {order.status === 'Order Received' ? 'Sipariş Alındı' :
+                                            order.status === 'Preparing' ? 'Hazırlanıyor' :
+                                                order.status === 'Shipped' ? 'Kargoda' : order.status}
                                     </span>
                                 </div>
 
