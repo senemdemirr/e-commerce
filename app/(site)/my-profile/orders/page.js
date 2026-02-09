@@ -177,8 +177,8 @@ export default function MyOrdersPage() {
                                 key={number}
                                 onClick={() => handlePageChange(number)}
                                 className={`size-9 rounded-lg flex items-center justify-center font-bold text-sm transition-colors ${currentPage === number
-                                        ? 'bg-primary text-white'
-                                        : 'border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800'
+                                    ? 'bg-primary text-white'
+                                    : 'border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800'
                                     }`}
                             >
                                 {number}
