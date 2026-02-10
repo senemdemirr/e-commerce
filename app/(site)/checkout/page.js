@@ -559,14 +559,6 @@ export default function CheckoutPage() {
                                 onCancel={() => setOpenAddressDialog(false)}
                             />
                         </div>
-                        <div className="p-6 border-t border-gray-200 dark:border-gray-700 flex justify-end gap-3">
-                            <button
-                                onClick={() => setOpenAddressDialog(false)}
-                                className="px-6 py-2 rounded-lg border border-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
-                            >
-                                Cancel
-                            </button>
-                        </div>
                     </div>
                 </div>
             )}

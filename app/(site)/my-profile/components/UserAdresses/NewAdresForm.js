@@ -334,12 +334,24 @@ export default function NewAdresForm({ mode, initialData, onSuccess, onCancel })
                 />
                 <FormHelperText>{errors.address_line?.message}</FormHelperText>
             </FormControl>
-            <Button
-                startIcon={<CheckIcon />}
-                type="submit"
-                className="float-right cursor-pointer !mt-4 w-auto px-8 h-10 rounded-lg !bg-primary !text-white hover:!bg-primary-dark">
-                Save
-            </Button>
+            <div className="mt-4 flex items-center justify-end gap-3">
+                {onCancel && (
+                    <Button
+                        type="button"
+                        onClick={onCancel}
+                        className="cursor-pointer !px-8 !h-10 !rounded-lg !border !border-gray-300 !text-text-main hover:!bg-gray-50"
+                    >
+                        Cancel
+                    </Button>
+                )}
+                <Button
+                    startIcon={<CheckIcon />}
+                    type="submit"
+                    className="cursor-pointer !px-8 !h-10 !rounded-lg !bg-primary !text-white hover:!bg-primary-dark"
+                >
+                    Save
+                </Button>
+            </div>
         </form>
     );
 }
