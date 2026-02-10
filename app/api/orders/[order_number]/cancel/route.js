@@ -6,6 +6,8 @@ export async function POST(request, { params }) {
     try {
         const { order_number } = await params;
         const user = await getOrCreateUserFromSession();
+        const body = await request.json();
+        const { reason_id, note } = body;
 
         if (!user.id) {
             return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
@@ -37,6 +39,15 @@ export async function POST(request, { params }) {
         if (updateResult.rows.length === 0) {
             return NextResponse.json({ message: "Order not found or unauthorized" }, { status: 404 });
         }
+
+        const orderId = updateResult.rows[0].id;
+
+        // 3. Store the cancellation reason and note
+        await pool.query(
+            `INSERT INTO order_cancellations (order_id, reason_id, note)
+             VALUES ($1, $2, $3)`,
+            [orderId, reason_id || null, note || null]
+        );
 
         return NextResponse.json({ message: "Order cancelled successfully" }, { status: 200 });
     } catch (error) {

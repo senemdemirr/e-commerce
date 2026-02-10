@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from "next/link";
 import {
     ChevronRight,
@@ -16,13 +16,42 @@ import { CircularProgress } from '@mui/material';
 const CancelRequest = ({ order, router, formatDate, onSuccess }) => {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
+    const [reasons, setReasons] = useState([]);
+    const [fetchingReasons, setFetchingReasons] = useState(true);
+    const [selectedReason, setSelectedReason] = useState("");
+    const [cancelNote, setCancelNote] = useState("");
+
+    useEffect(() => {
+        const fetchReasons = async () => {
+            try {
+                const res = await apiFetch("/api/orders/cancellation-reasons");
+                if (res.reasons) {
+                    setReasons(res.reasons);
+                }
+            } catch (err) {
+                console.error("Error fetching reasons:", err);
+            } finally {
+                setFetchingReasons(false);
+            }
+        };
+        fetchReasons();
+    }, []);
 
     const handleCancel = async () => {
+        if (!selectedReason) {
+            setError("Please select a reason for cancellation.");
+            return;
+        }
+
         setLoading(true);
         setError(null);
         try {
             const res = await apiFetch(`/api/orders/${order.order_number}/cancel`, {
                 method: "POST",
+                body: JSON.stringify({
+                    reason_id: parseInt(selectedReason),
+                    note: cancelNote
+                })
             });
 
             if (res.message === "Order cancelled successfully") {
@@ -104,14 +133,17 @@ const CancelRequest = ({ order, router, formatDate, onSuccess }) => {
                                     <select
                                         className="w-full h-12 rounded-lg border-gray-200 dark:border-white/10 bg-background-light dark:bg-white/5 text-text-dark dark:text-white focus:ring-primary focus:border-primary appearance-none px-4"
                                         id="reason"
-                                        defaultValue=""
+                                        value={selectedReason}
+                                        onChange={(e) => setSelectedReason(e.target.value)}
                                     >
-                                        <option disabled value="">Please specify a reason...</option>
-                                        <option value="1">Ordered by mistake</option>
-                                        <option value="2">Found better price elsewhere</option>
-                                        <option value="3">Changed my mind / No longer needed</option>
-                                        <option value="4">Delivery time too long</option>
-                                        <option value="5">Other</option>
+                                        <option disabled value="">
+                                            {fetchingReasons ? "Loading reasons..." : "Please specify a reason..."}
+                                        </option>
+                                        {reasons.map((r) => (
+                                            <option key={r.id} value={r.id}>
+                                                {r.reason_text}
+                                            </option>
+                                        ))}
                                     </select>
                                     <ExpandMore className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-text-muted" />
                                 </div>
@@ -128,6 +160,8 @@ const CancelRequest = ({ order, router, formatDate, onSuccess }) => {
                                     id="desc"
                                     placeholder="Would you like to provide more details?"
                                     rows="4"
+                                    value={cancelNote}
+                                    onChange={(e) => setCancelNote(e.target.value)}
                                 ></textarea>
                             </div>
 
