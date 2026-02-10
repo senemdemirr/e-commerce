@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { useCart } from "@/context/CartContext";
 import {
     Tabs,
@@ -16,9 +16,12 @@ import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import LocalLaundryServiceIcon from '@mui/icons-material/LocalLaundryService';
 import IronIcon from '@mui/icons-material/Iron';
 import DryCleaningIcon from '@mui/icons-material/DryCleaning';
+import StarIcon from '@mui/icons-material/Star';
+import StarHalfIcon from '@mui/icons-material/StarHalf';
 
 export default function ProductDetailClient({ product }) {
     const { addToCart, loading } = useCart();
+    const reviewsRef = useRef(null);
 
     const colors = Array.isArray(product.colors) ? product.colors : [];
     const initialColor = colors.length > 0
@@ -29,6 +32,13 @@ export default function ProductDetailClient({ product }) {
     const [selectedSize, setSelectedSize] = useState(product.sizes?.[0] || "");
     const [quantity, setQuantity] = useState(1);
     const [tabValue, setTabValue] = useState(0);
+
+    const scrollToReviews = () => {
+        setTabValue(1);
+        if (reviewsRef.current) {
+            reviewsRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+    };
 
     const handleAddToCart = () => {
         addToCart({
@@ -42,6 +52,36 @@ export default function ProductDetailClient({ product }) {
     const details = product.details || {};
     const bulletPoints = details.bullet_points || [];
     const materialCare = details.care || [];
+
+    const renderStars = (rating, size = 20) => {
+        return [1, 2, 3, 4, 5].map((star) => {
+            const fullStars = Math.floor(rating);
+            const hasHalfStar = rating % 1 >= 0.5;
+
+            if (star <= fullStars) {
+                return (
+                    <StarIcon
+                        key={star}
+                        sx={{ fontSize: size, color: '#F0B48C' }}
+                    />
+                );
+            } else if (star === fullStars + 1 && hasHalfStar) {
+                return (
+                    <StarHalfIcon
+                        key={star}
+                        sx={{ fontSize: size, color: '#F0B48C' }}
+                    />
+                );
+            } else {
+                return (
+                    <StarIcon
+                        key={star}
+                        sx={{ fontSize: size, color: 'rgba(156, 163, 175, 0.2)' }}
+                    />
+                );
+            }
+        });
+    };
 
     return (
         <div className="flex-grow flex justify-center w-full px-4 md:px-10 py-5">
@@ -69,6 +109,19 @@ export default function ProductDetailClient({ product }) {
                                     {product.title}
                                 </h1>
                             </div>
+
+                            <div className="flex items-center gap-4 mb-4">
+                                <div className="flex items-center gap-0.5">
+                                    {renderStars(product.average_rating || 0)}
+                                </div>
+                                <span
+                                    onClick={scrollToReviews}
+                                    className="text-sm text-[#6d7e73] underline cursor-pointer hover:text-primary"
+                                >
+                                    {product.review_count || 0} Değerlendirme
+                                </span>
+                            </div>
+
                             <div className="flex items-end gap-3">
                                 <span className="text-3xl font-bold text-primary">₺{product.price}</span>
                             </div>
@@ -170,7 +223,7 @@ export default function ProductDetailClient({ product }) {
                     </div>
                 </div>
 
-                <div className="mt-20 border-t border-[#f1f3f2] dark:border-[#2a362f] pt-10">
+                <div className="mt-20 border-t border-[#f1f3f2] dark:border-[#2a362f] pt-10" ref={reviewsRef}>
                     <Box sx={{ borderBottom: 1, borderColor: 'divider', mb: 4 }}>
                         <Tabs
                             value={tabValue}
@@ -193,7 +246,7 @@ export default function ProductDetailClient({ product }) {
                             }}
                         >
                             <Tab label="Product Details" />
-                            <Tab label="Reviews (124)" />
+                            <Tab label={`Reviews (${product.review_count || 0})`} />
                             <Tab label="Delivery & Returns" />
                         </Tabs>
                     </Box>
@@ -239,8 +292,33 @@ export default function ProductDetailClient({ product }) {
                         </div>
                     )}
                     {tabValue === 1 && (
-                        <div className="py-10 text-center text-[#6d7e73]">
-                            No reviews yet.
+                        <div className="py-5">
+                            {product.reviews && product.reviews.length > 0 ? (
+                                <div className="space-y-8">
+                                    {product.reviews.map((review, idx) => (
+                                        <div key={idx} className="border-b border-gray-100 dark:border-gray-800 pb-6">
+                                            <div className="flex justify-between items-start mb-2">
+                                                <div>
+                                                    <div className="flex items-center text-accent-champagne gap-0.5 mb-1">
+                                                        {renderStars(review.rating)}
+                                                    </div>
+                                                    <p className="font-bold text-text-dark dark:text-white">{review.user_name}</p>
+                                                </div>
+                                                <span className="text-xs text-text-muted">
+                                                    {new Date(review.created_at).toLocaleDateString()}
+                                                </span>
+                                            </div>
+                                            <p className="text-text-muted dark:text-gray-400">
+                                                {review.comment}
+                                            </p>
+                                        </div>
+                                    ))}
+                                </div>
+                            ) : (
+                                <div className="py-10 text-center text-[#6d7e73]">
+                                    No reviews yet.
+                                </div>
+                            )}
                         </div>
                     )}
                     {tabValue === 2 && (
