@@ -210,13 +210,13 @@ export default function CheckoutPage() {
     }
 
     return (
-        <main className="flex-1 max-w-[1200px] mx-auto w-full px-4 py-8">
+        <main className="flex-1 max-w-[1200px] mx-auto w-full px-4 py-6 md:py-8">
             {/* Page Heading */}
             <div className="mb-8">
-                <h1 className="text-text-dark dark:text-white text-4xl font-black leading-tight tracking-[-0.033em]">
+                <h1 className="text-text-dark dark:text-white text-2xl sm:text-3xl md:text-4xl font-black leading-tight tracking-[-0.02em] md:tracking-[-0.033em]">
                     Checkout
                 </h1>
-                <p className="text-gray-500 dark:text-gray-400 mt-2">
+                <p className="text-gray-500 dark:text-gray-400 mt-2 text-sm md:text-base">
                     Complete your order securely and quickly.
                 </p>
             </div>
@@ -225,8 +225,8 @@ export default function CheckoutPage() {
                 {/* Left Column: Checkout Forms */}
                 <div className="flex-1 flex flex-col gap-8">
                     {/* Section 1: Delivery Address */}
-                    <div className="bg-white dark:bg-surface-dark rounded-xl p-6 shadow-sm border border-gray-100 dark:border-gray-800">
-                        <div className="flex items-center justify-between mb-6">
+                    <div className="bg-white dark:bg-surface-dark rounded-xl p-4 sm:p-6 shadow-sm border border-gray-100 dark:border-gray-800">
+                        <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-6 gap-3">
                             <h2 className="text-primary text-xl font-bold leading-tight flex items-center gap-2">
                                 <span className="bg-primary/10 p-2 rounded-lg">
                                     <LocationOnIcon className="text-primary" />
@@ -282,7 +282,7 @@ export default function CheckoutPage() {
                     </div>
 
                     {/* Section 2: Payment Method */}
-                    <div className="bg-white dark:bg-surface-dark rounded-xl p-6 shadow-sm border border-gray-100 dark:border-gray-800">
+                    <div className="bg-white dark:bg-surface-dark rounded-xl p-4 sm:p-6 shadow-sm border border-gray-100 dark:border-gray-800">
                         <div className="flex items-center justify-between mb-6">
                             <h2 className="text-primary text-xl font-bold leading-tight flex items-center gap-2">
                                 <span className="bg-primary/10 p-2 rounded-lg">
@@ -324,7 +324,7 @@ export default function CheckoutPage() {
                                 </div>
                             </div>
 
-                            <div className="grid grid-cols-2 gap-4">
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                 <div className="flex flex-col gap-2 relative date-picker-container">
                                     <label className="text-sm font-semibold text-gray-700 dark:text-gray-300">
                                         Expiry Date
@@ -345,7 +345,7 @@ export default function CheckoutPage() {
 
                                     {/* Advanced Date Picker Box */}
                                     {showDatePicker && (
-                                        <div className="absolute top-full left-0 bg-white dark:bg-surface-dark border border-gray-200 dark:border-gray-700 rounded-xl shadow-2xl z-50 overflow-hidden w-72">
+                                        <div className="absolute top-full left-0 bg-white dark:bg-surface-dark border border-gray-200 dark:border-gray-700 rounded-xl shadow-2xl z-50 overflow-hidden w-[min(18rem,calc(100vw-2rem))]">
                                             <div className="p-3 border-b border-gray-100 dark:border-gray-800 flex justify-between items-center bg-gray-50 dark:bg-gray-900">
                                                 <h4 className="font-bold text-xs uppercase tracking-wider text-gray-500">Select Expiration</h4>
                                                 <button type="button" onClick={() => setShowDatePicker(false)} className="text-gray-400 hover:text-gray-600 px-2 text-xl">&times;</button>
@@ -449,7 +449,7 @@ export default function CheckoutPage() {
                         </form>
 
                         {/* Trust Badges */}
-                        <div className="mt-8 pt-6 border-t border-gray-100 dark:border-gray-800 flex items-center justify-center gap-6 opacity-50 grayscale hover:grayscale-0 transition-all">
+                        <div className="mt-8 pt-6 border-t border-gray-100 dark:border-gray-800 flex flex-wrap items-center justify-center gap-4 sm:gap-6 opacity-50 grayscale hover:grayscale-0 transition-all text-center">
                             <div className="flex items-center gap-1">
                                 <LockIcon fontSize="small" />
                                 <span className="text-[10px] font-bold uppercase tracking-widest">256-bit SSL</span>
@@ -482,7 +482,7 @@ export default function CheckoutPage() {
                         <div className="border-t border-gray-100 dark:border-gray-800 pt-4 mb-8">
                             <div className="flex justify-between items-end">
                                 <span className="text-base font-bold">Total</span>
-                                <span className="text-3xl font-black text-primary">
+                                <span className="text-2xl sm:text-3xl font-black text-primary">
                                     {cartSummary.total.toFixed(2)} TL
                                 </span>
                             </div>
@@ -549,10 +549,10 @@ export default function CheckoutPage() {
             {openAddressDialog && (
                 <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
                     <div className="bg-white dark:bg-surface-dark rounded-xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
-                        <div className="p-6 border-b border-gray-200 dark:border-gray-700">
-                            <h2 className="text-2xl font-bold">Add New Address</h2>
+                        <div className="p-4 sm:p-6 border-b border-gray-200 dark:border-gray-700">
+                            <h2 className="text-xl sm:text-2xl font-bold">Add New Address</h2>
                         </div>
-                        <div className="p-6">
+                        <div className="p-4 sm:p-6">
                             <NewAdresForm
                                 mode="create"
                                 onSuccess={handleAddressSuccess}

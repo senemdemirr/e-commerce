@@ -15,10 +15,10 @@ const CancelSuccess = ({ order, isReturn = false }) => {
     const router = useRouter();
 
     return (
-        <main className="flex-1 flex flex-col items-center justify-center p-6 lg:p-12 bg-background-light dark:bg-background-dark min-h-[80vh]">
+        <main className="flex-1 flex flex-col items-center justify-center p-4 sm:p-6 lg:p-12 bg-background-light dark:bg-background-dark min-h-[80vh]">
             {/* Success Confirmation Card */}
             <div className="bg-white dark:bg-surface-dark w-full max-w-[600px] rounded-xl shadow-xl overflow-hidden border-t-4 border-accent">
-                <div className="p-8 lg:p-12 flex flex-col items-center text-center">
+                <div className="p-5 sm:p-8 lg:p-12 flex flex-col items-center text-center">
                     {/* Elegant Cancellation Icon */}
                     <div className="relative mb-8">
                         <div className="absolute inset-0 bg-primary/10 rounded-full scale-150 animate-pulse"></div>
@@ -28,10 +28,10 @@ const CancelSuccess = ({ order, isReturn = false }) => {
                     </div>
 
                     {/* Main Message */}
-                    <h1 className="text-text-dark dark:text-white text-3xl font-extrabold font-display leading-tight mb-4">
+                    <h1 className="text-text-dark dark:text-white text-2xl sm:text-3xl font-extrabold font-display leading-tight mb-4">
                         {isReturn ? "Return Request Created Successfully" : "Order Cancelled Successfully"}
                     </h1>
-                    <p className="text-text-muted dark:text-gray-400 text-base max-w-[420px] mb-8">
+                    <p className="text-text-muted dark:text-gray-400 text-sm sm:text-base max-w-[420px] mb-8">
                         {isReturn
                             ? "Your return request has been received. The process will start once the products are received by us."
                             : "Your cancellation has been completed successfully. The refund process for your order has been initiated automatically."}
@@ -43,9 +43,9 @@ const CancelSuccess = ({ order, isReturn = false }) => {
                             {isReturn ? "Return Details" : "Refund Information"}
                         </h3>
                         <div className="space-y-4">
-                            <div className="flex justify-between items-center">
+                            <div className="flex justify-between items-center gap-3">
                                 <span className="text-text-muted dark:text-gray-400 text-sm font-medium">Order No</span>
-                                <span className="text-text-dark dark:text-white text-sm font-bold">#{order.order_number}</span>
+                                <span className="text-text-dark dark:text-white text-sm font-bold break-all">#{order.order_number}</span>
                             </div>
                             <div className="flex justify-between items-center">
                                 <span className="text-text-muted dark:text-gray-400 text-sm font-medium">
@@ -70,7 +70,7 @@ const CancelSuccess = ({ order, isReturn = false }) => {
                     </div>
 
                     <p className="text-text-muted dark:text-gray-400 text-sm italic mb-10 text-center">
-                        *The refund will be automatically reflected on the card you used for payment. The time may vary depending on your bank's processes.
+                        *The refund will be automatically reflected on the card you used for payment. The time may vary depending on your bank&apos;s processes.
                     </p>
 
                     {/* Action Buttons */}
@@ -93,7 +93,7 @@ const CancelSuccess = ({ order, isReturn = false }) => {
                 </div>
 
                 {/* Footer Support Info */}
-                <div className="bg-gray-50 dark:bg-black/20 px-8 py-4 flex items-center justify-center gap-2">
+                <div className="bg-gray-50 dark:bg-black/20 px-4 sm:px-8 py-4 flex items-center justify-center gap-2">
                     <SupportAgent className="text-text-muted !text-lg" />
                     <p className="text-text-muted dark:text-gray-400 text-xs text-center">
                         Need help? Contact <a className="text-primary font-bold hover:underline" href="#">Live Support</a>.

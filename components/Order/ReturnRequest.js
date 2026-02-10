@@ -110,8 +110,8 @@ const ReturnRequest = ({ order, router, formatDate, onSuccess }) => {
 
                 {/* Page Heading */}
                 <div className="flex flex-wrap justify-between gap-3 py-6">
-                    <div className="flex min-w-72 flex-col gap-3">
-                        <h1 className="text-text-dark dark:text-white text-4xl font-black leading-tight tracking-[-0.033em]">
+                    <div className="flex min-w-0 flex-col gap-3">
+                        <h1 className="text-text-dark dark:text-white text-2xl sm:text-3xl lg:text-4xl font-black leading-tight tracking-[-0.02em] lg:tracking-[-0.033em]">
                             Return Request - {step === 1 ? "Select Products" : "Return Reason"}
                         </h1>
                         <p className="text-text-muted text-base font-normal leading-normal">
@@ -121,24 +121,24 @@ const ReturnRequest = ({ order, router, formatDate, onSuccess }) => {
                 </div>
 
                 {/* Stepper Progress */}
-                <div className="flex items-center justify-between w-full mb-10 px-4">
+                <div className="flex items-center justify-between w-full mb-10 px-0 sm:px-4">
                     <div className="flex flex-col items-center gap-2">
                         <div className={`size-10 rounded-full flex items-center justify-center font-bold transition-all ${step >= 1 ? 'bg-primary text-white' : 'bg-background-light dark:bg-surface-dark border-2 border-gray-300 dark:border-white/10 text-text-muted'}`}>
                             {step > 1 ? <Check sx={{ fontSize: 20 }} /> : "1"}
                         </div>
-                        <span className={`text-xs font-bold ${step >= 1 ? 'text-primary' : 'text-text-muted'}`}>Product Selection</span>
+                        <span className={`hidden sm:block text-xs font-bold text-center ${step >= 1 ? 'text-primary' : 'text-text-muted'}`}>Product Selection</span>
                     </div>
                     <div className={`h-[2px] grow mx-4 transition-all ${step >= 2 ? 'bg-primary' : 'bg-gray-300 dark:bg-white/10'}`}></div>
                     <div className="flex flex-col items-center gap-2">
                         <div className={`size-10 rounded-full flex items-center justify-center font-bold transition-all ${step >= 2 ? 'bg-primary text-white' : 'bg-background-light dark:bg-surface-dark border-2 border-gray-300 dark:border-white/10 text-text-muted'}`}>
                             {step > 2 ? <Check sx={{ fontSize: 20 }} /> : "2"}
                         </div>
-                        <span className={`text-xs font-bold ${step >= 2 ? 'text-primary' : 'text-text-muted'}`}>Return Reason</span>
+                        <span className={`hidden sm:block text-xs font-bold text-center ${step >= 2 ? 'text-primary' : 'text-text-muted'}`}>Return Reason</span>
                     </div>
                     <div className={`h-[2px] grow mx-4 transition-all ${step >= 3 ? 'bg-primary' : 'bg-gray-300 dark:bg-white/10'}`}></div>
                     <div className="flex flex-col items-center gap-2">
                         <div className={`size-10 rounded-full flex items-center justify-center font-bold transition-all ${step >= 3 ? 'bg-primary text-white' : 'bg-background-light dark:bg-surface-dark border-2 border-gray-300 dark:border-white/10 text-text-muted'}`}>3</div>
-                        <span className={`text-xs font-bold ${step >= 3 ? 'text-primary' : 'text-text-muted'}`}>Confirmation</span>
+                        <span className={`hidden sm:block text-xs font-bold text-center ${step >= 3 ? 'text-primary' : 'text-text-muted'}`}>Confirmation</span>
                     </div>
                 </div>
 
@@ -212,7 +212,7 @@ const ReturnRequest = ({ order, router, formatDate, onSuccess }) => {
                 </div>
 
                 {/* Action Footer */}
-                <div className="flex flex-col md:flex-row items-center justify-between gap-6 border-t border-[#f1f3f2] dark:border-white/10 pt-8 mb-20">
+                <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6 border-t border-[#f1f3f2] dark:border-white/10 pt-8 mb-20">
                     {step === 1 ? (
                         <div className="flex items-center gap-3">
                             <span className="text-sm font-medium text-text-muted">
@@ -234,15 +234,15 @@ const ReturnRequest = ({ order, router, formatDate, onSuccess }) => {
                         </div>
                     )}
 
-                    <div className="flex items-center gap-4 w-full md:w-auto">
+                    <div className="flex flex-wrap items-center gap-3 sm:gap-4 w-full md:w-auto">
                         {step === 1 ? (
                             <>
-                                <button onClick={() => router.back()} className="flex-1 md:flex-none px-8 py-3 rounded-xl font-bold text-text-muted border border-gray-300 dark:border-white/20 hover:bg-gray-50 dark:hover:bg-white/5 transition-colors">
+                                <button onClick={() => router.back()} className="flex-1 md:flex-none px-6 sm:px-8 py-3 rounded-xl font-bold text-text-muted border border-gray-300 dark:border-white/20 hover:bg-gray-50 dark:hover:bg-white/5 transition-colors">
                                     Cancel
                                 </button>
                                 <button
                                     onClick={handleNextStep}
-                                    className="flex-1 md:flex-none px-12 py-3 rounded-xl bg-accent-champagne hover:bg-accent text-white font-black shadow-lg shadow-accent-champagne/20 transition-all transform hover:scale-105 flex items-center justify-center gap-2"
+                                    className="flex-1 md:flex-none px-6 sm:px-12 py-3 rounded-xl bg-accent-champagne hover:bg-accent text-white font-black shadow-lg shadow-accent-champagne/20 transition-all transform hover:scale-105 flex items-center justify-center gap-2"
                                 >
                                     Continue
                                     <ArrowForward sx={{ fontSize: 20 }} />
@@ -252,7 +252,7 @@ const ReturnRequest = ({ order, router, formatDate, onSuccess }) => {
                             <>
                                 <button
                                     onClick={() => setStep(1)}
-                                    className="flex items-center gap-2 text-text-muted hover:text-primary font-bold transition-colors"
+                                    className="w-full sm:w-auto flex items-center justify-center sm:justify-start gap-2 text-text-muted hover:text-primary font-bold transition-colors"
                                 >
                                     <ArrowBack sx={{ fontSize: 20 }} />
                                     Back to Selection
@@ -260,7 +260,7 @@ const ReturnRequest = ({ order, router, formatDate, onSuccess }) => {
                                 <button
                                     onClick={handleReturn}
                                     disabled={loading}
-                                    className="flex-1 md:flex-none px-12 py-3 rounded-xl bg-accent-champagne hover:bg-accent text-white font-black shadow-lg shadow-accent-champagne/20 transition-all transform hover:scale-105 disabled:opacity-50 disabled:transform-none flex items-center justify-center min-w-[160px] gap-2"
+                                    className="w-full sm:w-auto flex-1 md:flex-none px-6 sm:px-12 py-3 rounded-xl bg-accent-champagne hover:bg-accent text-white font-black shadow-lg shadow-accent-champagne/20 transition-all transform hover:scale-105 disabled:opacity-50 disabled:transform-none flex items-center justify-center sm:min-w-[160px] gap-2"
                                 >
                                     {loading ? <CircularProgress size={24} color="inherit" /> : (
                                         <>

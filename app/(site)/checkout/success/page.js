@@ -34,7 +34,7 @@ function OrderSuccessContent() {
     return (
         <div className="relative flex h-auto min-h-screen w-full flex-col group/design-root overflow-x-hidden bg-background-light dark:bg-background-dark">
             <div className="layout-container flex h-full grow flex-col">
-                <div className="px-4 md:px-20 lg:px-40 flex flex-1 justify-center py-5">
+                <div className="px-4 sm:px-6 md:px-10 lg:px-20 xl:px-40 flex flex-1 justify-center py-5">
                     <div className="layout-content-container flex flex-col max-w-[960px] flex-1">
                         <main className="flex flex-col items-center justify-center py-12 px-4 text-center">
                             {/* Success Animation Placeholder / Icon */}
@@ -47,10 +47,10 @@ function OrderSuccessContent() {
 
                             {/* HeadlineText */}
                             <div className="max-w-[720px] mx-auto">
-                                <h1 className="text-text-dark dark:text-white tracking-tight text-[32px] md:text-[40px] font-black leading-tight pb-3 pt-2">
+                                <h1 className="text-text-dark dark:text-white tracking-tight text-[28px] sm:text-[32px] md:text-[40px] font-black leading-tight pb-3 pt-2">
                                     Thank You For Your Order!
                                 </h1>
-                                <p className="text-text-muted dark:text-gray-400 text-lg font-normal leading-normal pb-8">
+                                <p className="text-text-muted dark:text-gray-400 text-base sm:text-lg font-normal leading-normal pb-8">
                                     Your order has been successfully received and is being carefully prepared by our team.
                                 </p>
                             </div>
@@ -65,14 +65,14 @@ function OrderSuccessContent() {
                                         <LocalShippingIcon sx={{ fontSize: 80, color: 'rgba(255,255,255,0.9)' }} />
                                     </div>
                                     <div className="flex w-full grow flex-col items-stretch justify-center gap-4 p-6 md:p-8">
-                                        <div className="flex items-center justify-between border-b border-dashed border-gray-200 dark:border-gray-700 pb-4">
+                                        <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b border-dashed border-gray-200 dark:border-gray-700 pb-4 gap-3">
                                             <div className="text-left">
                                                 <p className="text-text-dark dark:text-white text-xl font-bold leading-tight tracking-tight">
                                                     Order Summary
                                                 </p>
                                                 <p className="text-primary font-bold text-sm mt-1">{orderNumber}</p>
                                             </div>
-                                            <div className="text-right">
+                                            <div className="text-left sm:text-right">
                                                 <p className="text-text-muted dark:text-gray-400 text-[10px] font-bold uppercase tracking-widest">
                                                     Estimated Delivery
                                                 </p>
@@ -104,17 +104,17 @@ function OrderSuccessContent() {
 
                             {/* ButtonGroup */}
                             <div className="flex justify-center mt-12 w-full">
-                                <div className="flex flex-col sm:flex-row flex-1 gap-4 px-4 py-3 max-w-[540px] justify-center">
+                                <div className="flex flex-col sm:flex-row flex-1 gap-4 px-0 sm:px-4 py-3 max-w-[540px] justify-center">
                                     <button
                                         onClick={() => router.push('/')}
-                                        className="flex min-w-[140px] cursor-pointer items-center justify-center gap-2 overflow-hidden rounded-xl h-14 px-8 bg-primary text-white text-base font-bold leading-normal tracking-wide grow shadow-lg shadow-primary/20 hover:bg-primary-dark transition-all active:scale-95"
+                                        className="flex sm:min-w-[140px] w-full sm:w-auto cursor-pointer items-center justify-center gap-2 overflow-hidden rounded-xl h-14 px-8 bg-primary text-white text-base font-bold leading-normal tracking-wide grow shadow-lg shadow-primary/20 hover:bg-primary-dark transition-all active:scale-95"
                                     >
                                         <HomeIcon />
                                         <span className="truncate">Return to Home</span>
                                     </button>
                                     <button
                                         onClick={() => router.push(`/my-profile/orders/${orderNumber.replace('#', '')}`)}
-                                        className="flex min-w-[140px] cursor-pointer items-center justify-center gap-2 overflow-hidden rounded-xl h-14 px-8 bg-[#f1f3f2] dark:bg-surface-dark text-text-dark dark:text-white text-base font-bold leading-normal tracking-wide grow hover:bg-gray-200 dark:hover:bg-gray-800 transition-all active:scale-95 border border-transparent dark:border-gray-700"
+                                        className="flex sm:min-w-[140px] w-full sm:w-auto cursor-pointer items-center justify-center gap-2 overflow-hidden rounded-xl h-14 px-8 bg-[#f1f3f2] dark:bg-surface-dark text-text-dark dark:text-white text-base font-bold leading-normal tracking-wide grow hover:bg-gray-200 dark:hover:bg-gray-800 transition-all active:scale-95 border border-transparent dark:border-gray-700"
                                     >
                                         <ReceiptLongIcon />
                                         <span className="truncate">Order Details</span>
