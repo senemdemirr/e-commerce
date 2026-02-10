@@ -6,9 +6,11 @@ import { useEffect, useState } from "react";
 import "./form.css";
 import CheckIcon from '@mui/icons-material/Check';
 import { apiFetch } from "@/lib/apiFetch/fetch";
+import { useSnackbar } from "notistack";
 
 
 export default function NewAdresForm({ mode, initialData, onSuccess, onCancel }) {
+    const { enqueueSnackbar } = useSnackbar();
     const maxInputCharacter = 200;
     const maxInputErrorMessage = "Max 200 characters";
     const phoneRegex = /^\d*$/;
@@ -48,13 +50,14 @@ export default function NewAdresForm({ mode, initialData, onSuccess, onCancel })
                 setCities(json);
             } catch (e) {
                 console.log(e);
+                enqueueSnackbar("Failed to load city list.", { variant: "error" });
             } finally {
                 setLoadingCities(false);
             }
         };
 
         fetchCities();
-    }, []);
+    }, [enqueueSnackbar]);
 
     useEffect(() => {
         const fetchDistricts = async () => {
@@ -72,6 +75,7 @@ export default function NewAdresForm({ mode, initialData, onSuccess, onCancel })
                 setDistricts(json);
             } catch (e) {
                 console.log(e);
+                enqueueSnackbar("Failed to load district list.", { variant: "error" });
             } finally {
                 setLoadingDistricts(false);
             }
@@ -79,7 +83,7 @@ export default function NewAdresForm({ mode, initialData, onSuccess, onCancel })
         setNeighborhoods([]);
 
         fetchDistricts();
-    }, [selectedCityId]);
+    }, [selectedCityId, enqueueSnackbar]);
 
     useEffect(() => {
         const fetchNeighborhoods = async () => {
@@ -96,13 +100,14 @@ export default function NewAdresForm({ mode, initialData, onSuccess, onCancel })
                 setNeighborhoods(json);
             } catch (e) {
                 console.log(e);
+                enqueueSnackbar("Failed to load neighborhood list.", { variant: "error" });
             } finally {
                 setLoadingNeighborhoods(false);
             }
         };
 
         fetchNeighborhoods();
-    }, [selectedDistrictId]);
+    }, [selectedDistrictId, enqueueSnackbar]);
 
     useEffect(() => {
         if (mode === "edit" && initialData) {
@@ -130,6 +135,10 @@ export default function NewAdresForm({ mode, initialData, onSuccess, onCancel })
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify(data)
                 });
+                if (res?.message !== "Successfully") {
+                    throw new Error(res?.message || "Failed to create address.");
+                }
+                enqueueSnackbar("Address created successfully.", { variant: "success" });
             }
             else {
                 const res = await apiFetch(`/api/my-profile/my-addresses/${initialData.id}`, {
@@ -137,11 +146,16 @@ export default function NewAdresForm({ mode, initialData, onSuccess, onCancel })
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify(data)
                 });
+                if (res?.message !== "Successfull") {
+                    throw new Error(res?.message || "Failed to update address.");
+                }
+                enqueueSnackbar("Address updated successfully.", { variant: "success" });
             }
             onSuccess?.()
         }
         catch (error) {
             console.log(error);
+            enqueueSnackbar("An error occurred while saving the address.", { variant: "error" });
         }
 
     };

@@ -15,13 +15,13 @@ import WorkIcon from '@mui/icons-material/Work';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
 import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
+import { useSnackbar } from "notistack";
 
 export default function CheckoutPage() {
     const router = useRouter();
+    const { enqueueSnackbar } = useSnackbar();
     const [loading, setLoading] = useState(true);
     const [processing, setProcessing] = useState(false);
-    const [error, setError] = useState(null);
-    const [success, setSuccess] = useState(false);
     const { fetchCart } = useCart();
 
     // Data states
@@ -83,7 +83,7 @@ export default function CheckoutPage() {
             }
         } catch (err) {
             console.error("Error fetching data:", err);
-            setError("Failed to load checkout data");
+            enqueueSnackbar("Failed to load cart and address information. Please try again.", { variant: "error" });
         } finally {
             setLoading(false);
         }
@@ -156,21 +156,20 @@ export default function CheckoutPage() {
     const handleSubmitOrder = async () => {
         // Validation
         if (!selectedAddressId) {
-            setError("Please select a delivery address");
+            enqueueSnackbar("Please select a delivery address.", { variant: "warning" });
             return;
         }
         if (!cardHolderName || !cardNumber || !expireMonth || !expireYear || !cvc) {
-            setError("Please fill in all payment details");
+            enqueueSnackbar("Please fill in all payment details.", { variant: "warning" });
             return;
         }
         if (!agreedToTerms) {
-            setError("Please agree to the terms and conditions");
+            enqueueSnackbar("Please agree to the terms and conditions.", { variant: "warning" });
             return;
         }
 
         try {
             setProcessing(true);
-            setError(null);
 
             const checkoutData = {
                 shipping_address_id: selectedAddressId,
@@ -192,11 +191,11 @@ export default function CheckoutPage() {
                 fetchCart(); // Clear cart in context
                 router.push(`/checkout/success?orderNumber=${order_number}&total=${total_amount}&subtotal=${subtotal}&shipping=${shipping_cost}`);
             } else {
-                setError(res.message || res.error || "Payment failed");
+                enqueueSnackbar(res.message || res.error || "Payment failed. Please try again.", { variant: "error" });
             }
         } catch (err) {
             console.error("Checkout error:", err);
-            setError(err.message || "An error occurred during checkout");
+            enqueueSnackbar(err.message || "An error occurred during checkout.", { variant: "error" });
         } finally {
             setProcessing(false);
         }
@@ -221,13 +220,6 @@ export default function CheckoutPage() {
                     Complete your order securely and quickly.
                 </p>
             </div>
-
-            {error && (
-                <div className="bg-red-50 border border-red-200 text-red-800 px-4 py-3 rounded-xl mb-4 flex justify-between items-center">
-                    <span>{error}</span>
-                    <button onClick={() => setError(null)} className="text-red-600 hover:text-red-800">×</button>
-                </div>
-            )}
 
             <div className="flex flex-col lg:flex-row gap-8">
                 {/* Left Column: Checkout Forms */}

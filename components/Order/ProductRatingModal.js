@@ -2,8 +2,10 @@ import React, { useState } from 'react';
 import { Close, Star } from '@mui/icons-material';
 import { apiFetch } from "@/lib/apiFetch/fetch";
 import { CircularProgress } from '@mui/material';
+import { useSnackbar } from "notistack";
 
 const ProductRatingModal = ({ isOpen, onClose, product, orderId, orderDate, onSuccess }) => {
+    const { enqueueSnackbar } = useSnackbar();
     const [rating, setRating] = useState(0);
     const [hover, setHover] = useState(0);
     const [comment, setComment] = useState("");
@@ -15,7 +17,7 @@ const ProductRatingModal = ({ isOpen, onClose, product, orderId, orderDate, onSu
 
     const handleSubmit = async () => {
         if (rating === 0) {
-            setError("Please select a rating.");
+            enqueueSnackbar("Please select a rating.", { variant: "warning" });
             return;
         }
 
@@ -34,6 +36,7 @@ const ProductRatingModal = ({ isOpen, onClose, product, orderId, orderDate, onSu
 
             if (res && res.message === "Review submitted successfully") {
                 setSuccess(true);
+                enqueueSnackbar("Your review has been submitted successfully.", { variant: "success" });
                 if (onSuccess) onSuccess();
                 setTimeout(() => {
                     onClose();
@@ -43,10 +46,12 @@ const ProductRatingModal = ({ isOpen, onClose, product, orderId, orderDate, onSu
                 }, 2000);
             } else {
                 setError(res?.message || "Failed to submit review.");
+                enqueueSnackbar(res?.message || "Failed to submit review.", { variant: "error" });
             }
         } catch (err) {
             console.error("Review submission error:", err);
             setError("Something went wrong. Please try again.");
+            enqueueSnackbar("An error occurred while submitting your review.", { variant: "error" });
         } finally {
             setLoading(false);
         }

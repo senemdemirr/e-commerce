@@ -6,9 +6,11 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { usePathname, useRouter } from 'next/navigation';
 import { useUser } from '@/context/UserContext';
+import { useSnackbar } from 'notistack';
 
 export default function ProductCard({ product, onDeleteFavorite }) {
     const user = useUser();
+    const { enqueueSnackbar } = useSnackbar();
     const pathname = usePathname();
     const router = useRouter();
     const [isFavorite, setIsFavorite] = useState(false);
@@ -21,8 +23,14 @@ export default function ProductCard({ product, onDeleteFavorite }) {
 
     async function updateFavorite(e) {
         e.preventDefault();
-        setIsFavorite(!isFavorite);
-        if(!user) return;
+        if (!user) {
+            enqueueSnackbar("You need to sign in to manage favorites.", { variant: "info" });
+            return;
+        }
+
+        const nextValue = !isFavorite;
+        setIsFavorite(nextValue);
+        try {
             const res = await fetch(`/api/favorites`, {
                 method: 'POST',
                 headers: {
@@ -31,23 +39,35 @@ export default function ProductCard({ product, onDeleteFavorite }) {
                 body: JSON.stringify({
                     product_id: product.id,
                     user_id: user.id,
-                    favorite: isFavorite == false ? true : false
+                    favorite: nextValue
                 })
             });
-            const data = await res.json();
+            if (!res.ok) {
+                throw new Error("Favori islemi basarisiz.");
+            }
+            enqueueSnackbar(nextValue ? "Product added to favorites." : "Product removed from favorites.", { variant: "success" });
+        } catch (error) {
+            setIsFavorite(!nextValue);
+            enqueueSnackbar("Failed to update favorite status.", { variant: "error" });
+        }
 
     }
     async function deleteFavorite(e) {
         e.preventDefault();
-        const res = await fetch(`/api/favorites/${product.favorite_id}`, {
-            method: "DELETE"
-        });
-        if (!res.ok) {
-            console.log("hata");
-        }
-        if (onDeleteFavorite) {
-            onDeleteFavorite(product.id);
-            router.refresh();
+        try {
+            const res = await fetch(`/api/favorites/${product.favorite_id}`, {
+                method: "DELETE"
+            });
+            if (!res.ok) {
+                throw new Error("Delete failed");
+            }
+            enqueueSnackbar("Product removed from favorites.", { variant: "success" });
+            if (onDeleteFavorite) {
+                onDeleteFavorite(product.id);
+                router.refresh();
+            }
+        } catch (error) {
+            enqueueSnackbar("An error occurred while removing favorite.", { variant: "error" });
         }
     }
     return (

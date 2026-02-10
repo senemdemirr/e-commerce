@@ -3,10 +3,12 @@ import { apiFetch } from "@/lib/apiFetch/fetch";
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import { createContext, useContext } from "react";
+import { useSnackbar } from "notistack";
 
 const CartContext = createContext(null);
 
 export function CartProvider({ children }) {
+    const { enqueueSnackbar } = useSnackbar();
     const [items, setItems] = useState([]);
     const [loading, setLoading] = useState(false);
     const router = useRouter();
@@ -14,13 +16,14 @@ export function CartProvider({ children }) {
     const fetchCart = async () => {
         try {
             const res = await apiFetch("/api/cart");
-            if (res?.items) {
+            if (Array.isArray(res?.items)) {
                 setItems(res.items);
             } else {
                 setItems([]);
             }
         } catch (error) {
             console.log(error);
+            enqueueSnackbar("Failed to load cart information.", { variant: "error" });
         }
     }
 
@@ -42,13 +45,18 @@ export function CartProvider({ children }) {
                     selectedColorHex: product.selectedColorHex
                 })
             });
+            if (res?.message !== "Successfully") {
+                throw new Error(res?.message || "Failed to add product to cart.");
+            }
 
             // Update items locally or fetch
             await fetchCart();
+            enqueueSnackbar("Product added to cart.", { variant: "success" });
             await new Promise(resolve => setTimeout(resolve, 2000));
             router.push("/basket");
         } catch (error) {
             console.log(error);
+            enqueueSnackbar("Failed to add product to cart.", { variant: "error" });
         } finally {
             setLoading(false);
         }
@@ -67,14 +75,18 @@ export function CartProvider({ children }) {
                 return newItems;
             });
 
-            await apiFetch('/api/cart', {
+            const res = await apiFetch('/api/cart', {
                 method: 'PUT',
                 body: JSON.stringify({ itemId, quantity: newQuantity })
             });
+            if (res?.message !== "Updated") {
+                throw new Error(res?.message || "Failed to update quantity.");
+            }
             // Ideally we re-fetch to ensure consistency but optimistic is faster
             // fetchCart();
         } catch (error) {
             console.error(error);
+            enqueueSnackbar("Failed to update product quantity.", { variant: "error" });
             fetchCart(); // Revert on error
         }
     };
@@ -87,12 +99,16 @@ export function CartProvider({ children }) {
                 return newItems;
             });
 
-            await apiFetch(`/api/cart?itemId=${itemId}`, {
+            const res = await apiFetch(`/api/cart?itemId=${itemId}`, {
                 method: 'DELETE'
             });
+            if (res?.message !== "Deleted") {
+                throw new Error(res?.message || "Failed to remove product from cart.");
+            }
             fetchCart(); // Synch to be sure
         } catch (error) {
             console.error(error);
+            enqueueSnackbar("Failed to remove product from cart.", { variant: "error" });
             fetchCart();
         }
     };

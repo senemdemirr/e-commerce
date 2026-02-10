@@ -4,11 +4,12 @@ import { Info, Check, ArrowBack, ArrowForward } from '@mui/icons-material';
 import { apiFetch } from "@/lib/apiFetch/fetch";
 import { CircularProgress } from '@mui/material';
 import ReturnReasonStep from './ReturnReasonStep';
+import { useSnackbar } from "notistack";
 
 const ReturnRequest = ({ order, router, formatDate, onSuccess }) => {
+    const { enqueueSnackbar } = useSnackbar();
     const [step, setStep] = useState(1);
     const [loading, setLoading] = useState(false);
-    const [error, setError] = useState(null);
     const [reasons, setReasons] = useState([]);
     const [selectedItems, setSelectedItems] = useState({}); // { order_item_id: boolean }
     const [itemDetails, setItemDetails] = useState({}); // { order_item_id: { reason_id, note } }
@@ -50,21 +51,19 @@ const ReturnRequest = ({ order, router, formatDate, onSuccess }) => {
     const handleNextStep = () => {
         const selectedIds = Object.keys(selectedItems).filter(id => selectedItems[id]);
         if (selectedIds.length === 0) {
-            setError("Please select at least one product to return.");
+            enqueueSnackbar("Please select at least one product to return.", { variant: "warning" });
             return;
         }
-        setError(null);
         setStep(2);
     };
 
     const handleReturn = async () => {
         if (!policyAccepted) {
-            setError("You must agree to the return terms to proceed.");
+            enqueueSnackbar("You must accept the return terms to continue.", { variant: "warning" });
             return;
         }
 
         setLoading(true);
-        setError(null);
         try {
             const selectedIds = Object.keys(selectedItems).filter(id => selectedItems[id]);
             const returnsData = selectedIds.map(id => ({
@@ -79,13 +78,14 @@ const ReturnRequest = ({ order, router, formatDate, onSuccess }) => {
             });
 
             if (res.message === "Return request created successfully") {
+                enqueueSnackbar("Your return request has been created successfully.", { variant: "success" });
                 onSuccess();
             } else {
-                setError(res.message || "Failed to process return. Please try again.");
+                enqueueSnackbar(res.message || "Failed to process your return. Please try again.", { variant: "error" });
             }
         } catch (err) {
             console.error("Return error:", err);
-            setError("Something went wrong while processing your return.");
+            enqueueSnackbar("An error occurred while processing your return.", { variant: "error" });
         } finally {
             setLoading(false);
         }
@@ -210,12 +210,6 @@ const ReturnRequest = ({ order, router, formatDate, onSuccess }) => {
                         </p>
                     </div>
                 </div>
-
-                {error && (
-                    <div className="mb-6 p-4 bg-red-500/10 border border-red-500/20 rounded-lg">
-                        <p className="text-sm text-red-500 font-medium">{error}</p>
-                    </div>
-                )}
 
                 {/* Action Footer */}
                 <div className="flex flex-col md:flex-row items-center justify-between gap-6 border-t border-[#f1f3f2] dark:border-white/10 pt-8 mb-20">

@@ -5,7 +5,8 @@ export default function Providers({ children, maxSnack = 3, vertical = "top", ho
   return (
     <SnackbarProvider
       maxSnack={maxSnack}
-      autoHideDuration={false}
+      autoHideDuration={duration}
+      preventDuplicate
       anchorOrigin={{ vertical: vertical, horizontal: horizontal }}
     >
       {children}

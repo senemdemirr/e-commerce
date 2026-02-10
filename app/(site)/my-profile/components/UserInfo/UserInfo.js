@@ -41,12 +41,11 @@ export default function UserInfo() {
             })
         });
         const dataJson = await res?.json();
-        enqueueSnackbar("User information updated successfully", { variant: "success" })
-
         if (!res.ok) {
-            enqueueSnackbar("Something went wrong", { variant: "error" })
+            enqueueSnackbar(dataJson?.message || "Failed to update profile information.", { variant: "error" })
             return;
         }
+        enqueueSnackbar(dataJson?.message || "Profile information updated successfully.", { variant: "success" })
     };
 
     return (

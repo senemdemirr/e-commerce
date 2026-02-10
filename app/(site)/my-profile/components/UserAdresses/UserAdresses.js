@@ -9,8 +9,10 @@ import DeleteOutlineOutlinedIcon from '@mui/icons-material/DeleteOutlineOutlined
 import CloseIcon from '@mui/icons-material/Close';
 import NewAdresForm from "./NewAdresForm";
 import Loading from "@/components/Loading";
+import { useSnackbar } from "notistack";
 
 export default function UserAdresses() {
+    const { enqueueSnackbar } = useSnackbar();
     const [addresses, setAddresses] = useState([]);
     const [loading, setLoading] = useState(true);
     const [openModal, setOpenModal] = useState(false);
@@ -25,9 +27,10 @@ export default function UserAdresses() {
         try {
             setLoading(true);
             const res = await apiFetch("/api/my-profile/my-addresses");
-            setAddresses(res);
+            setAddresses(Array.isArray(res) ? res : []);
         } catch (error) {
             console.log(error);
+            enqueueSnackbar("An error occurred while loading addresses.", { variant: "error" });
         } finally {
             setLoading(false);
         }
@@ -69,16 +72,21 @@ export default function UserAdresses() {
         try {
             setDeleting(true);
 
-            await apiFetch(`/api/my-profile/my-addresses/${addressToDelete.id}`, {
+            const res = await apiFetch(`/api/my-profile/my-addresses/${addressToDelete.id}`, {
                 method: "DELETE",
             });
+            if (res?.message !== "It is deleted") {
+                throw new Error(res?.message || "Failed to delete address.");
+            }
 
             setAddresses((prev) => prev.filter((a) => a.id !== addressToDelete.id));
+            enqueueSnackbar("Address deleted successfully.", { variant: "success" });
             // await fetchAddresses();
 
             closeConfirm();
         } catch (error) {
             console.log(error);
+            enqueueSnackbar("An error occurred while deleting the address.", { variant: "error" });
         } finally {
             setDeleting(false);
         }

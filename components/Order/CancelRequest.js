@@ -12,10 +12,11 @@ import {
 } from '@mui/icons-material';
 import { apiFetch } from "@/lib/apiFetch/fetch";
 import { CircularProgress } from '@mui/material';
+import { useSnackbar } from "notistack";
 
 const CancelRequest = ({ order, router, formatDate, onSuccess }) => {
+    const { enqueueSnackbar } = useSnackbar();
     const [loading, setLoading] = useState(false);
-    const [error, setError] = useState(null);
     const [reasons, setReasons] = useState([]);
     const [fetchingReasons, setFetchingReasons] = useState(true);
     const [selectedReason, setSelectedReason] = useState("");
@@ -39,12 +40,11 @@ const CancelRequest = ({ order, router, formatDate, onSuccess }) => {
 
     const handleCancel = async () => {
         if (!selectedReason) {
-            setError("Please select a reason for cancellation.");
+            enqueueSnackbar("Please select a cancellation reason.", { variant: "warning" });
             return;
         }
 
         setLoading(true);
-        setError(null);
         try {
             const res = await apiFetch(`/api/orders/${order.order_number}/cancel`, {
                 method: "POST",
@@ -55,13 +55,14 @@ const CancelRequest = ({ order, router, formatDate, onSuccess }) => {
             });
 
             if (res.message === "Order cancelled successfully") {
+                enqueueSnackbar("Your order has been cancelled successfully.", { variant: "success" });
                 onSuccess();
             } else {
-                setError(res.message || "Failed to cancel order. Please try again.");
+                enqueueSnackbar(res.message || "Failed to cancel the order. Please try again.", { variant: "error" });
             }
         } catch (err) {
             console.error("Cancellation error:", err);
-            setError("Something went wrong while cancelling your order.");
+            enqueueSnackbar("An error occurred while cancelling the order.", { variant: "error" });
         } finally {
             setLoading(false);
         }
@@ -174,11 +175,6 @@ const CancelRequest = ({ order, router, formatDate, onSuccess }) => {
                                 </div>
                             </div>
 
-                            {error && (
-                                <div className="p-4 bg-red-500/10 border border-red-500/20 rounded-lg">
-                                    <p className="text-sm text-red-500 font-medium">{error}</p>
-                                </div>
-                            )}
                         </div>
 
                         {/* Footer Actions */}
