@@ -16,8 +16,9 @@ export async function PUT(request) {
         const { user } = session;
         
         const result = await pool.query("UPDATE users SET name=$1,surname=$2,phone=$3 WHERE auth0_sub=$4 RETURNING *", [name, surname, phone, user.sub]);
-        
-        return Response.json({message:"Successfully"},{ status: 200 });
+        const updatedUser = result?.rows?.[0] || null;
+
+        return Response.json({ message: "Successfully", user: updatedUser }, { status: 200 });
 
     }
     catch (error) {

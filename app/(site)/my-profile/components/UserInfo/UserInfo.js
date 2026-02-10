@@ -4,12 +4,13 @@ import { useForm } from "react-hook-form";
 import MailOutlineIcon from "@mui/icons-material/Mail";
 import PhoneIphoneIcon from "@mui/icons-material/PhoneIphone";
 import { useEffect } from "react";
-import { useUser } from "@/context/UserContext";
+import { useSetUser, useUser } from "@/context/UserContext";
 import { useSnackbar } from "notistack";
 
 
 export default function UserInfo() {
     const user = useUser();
+    const setUser = useSetUser();
     const { enqueueSnackbar } = useSnackbar();
     const maxInputCharacter = 100;
     const maxInputErrorMessage = "Max 100 characters";
@@ -44,6 +45,16 @@ export default function UserInfo() {
         if (!res.ok) {
             enqueueSnackbar(dataJson?.message || "Failed to update profile information.", { variant: "error" })
             return;
+        }
+        if (setUser) {
+            const updatedUser = dataJson?.user;
+            setUser((prev) => ({
+                ...(prev || {}),
+                ...(updatedUser || {}),
+                name: updatedUser?.name ?? data.name,
+                surname: updatedUser?.surname ?? data.surname,
+                phone: updatedUser?.phone ?? data.phone
+            }));
         }
         enqueueSnackbar(dataJson?.message || "Profile information updated successfully.", { variant: "success" })
     };
