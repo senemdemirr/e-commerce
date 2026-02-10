@@ -6,12 +6,14 @@ import { CircularProgress } from "@mui/material";
 import Link from "next/link";
 import CancelRequest from "@/components/Order/CancelRequest";
 import ReturnRequest from "@/components/Order/ReturnRequest";
+import CancelSuccess from "@/components/Order/CancelSuccess";
 
 export default function CancelOrderPage({ params }) {
     const { order_number } = use(params);
     const [order, setOrder] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const [isSuccess, setIsSuccess] = useState(false);
     const router = useRouter();
 
     useEffect(() => {
@@ -53,6 +55,10 @@ export default function CancelOrderPage({ params }) {
         );
     }
 
+    if (isSuccess) {
+        return <CancelSuccess order={order} isReturn={order.status === 'Delivered'} />;
+    }
+
     const formatDate = (dateString) => {
         const options = { day: 'numeric', month: 'numeric', year: 'numeric', hour: '2-digit', minute: '2-digit' };
         return new Date(dateString).toLocaleDateString('tr-TR', options);
@@ -61,8 +67,8 @@ export default function CancelOrderPage({ params }) {
     const isDelivered = order.status === 'Delivered';
 
     if (!isDelivered) {
-        return <CancelRequest order={order} router={router} formatDate={formatDate} />;
+        return <CancelRequest order={order} router={router} formatDate={formatDate} onSuccess={() => setIsSuccess(true)} />;
     }
 
-    return <ReturnRequest order={order} router={router} formatDate={formatDate} />;
+    return <ReturnRequest order={order} router={router} formatDate={formatDate} onSuccess={() => setIsSuccess(true)} />;
 }

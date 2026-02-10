@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import Link from "next/link";
 import {
     ChevronRight,
@@ -10,8 +10,33 @@ import {
     Lock,
     VerifiedUser
 } from '@mui/icons-material';
+import { apiFetch } from "@/lib/apiFetch/fetch";
+import { CircularProgress } from '@mui/material';
 
-const CancelRequest = ({ order, router, formatDate }) => {
+const CancelRequest = ({ order, router, formatDate, onSuccess }) => {
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState(null);
+
+    const handleCancel = async () => {
+        setLoading(true);
+        setError(null);
+        try {
+            const res = await apiFetch(`/api/orders/${order.order_number}/cancel`, {
+                method: "POST",
+            });
+
+            if (res.message === "Order cancelled successfully") {
+                onSuccess();
+            } else {
+                setError(res.message || "Failed to cancel order. Please try again.");
+            }
+        } catch (err) {
+            console.error("Cancellation error:", err);
+            setError("Something went wrong while cancelling your order.");
+        } finally {
+            setLoading(false);
+        }
+    };
     return (
         <div className="relative flex h-auto min-h-screen w-full flex-col group/design-root overflow-x-hidden bg-background-light dark:bg-background-dark">
             <div className="layout-container flex h-full grow flex-col">
@@ -114,20 +139,34 @@ const CancelRequest = ({ order, router, formatDate }) => {
                                     <p className="text-sm text-[#506e5a] dark:text-gray-300">Your refund will be made to your original payment method within 3-5 business days after cancellation approval.</p>
                                 </div>
                             </div>
+
+                            {error && (
+                                <div className="p-4 bg-red-500/10 border border-red-500/20 rounded-lg">
+                                    <p className="text-sm text-red-500 font-medium">{error}</p>
+                                </div>
+                            )}
                         </div>
 
                         {/* Footer Actions */}
                         <div className="flex flex-col sm:flex-row gap-4 mt-2">
                             <button
-                                onClick={() => {/* Implement Cancel Logic */ }}
-                                className="flex-1 bg-primary hover:bg-primary-dark text-white font-bold py-4 rounded-xl shadow-lg shadow-primary/20 transition-all flex items-center justify-center gap-2"
+                                onClick={handleCancel}
+                                disabled={loading}
+                                className="flex-1 bg-primary hover:bg-primary-dark text-white font-bold py-4 rounded-xl shadow-lg shadow-primary/20 transition-all flex items-center justify-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed"
                             >
-                                <CheckCircle />
-                                Confirm Cancellation
+                                {loading ? (
+                                    <CircularProgress size={24} color="inherit" />
+                                ) : (
+                                    <>
+                                        <CheckCircle />
+                                        Confirm Cancellation
+                                    </>
+                                )}
                             </button>
                             <button
                                 onClick={() => router.back()}
-                                className="flex-1 bg-accent hover:bg-[#e0a47d] text-white font-bold py-4 rounded-xl shadow-lg shadow-accent/20 transition-all flex items-center justify-center gap-2"
+                                disabled={loading}
+                                className="flex-1 bg-accent hover:bg-[#e0a47d] text-white font-bold py-4 rounded-xl shadow-lg shadow-accent/20 transition-all flex items-center justify-center gap-2 disabled:opacity-70"
                             >
                                 <Close />
                                 Go Back

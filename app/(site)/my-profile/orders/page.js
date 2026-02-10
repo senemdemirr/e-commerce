@@ -9,6 +9,7 @@ import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import LocalShippingIcon from '@mui/icons-material/LocalShipping';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
+import CancelIcon from '@mui/icons-material/Cancel';
 
 export default function MyOrdersPage() {
     const router = useRouter();
@@ -127,7 +128,7 @@ export default function MyOrdersPage() {
                         return (
                             <Box
                                 key={order.id}
-                                className="border border-gray-100 dark:border-gray-800 rounded-xl p-5 hover:border-primary/30 transition-all bg-white dark:bg-surface-dark/50 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4"
+                                className={`border border-gray-100 dark:border-gray-800 rounded-xl p-5 transition-all bg-white dark:bg-surface-dark/50 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4 ${order.status === 'Cancelled' ? 'opacity-50 ' : 'hover:border-primary/30'}`}
                             >
                                 <Box className="flex flex-wrap items-center gap-6">
                                     <Box className="flex flex-col">

@@ -1,8 +1,34 @@
-import React from 'react';
+import React, { useState } from 'react';
 import Link from "next/link";
 import { Info } from '@mui/icons-material';
+import { apiFetch } from "@/lib/apiFetch/fetch";
+import { CircularProgress } from '@mui/material';
 
-const ReturnRequest = ({ order, router, formatDate }) => {
+const ReturnRequest = ({ order, router, formatDate, onSuccess }) => {
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState(null);
+
+    const handleReturn = async () => {
+        setLoading(true);
+        setError(null);
+        try {
+            const res = await apiFetch(`/api/orders/${order.order_number}/cancel`, {
+                method: "POST",
+            });
+
+            if (res.message === "Order cancelled successfully") {
+                onSuccess();
+            } else {
+                setError(res.message || "Failed to process return. Please try again.");
+            }
+        } catch (err) {
+            console.error("Return error:", err);
+            setError("Something went wrong while processing your return.");
+        } finally {
+            setLoading(false);
+        }
+    };
+
     return (
         <main className="flex-1 flex flex-col items-center bg-white dark:bg-surface-dark transition-colors duration-200">
             <div className="layout-content-container flex flex-col max-w-[960px] w-full px-4 md:px-10 py-5">
@@ -116,6 +142,12 @@ const ReturnRequest = ({ order, router, formatDate }) => {
                     </div>
                 </div>
 
+                {error && (
+                    <div className="mb-6 p-4 bg-red-500/10 border border-red-500/20 rounded-lg">
+                        <p className="text-sm text-red-500 font-medium">{error}</p>
+                    </div>
+                )}
+
                 {/* Action Footer */}
                 <div className="flex flex-col md:flex-row items-center justify-between gap-6 border-t border-[#f1f3f2] dark:border-white/10 pt-8 mb-20">
                     <div className="flex items-center gap-3">
@@ -125,11 +157,11 @@ const ReturnRequest = ({ order, router, formatDate }) => {
                         </label>
                     </div>
                     <div className="flex items-center gap-4 w-full md:w-auto">
-                        <button onClick={() => router.back()} className="flex-1 md:flex-none px-8 py-3 rounded-xl font-bold text-text-muted border border-gray-300 dark:border-white/20 hover:bg-gray-50 dark:hover:bg-white/5 transition-colors">
+                        <button onClick={() => router.back()} disabled={loading} className="flex-1 md:flex-none px-8 py-3 rounded-xl font-bold text-text-muted border border-gray-300 dark:border-white/20 hover:bg-gray-50 dark:hover:bg-white/5 transition-colors disabled:opacity-50">
                             Cancel
                         </button>
-                        <button className="flex-1 md:flex-none px-12 py-3 rounded-xl bg-accent-champagne hover:bg-accent text-white font-black shadow-lg shadow-accent-champagne/20 transition-all transform hover:scale-105">
-                            Start Return
+                        <button onClick={handleReturn} disabled={loading} className="flex-1 md:flex-none px-12 py-3 rounded-xl bg-accent-champagne hover:bg-accent text-white font-black shadow-lg shadow-accent-champagne/20 transition-all transform hover:scale-105 disabled:opacity-50 disabled:transform-none flex items-center justify-center min-w-[160px]">
+                            {loading ? <CircularProgress size={24} color="inherit" /> : "Start Return"}
                         </button>
                     </div>
                 </div>
