@@ -35,6 +35,13 @@ export async function GET(request, { params }) {
 
         order.items = itemsResult.rows;
 
+        // Fetch existing reviews for this order
+        const reviewsResult = await pool.query(
+            `SELECT product_id FROM product_reviews WHERE order_id = $1 AND user_id = $2`,
+            [order.id, user.id]
+        );
+        order.rated_product_ids = reviewsResult.rows.map(r => r.product_id);
+
         // Format shipping address from order snapshot columns
         order.shipping_address = {
             full_name: order.shipping_full_name,

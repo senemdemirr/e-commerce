@@ -14,12 +14,15 @@ import SupportAgentIcon from '@mui/icons-material/SupportAgent';
 import html2canvas from 'html2canvas';
 import { jsPDF } from 'jspdf';
 import Invoice from "@/components/Invoice";
+import ProductRatingModal from "@/components/Order/ProductRatingModal";
 
 export default function OrderDetailsPage({ params }) {
     const { order_number } = use(params);
     const [order, setOrder] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const [isRatingModalOpen, setIsRatingModalOpen] = useState(false);
+    const [selectedProduct, setSelectedProduct] = useState(null);
     const router = useRouter();
     const invoiceRef = useRef(null);
 
@@ -52,23 +55,23 @@ export default function OrderDetailsPage({ params }) {
         }
     };
 
-    useEffect(() => {
-        const fetchOrderDetails = async () => {
-            try {
-                const res = await apiFetch(`/api/orders/${order_number}`);
-                if (res && res.order) {
-                    setOrder(res.order);
-                } else {
-                    setError(res?.message || "Order not found");
-                }
-            } catch (err) {
-                console.error("Error fetching order details:", err);
-                setError(err.message || "Something went wrong.");
-            } finally {
-                setLoading(false);
+    const fetchOrderDetails = async () => {
+        try {
+            const res = await apiFetch(`/api/orders/${order_number}`);
+            if (res && res.order) {
+                setOrder(res.order);
+            } else {
+                setError(res?.message || "Order not found");
             }
-        };
+        } catch (err) {
+            console.error("Error fetching order details:", err);
+            setError(err.message || "Something went wrong.");
+        } finally {
+            setLoading(false);
+        }
+    };
 
+    useEffect(() => {
         fetchOrderDetails();
     }, [order_number]);
 
@@ -186,7 +189,24 @@ export default function OrderDetailsPage({ params }) {
                                 </Box>
                                 <Box className="flex items-center justify-between mt-2">
                                     <p className="text-text-muted dark:text-white/60 text-sm">Qty: <span className="font-bold text-text-dark dark:text-white">{item.quantity}</span></p>
-                                    <button className="text-primary text-xs font-black hover:underline">Rate Product</button>
+                                    {order.status === 'Delivered' && (
+                                        order.rated_product_ids?.includes(item.product_id) ? (
+                                            <span className="text-text-muted text-xs font-bold italic flex items-center gap-1">
+                                                <CheckCircleIcon sx={{ fontSize: 14 }} />
+                                                Rated
+                                            </span>
+                                        ) : (
+                                            <button
+                                                onClick={() => {
+                                                    setSelectedProduct(item);
+                                                    setIsRatingModalOpen(true);
+                                                }}
+                                                className="text-primary text-xs font-black hover:underline"
+                                            >
+                                                Rate Product
+                                            </button>
+                                        )
+                                    )}
                                 </Box>
                             </Box>
                         </Box>
@@ -250,6 +270,18 @@ export default function OrderDetailsPage({ params }) {
             <div style={{ position: "absolute", top: -9999, left: -9999 }}>
                 <Invoice order={order} ref={invoiceRef} />
             </div>
+
+            {/* Product Rating Modal */}
+            {selectedProduct && (
+                <ProductRatingModal
+                    isOpen={isRatingModalOpen}
+                    onClose={() => setIsRatingModalOpen(false)}
+                    onSuccess={fetchOrderDetails}
+                    product={selectedProduct}
+                    orderId={order.id}
+                    orderDate={formatDate(order.created_at)}
+                />
+            )}
         </main>
     );
 }
