@@ -166,7 +166,7 @@ export async function POST(request) {
         const finalPaidPrice = basketItems.reduce((acc, item) => acc + parseFloat(item.price), 0).toFixed(2);
 
         const paymentRequest = {
-            locale: Iyzipay.LOCALE.TR,
+            locale: Iyzipay.LOCALE.EN,
             conversationId: orderNumber,
             price: finalPaidPrice, // subtotal including shipping
             paidPrice: finalPaidPrice,
@@ -188,7 +188,7 @@ export async function POST(request) {
                 if (err) {
                     console.error("Iyzico payment error:", err);
                     resolve(NextResponse.json(
-                        { message: "Payment failed", error: err },
+                        { message: err, error: err },
                         { status: 500 }
                     ));
                     return;
@@ -197,7 +197,7 @@ export async function POST(request) {
                 if (result.status !== 'success') {
                     console.error("Iyzico payment failed:", result);
                     resolve(NextResponse.json(
-                        { message: "Payment failed", error: result.errorMessage },
+                        { message: result.errorMessage, error: result.errorMessage },
                         { status: 400 }
                     ));
                     return;
