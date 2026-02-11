@@ -266,10 +266,11 @@ export async function POST(request) {
                     if (save_card && result.cardToken) {
                         await pool.query(
                             `INSERT INTO payment_cards 
-                             (user_id, card_token, card_alias, card_family, card_bank_name, is_default)
-                             VALUES ($1, $2, $3, $4, $5, $6)`,
+                             (user_id, card_holder_name, card_token, card_alias, card_family, card_bank_name, is_default)
+                             VALUES ($1, $2, $3, $4, $5, $6, $7)`,
                             [
                                 user.id,
+                                card_holder_name,
                                 result.cardToken,
                                 result.cardAssociation || `Card ending in ${card_number.slice(-4)}`,
                                 result.cardFamily || 'Unknown',
