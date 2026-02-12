@@ -41,7 +41,7 @@ yarn-error.log*
 next-env.d.ts
 
 
-/lib/db.js
+
 /tmp.json
 /convert.js
 /importDb_cities.js
