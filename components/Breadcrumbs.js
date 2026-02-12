@@ -1,8 +1,9 @@
 "use client";
 
-import { Breadcrumbs as MuiBreadcrumbs, Typography, Link} from "@mui/material";
+import { Breadcrumbs as MuiBreadcrumbs, Typography, Link } from "@mui/material";
 import NextLink from "next/link";
 import { usePathname } from "next/navigation";
+import { useState, useEffect } from "react";
 
 const formatLabel = (segment) =>
     decodeURIComponent(segment)
@@ -11,6 +12,17 @@ const formatLabel = (segment) =>
 
 export default function Breadcrumbs() {
     const pathname = usePathname();
+    const [isMounted, setIsMounted] = useState(false);
+
+    useEffect(() => {
+        setIsMounted(true);
+    }, []);
+
+    // Don't render anything until mounted on client
+    if (!isMounted) {
+        return null;
+    }
+
     let hideHome = pathname === "/" ? true : false;
     const homeLabel = "Home";
     const segments = pathname.split("/").filter(Boolean);
