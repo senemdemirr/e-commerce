@@ -22,7 +22,7 @@
     "iyzipay": "^2.0.64",
     "jspdf": "^4.1.0",
     "jspdf-autotable": "^5.0.7",
-    "next": "^15.3.8",
+    "next": "^16.1.6",
     "notistack": "^3.0.2",
     "path": "^0.12.7",
     "pg": "^8.16.3",
@@ -30,8 +30,7 @@
     "react-dom": "^19.0.0",
     "react-hook-form": "^7.60.0",
     "sass": "^1.97.1",
-    "swagger-ui-dist": "^5.31.0",
-    "swagger-ui-react": "^5.31.0"
+    "swagger-ui-dist": "^5.31.0"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",
