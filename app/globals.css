@@ -33,6 +33,10 @@ a {
   text-decoration: none;
 }
 
+button {
+  cursor: pointer;
+}
+
 .swagger-ui {
   padding: 10px !important;
 }
