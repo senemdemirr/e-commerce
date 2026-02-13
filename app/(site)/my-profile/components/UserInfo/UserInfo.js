@@ -6,6 +6,7 @@ import PhoneIphoneIcon from "@mui/icons-material/PhoneIphone";
 import { useEffect } from "react";
 import { useSetUser, useUser } from "@/context/UserContext";
 import { useSnackbar } from "notistack";
+import { apiFetch } from "@/lib/apiFetch/fetch";
 
 
 export default function UserInfo() {
@@ -32,7 +33,7 @@ export default function UserInfo() {
     }, [user, reset]);
 
     const onSubmit = async (data) => {
-        const res = await fetch("/api/my-profile/user-information", {
+        const res = await apiFetch("/api/my-profile/user-information", {
             method: "PUT",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({

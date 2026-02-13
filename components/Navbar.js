@@ -1,4 +1,5 @@
 "use client";
+import { apiFetch } from '@/lib/apiFetch/fetch';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 
@@ -10,7 +11,7 @@ export default function Navbar() {
     useEffect(() => {
         async function fetchCategories() {
             try {
-                const res = await fetch("/api/categories");
+                const res = await apiFetch("/api/categories");
                 const data = await res.json();
                 setCategories(data);
             } catch (error) {

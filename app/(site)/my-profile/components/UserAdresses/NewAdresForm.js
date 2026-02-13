@@ -44,7 +44,7 @@ export default function NewAdresForm({ mode, initialData, onSuccess, onCancel })
         const fetchCities = async () => {
             try {
                 setLoadingCities(true);
-                const res = await fetch("/api/locations/cities");
+                const res = await apiFetch("/api/locations/cities");
                 const json = await res.json();
                 if (!res.ok) throw new Error(json?.message || "Cities fetch failed");
                 setCities(json);
@@ -69,7 +69,7 @@ export default function NewAdresForm({ mode, initialData, onSuccess, onCancel })
 
             try {
                 setLoadingDistricts(true);
-                const res = await fetch(`/api/locations/districts?cityId=${selectedCityId}`);
+                const res = await apiFetch(`/api/locations/districts?cityId=${selectedCityId}`);
                 const json = await res.json();
                 if (!res.ok) throw new Error(json?.message || "Districts fetch failed");
                 setDistricts(json);
@@ -94,7 +94,7 @@ export default function NewAdresForm({ mode, initialData, onSuccess, onCancel })
 
             try {
                 setLoadingNeighborhoods(true);
-                const res = await fetch(`/api/locations/neighborhoods?districtId=${selectedDistrictId}`);
+                const res = await apiFetch(`/api/locations/neighborhoods?districtId=${selectedDistrictId}`);
                 const json = await res.json();
                 if (!res.ok) throw new Error(json?.message || "Neighborhoods fetch failed");
                 setNeighborhoods(json);

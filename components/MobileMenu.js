@@ -11,6 +11,7 @@ import FavoriteBorderOutlinedIcon from "@mui/icons-material/FavoriteBorderOutlin
 import ShoppingCartOutlinedIcon from "@mui/icons-material/ShoppingCartOutlined";
 import ExpandLess from "@mui/icons-material/ExpandLess";
 import ExpandMore from "@mui/icons-material/ExpandMore";
+import { apiFetch } from "@/lib/apiFetch/fetch";
 
 export default function MobileMenu() {
     const pathname = usePathname();
@@ -34,7 +35,7 @@ export default function MobileMenu() {
     useEffect(() => {
         async function fetchCategories() {
             try {
-                const res = await fetch("/api/categories");
+                const res = await apiFetch("/api/categories");
                 const data = await res.json();
                 setCategories(data);
             } catch (error) {

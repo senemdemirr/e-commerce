@@ -7,6 +7,7 @@ import Image from 'next/image';
 import { usePathname, useRouter } from 'next/navigation';
 import { useUser } from '@/context/UserContext';
 import { useSnackbar } from 'notistack';
+import { apiFetch } from '@/lib/apiFetch/fetch';
 
 export default function ProductCard({ product, onDeleteFavorite }) {
     const user = useUser();
@@ -31,7 +32,7 @@ export default function ProductCard({ product, onDeleteFavorite }) {
         const nextValue = !isFavorite;
         setIsFavorite(nextValue);
         try {
-            const res = await fetch(`/api/favorites`, {
+            const res = await apiFetch(`/api/favorites`, {
                 method: 'POST',
                 headers: {
                     "Content-Type": "application/json",
@@ -55,7 +56,7 @@ export default function ProductCard({ product, onDeleteFavorite }) {
     async function deleteFavorite(e) {
         e.preventDefault();
         try {
-            const res = await fetch(`/api/favorites/${product.favorite_id}`, {
+            const res = await apiFetch(`/api/favorites/${product.favorite_id}`, {
                 method: "DELETE"
             });
             if (!res.ok) {
