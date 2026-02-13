@@ -25,7 +25,7 @@ export async function GET(request) {
     } catch (error) {
         console.log("GET api/products error: ", error);
         return Response.json(
-            { message: "Something went wrong" },
+            { message: "Something went wrong" , error: error.message},
             { status: 500 }
         )
     }
