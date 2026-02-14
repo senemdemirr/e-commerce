@@ -9,7 +9,7 @@ import { useUser } from '@/context/UserContext';
 import { useSnackbar } from 'notistack';
 import { apiFetch } from '@/lib/apiFetch/fetch';
 
-export default function ProductCard({ product, onDeleteFavorite }) {
+export default function ProductCard({ product, onDeleteFavorite, initialIsFavorite = false, onToggleFavorite }) {
     const user = useUser();
     const { enqueueSnackbar } = useSnackbar();
     const pathname = usePathname();
@@ -19,8 +19,10 @@ export default function ProductCard({ product, onDeleteFavorite }) {
     useEffect(() => {
         if (pathname === "/favorites") {
             setIsFavorite(true);
+            return;
         }
-    }, [pathname]);
+        setIsFavorite(Boolean(initialIsFavorite));
+    }, [pathname, initialIsFavorite]);
 
     async function updateFavorite(e) {
         e.preventDefault();
@@ -32,7 +34,7 @@ export default function ProductCard({ product, onDeleteFavorite }) {
         const nextValue = !isFavorite;
         setIsFavorite(nextValue);
         try {
-            const res = await apiFetch(`/api/favorites`, {
+            await apiFetch(`/api/favorites`, {
                 method: 'POST',
                 headers: {
                     "Content-Type": "application/json",
@@ -43,8 +45,8 @@ export default function ProductCard({ product, onDeleteFavorite }) {
                     favorite: nextValue
                 })
             });
-            if (!res.ok) {
-                throw new Error("Favori islemi basarisiz.");
+            if (onToggleFavorite) {
+                onToggleFavorite(product.id, nextValue);
             }
             enqueueSnackbar(nextValue ? "Product added to favorites." : "Product removed from favorites.", { variant: "success" });
         } catch (error) {
@@ -56,12 +58,9 @@ export default function ProductCard({ product, onDeleteFavorite }) {
     async function deleteFavorite(e) {
         e.preventDefault();
         try {
-            const res = await apiFetch(`/api/favorites/${product.favorite_id}`, {
+            await apiFetch(`/api/favorites/${product.favorite_id}`, {
                 method: "DELETE"
             });
-            if (!res.ok) {
-                throw new Error("Delete failed");
-            }
             enqueueSnackbar("Product removed from favorites.", { variant: "success" });
             if (onDeleteFavorite) {
                 onDeleteFavorite(product.id);
