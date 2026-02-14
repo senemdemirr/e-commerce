@@ -1,3 +1,4 @@
+export const runtime = "nodejs";
 import { pool } from "@/lib/db";
 import { getOrCreateUserFromSession } from "@/lib/users";
 import { NextResponse } from "next/server";
