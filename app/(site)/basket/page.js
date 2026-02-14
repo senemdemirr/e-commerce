@@ -15,7 +15,7 @@ import {
 import { useRouter } from "next/navigation";
 
 export default function BasketPage() {
-    const { items, updateItemQuantity, removeFromCart } = useCart();
+    const { items, updateItemQuantity, removeFromCart, isCartReady } = useCart();
     const router = useRouter();
 
     const subtotal = items.reduce(
@@ -28,6 +28,16 @@ export default function BasketPage() {
     const handleCheckout = () => {
         router.push("/checkout");
     };
+
+    if (!isCartReady) {
+        return (
+            <main className="flex-grow container mx-auto max-w-7xl px-4 py-8 lg:px-8">
+                <div className="flex items-center justify-center min-h-[50vh]">
+                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+                </div>
+            </main>
+        );
+    }
 
     if (items.length === 0) {
         return (

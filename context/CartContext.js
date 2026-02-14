@@ -13,14 +13,16 @@ export function CartProvider({ children }) {
     const user = useUser();
     const [items, setItems] = useState([]);
     const [loading, setLoading] = useState(false);
+    const [isCartReady, setIsCartReady] = useState(!user);
     const router = useRouter();
 
     const fetchCart = async () => {
+        if (!user) {
+            setItems([]);
+            setIsCartReady(true);
+            return;
+        }
         try {
-            if (!user) {
-                setItems([]);
-                return;
-            }
             const res = await apiFetch("/api/cart");
             if (Array.isArray(res?.items)) {
                 setItems(res.items);
@@ -34,14 +36,18 @@ export function CartProvider({ children }) {
             }
             console.log(error);
             enqueueSnackbar("Failed to load cart information.", { variant: "error" });
+        } finally {
+            setIsCartReady(true);
         }
     }
 
     useEffect(() => {
         if (user) {
+            setIsCartReady(false);
             fetchCart();
         } else {
             setItems([]);
+            setIsCartReady(true);
         }
     }, [user]);
 
@@ -134,7 +140,7 @@ export function CartProvider({ children }) {
 
     return (
         <CartContext.Provider
-            value={{ items, addToCart, updateItemQuantity, removeFromCart, quantity, loading, fetchCart }}
+            value={{ items, addToCart, updateItemQuantity, removeFromCart, quantity, loading, fetchCart, isCartReady }}
         >
             {children}
         </CartContext.Provider>
