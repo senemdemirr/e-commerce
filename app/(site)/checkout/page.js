@@ -82,6 +82,11 @@ export default function CheckoutPage() {
                 calculateSummary(cartRes.items);
             }
         } catch (err) {
+            if (err?.status === 401) {
+                enqueueSnackbar("Please sign in to continue checkout.", { variant: "warning" });
+                router.push("/auth/login");
+                return;
+            }
             console.error("Error fetching data:", err);
             enqueueSnackbar("Failed to load cart and address information. Please try again.", { variant: "error" });
         } finally {
@@ -195,6 +200,11 @@ export default function CheckoutPage() {
             }
         } catch (err) {
             console.error("Checkout error:", err);
+            if (err?.status === 401) {
+                enqueueSnackbar("Please sign in to place an order.", { variant: "warning" });
+                router.push("/auth/login");
+                return;
+            }
             enqueueSnackbar(err.message || "An error occurred during checkout.", { variant: "error" });
         } finally {
             setProcessing(false);

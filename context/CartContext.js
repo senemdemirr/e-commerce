@@ -4,17 +4,23 @@ import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import { createContext, useContext } from "react";
 import { useSnackbar } from "notistack";
+import { useUser } from "@/context/UserContext";
 
 const CartContext = createContext(null);
 
 export function CartProvider({ children }) {
     const { enqueueSnackbar } = useSnackbar();
+    const user = useUser();
     const [items, setItems] = useState([]);
     const [loading, setLoading] = useState(false);
     const router = useRouter();
 
     const fetchCart = async () => {
         try {
+            if (!user) {
+                setItems([]);
+                return;
+            }
             const res = await apiFetch("/api/cart");
             if (Array.isArray(res?.items)) {
                 setItems(res.items);
@@ -22,14 +28,22 @@ export function CartProvider({ children }) {
                 setItems([]);
             }
         } catch (error) {
+            if (error?.status === 401) {
+                setItems([]);
+                return;
+            }
             console.log(error);
             enqueueSnackbar("Failed to load cart information.", { variant: "error" });
         }
     }
 
     useEffect(() => {
-        fetchCart();
-    }, []);
+        if (user) {
+            fetchCart();
+        } else {
+            setItems([]);
+        }
+    }, [user]);
 
     const addToCart = async (product, quantity) => {
         const normalizedQuantity = Math.max(1, Number(quantity) || 1);
