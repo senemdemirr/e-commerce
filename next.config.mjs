@@ -10,7 +10,7 @@ const nextConfig = {
     },
     outputFileTracingRoot: path.join(process.cwd()),
     outputFileTracingIncludes: {
-      '/api/**/*': ['./node_modules/iyzipay/**/*'],
+      '/api/**/*': ['./node_modules/iyzipay/**/*', './node_modules/postman-request/**/*'],
     },
   },
 };
