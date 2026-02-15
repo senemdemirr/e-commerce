@@ -2,7 +2,7 @@ import path from "path";
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  serverExternalPackages: ["iyzipay"],
+  serverExternalPackages: ["iyzipay", "postman-request"],
 
   experimental: {
     serverActions: {
@@ -10,7 +10,7 @@ const nextConfig = {
     },
     outputFileTracingRoot: path.join(process.cwd()),
     outputFileTracingIncludes: {
-      '/api/**/*': ['./node_modules/iyzipay/**/*', './node_modules/postman-request/**/*'],
+      '/api/**/*': ['./node_modules/iyzipay/**/*'],
     },
   },
 };
