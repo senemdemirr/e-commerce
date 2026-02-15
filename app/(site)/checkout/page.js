@@ -525,8 +525,8 @@ export default function CheckoutPage() {
                                     onChange={(e) => setAgreedToTerms(e.target.checked)}
                                 />
                                 <span>
-                                    <span className="underline">Pre-Information Conditions</span> and{' '}
-                                    <span className="underline">Distance Sales Agreement</span>, I have read and approve.
+                                    <a className="underline" href="/pre-information-conditions" target="_blank">Pre-Information Conditions</a> and{' '}
+                                    <a className="underline" href="/distance-sales-agreement" target="_blank">Distance Sales Agreement</a>, I have read and approve.
                                 </span>
                             </div>
                         </div>
