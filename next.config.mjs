@@ -4,13 +4,13 @@ import path from "path";
 const nextConfig = {
   serverExternalPackages: ["iyzipay"],
 
-  outputFileTracingIncludes: {
-    "/api/**/*": ["./node_modules/iyzipay/**/*"],
-  },
-
   experimental: {
     serverActions: {
       bodySizeLimit: '2mb',
+    },
+    outputFileTracingRoot: path.join(process.cwd()),
+    outputFileTracingIncludes: {
+      '/api/**/*': ['./node_modules/iyzipay/**/*'],
     },
   },
 };
