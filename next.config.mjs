@@ -9,8 +9,7 @@ const nextConfig = {
 
   outputFileTracingIncludes: {
     // ✅ key: route path (URL), dosya yolu değil :contentReference[oaicite:3]{index=3}
-    "/api/checkout": ["./node_modules/iyzipay/lib/**"],
-    "/api/payment": ["./node_modules/iyzipay/lib/**"],
+    "/api/**/*": ["./node_modules/iyzipay/**/*"],
   },
 };
 
