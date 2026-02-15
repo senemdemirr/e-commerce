@@ -11,8 +11,8 @@ const nextConfig = {
     // ✅ Force include the folder iyzipay reads at runtime
     outputFileTracingIncludes: {
       // App Router route handler key (common)
-      "/api/checkout/route": ["./node_modules/iyzipay/lib/resources/**"],
-      "/api/checkout": ["./node_modules/iyzipay/lib/resources/**"],
+      "app/api/checkout/route": ["./node_modules/iyzipay/lib/resources/**"],
+      "app/api/checkout": ["./node_modules/iyzipay/lib/resources/**"],
       // If your project uses pages router api route instead, use:
       // "pages/api/checkout": ["./node_modules/iyzipay/lib/resources/**"],
     },
