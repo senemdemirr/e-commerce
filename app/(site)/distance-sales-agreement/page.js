@@ -10,16 +10,7 @@ export default function DistanceSalesAgreement() {
                     <h2 className="text-xl font-semibold mb-2">1. PARTIES</h2>
                     <p>
                         <strong>1.1. SELLER:</strong><br />
-                        Title: E-Commerce Inc.<br />
-                        Address: [Company Address]<br />
-                        Phone: [Phone Number]<br />
-                        Email: [Email Address]
-                    </p>
-                    <p>
-                        <strong>1.2. BUYER:</strong><br />
-                        Name/Surname: [Buyer Name]<br />
-                        Phone: [Buyer Phone]<br />
-                        Email: [Buyer Address]
+                        Title: Iron E-Commerce<br />
                     </p>
                 </section>
 

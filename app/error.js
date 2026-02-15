@@ -15,11 +15,10 @@ export default function Error({ error, reset }) {
           !
         </div>
         <h1 className="text-2xl font-semibold text-text-dark">
-          Bir seyler ters gitti
+          Something went wrong
         </h1>
         <p className="mt-2 text-sm text-text-muted">
-          Beklenmeyen bir hata olustu. Lutfen tekrar deneyin ya da ana sayfaya
-          donun.
+          An unexpected error occurred. Please try again or return to the home page.
         </p>
         <div className="mt-6 flex items-center justify-center gap-3">
           <button
@@ -27,13 +26,13 @@ export default function Error({ error, reset }) {
             onClick={() => reset()}
             className="rounded-md bg-primary px-4 py-2 font-medium text-white transition-colors hover:bg-primary-dark"
           >
-            Tekrar dene
+            Try again
           </button>
           <Link
             href="/"
             className="rounded-md border border-gray-300 px-4 py-2 font-medium text-text-dark transition-colors hover:bg-gray-50"
           >
-            Ana sayfa
+            Home page
           </Link>
         </div>
       </div>

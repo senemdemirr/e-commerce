@@ -9,10 +9,7 @@ export default function PreInformationConditions() {
                 <section>
                     <h2 className="text-xl font-semibold mb-2">1. SELLER INFORMATION</h2>
                     <p>
-                        <strong>Title:</strong> E-Commerce Inc.<br />
-                        <strong>Address:</strong> [Company Address]<br />
-                        <strong>Phone:</strong> [Phone Number]<br />
-                        <strong>Email:</strong> [Email Address]
+                        <strong>Title:</strong> Iron E-Commerce<br />
                     </p>
                 </section>
 
