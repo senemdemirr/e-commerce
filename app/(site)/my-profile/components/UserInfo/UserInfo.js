@@ -33,31 +33,35 @@ export default function UserInfo() {
     }, [user, reset]);
 
     const onSubmit = async (data) => {
-        const res = await apiFetch("/api/my-profile/user-information", {
-            method: "PUT",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-                name: data.name,
-                surname: data.surname,
-                phone: data.phone
-            })
-        });
-        const dataJson = await res?.json();
-        if (!res.ok) {
-            enqueueSnackbar(dataJson?.message || "Failed to update profile information.", { variant: "error" })
-            return;
+        try {
+            const dataJson = await apiFetch("/api/my-profile/user-information", {
+                method: "PUT",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    name: data.name,
+                    surname: data.surname,
+                    phone: data.phone
+                })
+            });
+
+            if (setUser) {
+                const updatedUser = dataJson?.user;
+                setUser((prev) => ({
+                    ...(prev || {}),
+                    ...(updatedUser || {}),
+                    name: updatedUser?.name ?? data.name,
+                    surname: updatedUser?.surname ?? data.surname,
+                    phone: updatedUser?.phone ?? data.phone
+                }));
+            }
+
+            enqueueSnackbar(dataJson?.message || "Profile information updated successfully.", { variant: "success" });
+        } catch (error) {
+            enqueueSnackbar(
+                error?.data?.message || error?.message || "Failed to update profile information.",
+                { variant: "error" }
+            );
         }
-        if (setUser) {
-            const updatedUser = dataJson?.user;
-            setUser((prev) => ({
-                ...(prev || {}),
-                ...(updatedUser || {}),
-                name: updatedUser?.name ?? data.name,
-                surname: updatedUser?.surname ?? data.surname,
-                phone: updatedUser?.phone ?? data.phone
-            }));
-        }
-        enqueueSnackbar(dataJson?.message || "Profile information updated successfully.", { variant: "success" })
     };
 
     return (
