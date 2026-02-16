@@ -444,7 +444,7 @@ export default function CheckoutPage() {
                                 </div>
                             </div>
 
-                            <div className="flex items-center gap-2 pt-2">
+                            {/* <div className="flex items-center gap-2 pt-2">
                                 <input
                                     className="checkbox-transparent-primary"
                                     id="save_card"
@@ -455,7 +455,7 @@ export default function CheckoutPage() {
                                 <label className="text-sm text-gray-600 dark:text-gray-400" htmlFor="save_card">
                                     Save card information securely for future purchases.
                                 </label>
-                            </div>
+                            </div> */}
                         </form>
 
                         {/* Trust Badges */}
