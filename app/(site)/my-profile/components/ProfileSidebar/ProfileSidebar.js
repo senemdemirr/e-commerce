@@ -77,7 +77,7 @@ export default function ProfileSidebar() {
             {/* Logout Button */}
             <button className="w-full flex items-center justify-center gap-2 h-12 rounded-xl bg-gray-50 dark:bg-gray-800 text-text-main dark:text-gray-300 font-bold text-sm hover:bg-red-50 hover:text-red-500 dark:hover:bg-red-900/20 dark:hover:text-red-400 transition-colors">
                 <LogoutIcon sx={{ fontSize: 20 }} />
-                <span>Logout</span>
+                <a href="/auth/logout">Logout</a>
             </button>
         </Box>
     );
