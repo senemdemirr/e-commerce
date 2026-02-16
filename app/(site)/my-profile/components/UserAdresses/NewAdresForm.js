@@ -44,10 +44,8 @@ export default function NewAdresForm({ mode, initialData, onSuccess, onCancel })
         const fetchCities = async () => {
             try {
                 setLoadingCities(true);
-                const res = await apiFetch("/api/locations/cities");
-                const json = await res.json();
-                if (!res.ok) throw new Error(json?.message || "Cities fetch failed");
-                setCities(json);
+                const data = await apiFetch("/api/locations/cities");
+                setCities(Array.isArray(data) ? data : []);
             } catch (e) {
                 console.log(e);
                 enqueueSnackbar("Failed to load city list.", { variant: "error" });
@@ -69,10 +67,8 @@ export default function NewAdresForm({ mode, initialData, onSuccess, onCancel })
 
             try {
                 setLoadingDistricts(true);
-                const res = await apiFetch(`/api/locations/districts?cityId=${selectedCityId}`);
-                const json = await res.json();
-                if (!res.ok) throw new Error(json?.message || "Districts fetch failed");
-                setDistricts(json);
+                const data = await apiFetch(`/api/locations/districts?cityId=${selectedCityId}`);
+                setDistricts(Array.isArray(data) ? data : []);
             } catch (e) {
                 console.log(e);
                 enqueueSnackbar("Failed to load district list.", { variant: "error" });
@@ -94,10 +90,8 @@ export default function NewAdresForm({ mode, initialData, onSuccess, onCancel })
 
             try {
                 setLoadingNeighborhoods(true);
-                const res = await apiFetch(`/api/locations/neighborhoods?districtId=${selectedDistrictId}`);
-                const json = await res.json();
-                if (!res.ok) throw new Error(json?.message || "Neighborhoods fetch failed");
-                setNeighborhoods(json);
+                const data = await apiFetch(`/api/locations/neighborhoods?districtId=${selectedDistrictId}`);
+                setNeighborhoods(Array.isArray(data) ? data : []);
             } catch (e) {
                 console.log(e);
                 enqueueSnackbar("Failed to load neighborhood list.", { variant: "error" });
