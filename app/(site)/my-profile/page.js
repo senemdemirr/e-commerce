@@ -1,11 +1,9 @@
 "use client";
-import { Typography } from "@mui/material";
+import { useRouter } from "next/navigation";
 
 export default function MyProfile() {
-
+    const router = useRouter();
     return (
-        <div>
-            <Typography>test</Typography>
-        </div>
+        router.push("/my-profile/user-information")
     )
 }
