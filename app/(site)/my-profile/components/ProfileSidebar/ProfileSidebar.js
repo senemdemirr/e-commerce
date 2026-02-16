@@ -3,7 +3,7 @@ import { Box, Link, List, ListItem, ListItemButton, ListItemIcon, ListItemText, 
 import { useUser } from "@/context/UserContext";
 import PersonIcon from '@mui/icons-material/Person';
 import LocationOnIcon from '@mui/icons-material/LocationOn';
-import LockIcon from '@mui/icons-material/Lock';
+// import LockIcon from '@mui/icons-material/Lock';
 import ShoppingBagIcon from '@mui/icons-material/ShoppingBag';
 import LogoutIcon from '@mui/icons-material/Logout';
 import EditIcon from '@mui/icons-material/Edit';
@@ -19,20 +19,19 @@ const menuItems = [
 export default function ProfileSidebar() {
     const user = useUser();
     const pathname = usePathname();
-    const firstOfName = user?.name?.charAt(0) || "U";
+    const firstOfName = user?.name?.charAt(0) || "";
     const firstOfSurname = user?.surname?.charAt(0) || "";
 
     return (
         <Box component="aside" className="w-full lg:w-72 flex-shrink-0 space-y-6">
-            {/* User Info Card */}
             <Box className="bg-surface-light dark:bg-surface-dark rounded-xl p-6 shadow-sm border !border-gray-100 dark:border-gray-800 flex flex-col items-center text-center">
                 <Box className="relative mb-4">
                     <Box className="bg-primary/20 w-20 h-20 flex items-center justify-center rounded-full border-4 border-[#f1f3f2] dark:border-[#2a342d]">
                         <Typography className="text-primary !text-2xl !font-bold">{firstOfName}{firstOfSurname}</Typography>
                     </Box>
-                    <button className="absolute bottom-0 right-0 bg-primary hover:bg-primary-dark text-white rounded-full p-1.5 shadow-md transition-colors border-2 border-surface-light dark:border-surface-dark">
+                    {/* <button className="absolute bottom-0 right-0 bg-primary hover:bg-primary-dark text-white rounded-full p-1.5 shadow-md transition-colors border-2 border-surface-light dark:border-surface-dark">
                         <EditIcon sx={{ fontSize: 16, display: 'block' }} />
-                    </button>
+                    </button> */}
                 </Box>
                 <Typography className="text-text-main dark:text-white !text-lg !font-bold">
                     {user?.name} {user?.surname}
