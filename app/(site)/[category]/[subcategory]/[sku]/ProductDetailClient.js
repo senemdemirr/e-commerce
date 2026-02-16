@@ -217,7 +217,7 @@ export default function ProductDetailClient({ product }) {
                             </div>
                             <div className="flex items-center gap-2 text-sm text-[#6d7e73] mt-2">
                                 <CheckCircleIcon sx={{ fontSize: 18, color: '#8dc8a1' }} />
-                                <span>In Stock. <span className="font-medium text-text-dark dark:text-white">Free shipping</span> (over 500₺)</span>
+                                <span>In Stock. <span className="font-medium text-text-dark dark:text-white">Free shipping</span> (over 1000₺)</span>
                             </div>
                         </div>
                     </div>
