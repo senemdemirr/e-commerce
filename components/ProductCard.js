@@ -71,19 +71,18 @@ export default function ProductCard({ product, onDeleteFavorite, initialIsFavori
         }
     }
     return (
-        <Link prefetch={false}
-            href={href}>
-            <div className="bg-white cursor-pointer rounded-2xl shadow-md hover:shadow-xl transition flex flex-col overflow-hidden border border-gray-100">
-                <div className="relative">
+        <Link prefetch={false} href={href} className="h-full block">
+            <div className="bg-white cursor-pointer rounded-2xl shadow-md hover:shadow-xl transition flex flex-col h-full overflow-hidden border border-gray-100">
+                <div className="relative aspect-[3/4] w-full overflow-hidden">
                     <Image
                         src={product.image}
                         alt={product.title}
-                        className="h-full w-full bg-white"
+                        className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
                         loading='lazy'
                         width={300}
-                        height={300}
+                        height={400}
                     />
-                    <span className="absolute top-2 right-2 bg-gray-100 border border-gray-200 shadow-2xl text-white text-xs px-1.5 py-1.5 rounded-full">
+                    <div className="absolute top-2 right-2 bg-white/80 backdrop-blur-sm border border-gray-200 shadow-sm rounded-full p-1.5 flex items-center justify-center hover:bg-white transition-colors">
                         {pathname == "/favorites" ?
                             (<CloseIcon onClick={deleteFavorite} fontSize="medium" color='action'></CloseIcon>) :
                             (
@@ -94,16 +93,13 @@ export default function ProductCard({ product, onDeleteFavorite, initialIsFavori
 
                             )
                         }
-
-
-
-                    </span>
+                    </div>
                 </div>
                 <div className="flex-1 flex flex-col px-4 py-3 gap-1">
-                    <h3 className="font-semibold text-md truncate">{product.title}</h3>
-                    <span className="text-sm text-gray-500">{product.brand}</span>
-                    <span className="text-gray-600 text-xs">{product.description}</span>
-                    <div className="flex items-end justify-between mt-2">
+                    <h3 className="font-semibold text-md truncate" title={product.title}>{product.title}</h3>
+                    <span className="text-sm text-gray-500 truncate">{product.brand}</span>
+                    <p className="text-gray-600 text-xs hidden lg:block line-clamp-2 min-h-[2.5em]">{product.description}</p>
+                    <div className="mt-auto pt-2 flex items-end justify-between">
                         <span className="text-xl font-bold text-orange-400">{product.price} <span className="text-base font-medium">TL</span></span>
                     </div>
                 </div>

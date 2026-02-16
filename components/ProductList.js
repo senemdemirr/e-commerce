@@ -5,7 +5,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useUser } from "@/context/UserContext";
 import { apiFetch } from "@/lib/apiFetch/fetch";
 
-export default function ProductList({ products, isFavoritePage = false}) {
+export default function ProductList({ products, isFavoritePage = false }) {
     const user = useUser();
     const searchParams = useSearchParams();
     const query = searchParams.get("query") || "";
@@ -82,7 +82,7 @@ export default function ProductList({ products, isFavoritePage = false}) {
 
     return (
         <div className="container py-8 mx-auto">
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+            <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
                 {filtered?.map((product) => (
                     <ProductCard
                         key={product.id}
