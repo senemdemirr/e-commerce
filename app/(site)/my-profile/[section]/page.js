@@ -23,13 +23,13 @@ export default async function Section({ params }) {
             description: "You can manage your registered delivery and billing addresses here.",
             icon: LocationOnIcon
         },
-        {
-            slug: "change-password",
-            component: ChangePassword,
-            title: "Password Change",
-            description: "To ensure the security of your account, update your password regularly.",
-            icon: LockIcon
-        }
+        // {
+        //     slug: "change-password",
+        //     component: ChangePassword,
+        //     title: "Password Change",
+        //     description: "To ensure the security of your account, update your password regularly.",
+        //     icon: LockIcon
+        // }
     ]
     const current = pagesAndInformation.find((page) => page.slug === param.section);
 

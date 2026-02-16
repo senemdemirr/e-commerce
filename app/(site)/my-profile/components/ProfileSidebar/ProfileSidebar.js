@@ -13,7 +13,7 @@ const menuItems = [
     { label: "My Information", href: "/my-profile/user-information", icon: <PersonIcon /> },
     { label: "All My Orders", href: "/my-profile/orders", icon: <ShoppingBagIcon /> },
     { label: "My Addresses", href: "/my-profile/my-adresses", icon: <LocationOnIcon /> },
-    { label: "Change Password", href: "/my-profile/change-password", icon: <LockIcon /> },
+    // { label: "Change Password", href: "/my-profile/change-password", icon: <LockIcon /> },
 ]
 
 export default function ProfileSidebar() {
