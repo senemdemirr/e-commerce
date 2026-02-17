@@ -1,7 +1,10 @@
 "use client";
 
-import React, { useState, useRef } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { useCart } from "@/context/CartContext";
+import { useUser } from "@/context/UserContext";
+import { useSnackbar } from "notistack";
+import { apiFetch } from "@/lib/apiFetch/fetch";
 import {
     Tabs,
     Tab,
@@ -18,9 +21,13 @@ import IronIcon from '@mui/icons-material/Iron';
 import DryCleaningIcon from '@mui/icons-material/DryCleaning';
 import StarIcon from '@mui/icons-material/Star';
 import StarHalfIcon from '@mui/icons-material/StarHalf';
+import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
+import FavoriteIcon from '@mui/icons-material/Favorite';
 
 export default function ProductDetailClient({ product }) {
     const { addToCart, loading } = useCart();
+    const user = useUser();
+    const { enqueueSnackbar } = useSnackbar();
     const reviewsRef = useRef(null);
 
     const colors = Array.isArray(product.colors) ? product.colors : [];
@@ -32,6 +39,8 @@ export default function ProductDetailClient({ product }) {
     const [selectedSize, setSelectedSize] = useState(product.sizes?.[0] || "");
     const [quantity, setQuantity] = useState(1);
     const [tabValue, setTabValue] = useState(0);
+    const [isFavorite, setIsFavorite] = useState(false);
+    const [favoritePending, setFavoritePending] = useState(false);
 
     const scrollToReviews = () => {
         setTabValue(1);
@@ -47,6 +56,63 @@ export default function ProductDetailClient({ product }) {
             selectedColorHex: selectedColor.hex,
             selectedSize
         }, quantity);
+    };
+
+    useEffect(() => {
+        if (!user || !product?.id) {
+            setIsFavorite(false);
+            return;
+        }
+        let active = true;
+        const fetchFavorites = async () => {
+            try {
+                const res = await apiFetch(`/api/favorites?userId=${user.id}`);
+                if (!active) return;
+                const ids = Array.isArray(res) ? res.map((item) => item.id) : [];
+                setIsFavorite(ids.includes(product.id));
+            } catch (error) {
+                if (!active) return;
+                if (error?.status === 401) {
+                    setIsFavorite(false);
+                    return;
+                }
+                console.log(error);
+            }
+        };
+        fetchFavorites();
+        return () => {
+            active = false;
+        };
+    }, [user, product?.id]);
+
+    const handleToggleFavorite = async () => {
+        if (!user) {
+            enqueueSnackbar("You need to sign in to manage favorites.", { variant: "info" });
+            return;
+        }
+        if (!product?.id || favoritePending) return;
+        const nextValue = !isFavorite;
+        setIsFavorite(nextValue);
+        setFavoritePending(true);
+        try {
+            await apiFetch(`/api/favorites`, {
+                method: 'POST',
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    product_id: product.id,
+                    user_id: user.id,
+                    favorite: nextValue
+                })
+            });
+            enqueueSnackbar(nextValue ? "Product added to favorites." : "Product removed from favorites.", { variant: "success" });
+        } catch (error) {
+            setIsFavorite(!nextValue);
+            enqueueSnackbar("Failed to update favorite status.", { variant: "error" });
+        } finally {
+            setFavoritePending(false);
+        }
     };
 
     const details = product.details || {};
@@ -104,10 +170,27 @@ export default function ProductDetailClient({ product }) {
 
                     <div className="lg:col-span-5 flex flex-col pt-2">
                         <div className="mb-4 border-b border-[#f1f3f2] dark:border-[#2a362f] pb-6">
-                            <div className="flex justify-between items-start mb-2">
+                            <div className="flex justify-between items-start mb-2 gap-4">
                                 <h1 className="text-3xl md:text-4xl font-bold text-text-dark dark:text-white leading-tight">
                                     {product.title}
                                 </h1>
+                                <button
+                                    type="button"
+                                    onClick={handleToggleFavorite}
+                                    disabled={favoritePending}
+                                    aria-pressed={isFavorite}
+                                    aria-label={isFavorite ? "Remove from favorites" : "Add to favorites"}
+                                    className={`shrink-0 h-10 w-10 rounded-full border flex items-center justify-center transition-colors disabled:opacity-60 disabled:cursor-not-allowed ${isFavorite
+                                        ? "border-primary text-primary bg-primary/10"
+                                        : "border-[#e5e7eb] dark:border-[#2a362f] text-[#6d7e73] hover:border-primary hover:text-primary"
+                                        }`}
+                                >
+                                    {isFavorite ? (
+                                        <FavoriteIcon className="text-primary" sx={{ fontSize: 22 }} />
+                                    ) : (
+                                        <FavoriteBorderIcon className="text-current" sx={{ fontSize: 22 }} />
+                                    )}
+                                </button>
                             </div>
 
                             <div className="flex items-center gap-4 mb-4">
