@@ -36,8 +36,7 @@ export default function MobileMenu() {
         async function fetchCategories() {
             try {
                 const res = await apiFetch("/api/categories");
-                const data = await res.json();
-                setCategories(data);
+                setCategories(res);
             } catch (error) {
                 console.log("Category route error: ", error);
             }
