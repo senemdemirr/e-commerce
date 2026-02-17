@@ -163,9 +163,6 @@ export default function ProductDetailClient({ product }) {
                                     <h3 className="text-sm font-bold text-text-dark dark:text-white uppercase tracking-wider">
                                         {product.sizes[0] === 'Standard' ? 'Option:' : 'Size:'} <span className="font-normal text-[#6d7e73]">{selectedSize}</span>
                                     </h3>
-                                    {product.sizes[0] !== 'Standard' && (
-                                        <button className="text-xs text-primary font-medium underline">Size Guide</button>
-                                    )}
                                 </div>
                                 <div className="flex flex-wrap gap-3">
                                     {product.sizes.map((size, index) => (
