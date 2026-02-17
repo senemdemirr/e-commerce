@@ -14,7 +14,8 @@ export default function NewAdresForm({ mode, initialData, onSuccess, onCancel })
     const maxInputCharacter = 200;
     const maxInputErrorMessage = "Max 200 characters";
     const phoneRegex = /^\d*$/;
-    const phoneErrorMessage = "Only numbers are allowed"
+    const phoneErrorMessage = "Only numbers are allowed";
+    const phoneLengthErrorMessage = "Phone must be 11 characters";
     const phoneMaxLength = 11;
 
     const { register, handleSubmit, control, watch, reset, formState: { errors } } = useForm({
@@ -212,12 +213,21 @@ export default function NewAdresForm({ mode, initialData, onSuccess, onCancel })
                                 value: phoneRegex,
                                 message: phoneErrorMessage,
                             },
+                            minLength: {
+                                value: phoneMaxLength,
+                                message: phoneLengthErrorMessage,
+                            },
+                            maxLength: {
+                                value: phoneMaxLength,
+                                message: phoneLengthErrorMessage,
+                            },
                         })}
                         type="text"
                         inputProps={{
                             inputMode: "numeric",
                             pattern: "[0-9]*",
-                            maxLength: phoneMaxLength
+                            maxLength: phoneMaxLength,
+                            minLength: phoneMaxLength,
                         }}
                         onInput={(e) => {
                             e.target.value = e.target.value.replace(/[^0-9]/g, "");
