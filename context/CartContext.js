@@ -52,6 +52,10 @@ export function CartProvider({ children }) {
     }, [user]);
 
     const addToCart = async (product, quantity) => {
+        if (!user) {
+            enqueueSnackbar("Please sign in. You can't add items to the cart without signing in.", { variant: "info" });
+            return;
+        }
         const normalizedQuantity = Math.max(1, Number(quantity) || 1);
         setLoading(true);
         try {
@@ -75,6 +79,10 @@ export function CartProvider({ children }) {
             await new Promise(resolve => setTimeout(resolve, 2000));
             router.push("/basket");
         } catch (error) {
+            if (error?.status === 401) {
+                enqueueSnackbar("Please sign in. You can't add items to the cart without signing in.", { variant: "info" });
+                return;
+            }
             console.log(error);
             enqueueSnackbar("Failed to add product to cart.", { variant: "error" });
         } finally {
