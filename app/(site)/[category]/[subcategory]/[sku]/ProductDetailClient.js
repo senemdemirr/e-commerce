@@ -5,11 +5,7 @@ import { useCart } from "@/context/CartContext";
 import { useUser } from "@/context/UserContext";
 import { useSnackbar } from "notistack";
 import { apiFetch } from "@/lib/apiFetch/fetch";
-import {
-    Tabs,
-    Tab,
-    Box,
-} from '@mui/material';
+import { Tabs, Tab, Box } from '@mui/material';
 
 // MUI Icons
 import RemoveIcon from '@mui/icons-material/Remove';
@@ -39,7 +35,7 @@ export default function ProductDetailClient({ product }) {
     const [selectedSize, setSelectedSize] = useState(product.sizes?.[0] || "");
     const [quantity, setQuantity] = useState(1);
     const [tabValue, setTabValue] = useState(0);
-    const [isFavorite, setIsFavorite] = useState(false);
+    const [favoriteIds, setFavoriteIds] = useState([]);
     const [favoritePending, setFavoritePending] = useState(false);
 
     const scrollToReviews = () => {
@@ -60,7 +56,6 @@ export default function ProductDetailClient({ product }) {
 
     useEffect(() => {
         if (!user || !product?.id) {
-            setIsFavorite(false);
             return;
         }
         let active = true;
@@ -69,11 +64,11 @@ export default function ProductDetailClient({ product }) {
                 const res = await apiFetch(`/api/favorites?userId=${user.id}`);
                 if (!active) return;
                 const ids = Array.isArray(res) ? res.map((item) => item.id) : [];
-                setIsFavorite(ids.includes(product.id));
+                setFavoriteIds(ids);
             } catch (error) {
                 if (!active) return;
                 if (error?.status === 401) {
-                    setIsFavorite(false);
+                    enqueueSnackbar("You need to sign in to view favorites.", { variant: "info" });
                     return;
                 }
                 console.log(error);
@@ -84,15 +79,15 @@ export default function ProductDetailClient({ product }) {
             active = false;
         };
     }, [user, product?.id]);
-
+    const isFavorite = favoriteIds.includes(product?.id);
     const handleToggleFavorite = async () => {
         if (!user) {
             enqueueSnackbar("You need to sign in to manage favorites.", { variant: "info" });
             return;
         }
         if (!product?.id || favoritePending) return;
-        const nextValue = !isFavorite;
-        setIsFavorite(nextValue);
+        const isCurrentlyFavorite = favoriteIds.includes(product.id);
+        const nextFavoriteValue = !isCurrentlyFavorite;
         setFavoritePending(true);
         try {
             await apiFetch(`/api/favorites`, {
@@ -103,12 +98,16 @@ export default function ProductDetailClient({ product }) {
                 body: JSON.stringify({
                     product_id: product.id,
                     user_id: user.id,
-                    favorite: nextValue
+                    favorite: nextFavoriteValue
                 })
             });
-            enqueueSnackbar(nextValue ? "Product added to favorites." : "Product removed from favorites.", { variant: "success" });
+            setFavoriteIds((prev) =>
+            nextFavoriteValue
+                ? [...prev, product.id]
+                : prev.filter((id) => id !== product.id)
+        );
+            enqueueSnackbar(nextFavoriteValue ? "Product added to favorites." : "Product removed from favorites.", { variant: "success" });
         } catch (error) {
-            setIsFavorite(!nextValue);
             enqueueSnackbar("Failed to update favorite status.", { variant: "error" });
         } finally {
             setFavoritePending(false);
@@ -117,7 +116,6 @@ export default function ProductDetailClient({ product }) {
 
     const details = product.details || {};
     const bulletPoints = details.bullet_points || [];
-    const materialCare = details.care || [];
 
     const renderStars = (rating, size = 20) => {
         return [1, 2, 3, 4, 5].map((star) => {
