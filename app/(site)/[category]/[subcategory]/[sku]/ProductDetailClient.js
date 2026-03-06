@@ -38,6 +38,18 @@ export default function ProductDetailClient({ product }) {
     const [favoriteIds, setFavoriteIds] = useState([]);
     const [favoritePending, setFavoritePending] = useState(false);
 
+    useEffect(() => {
+        const nextColors = Array.isArray(product?.colors) ? product.colors : [];
+        const nextInitialColor = nextColors.length > 0
+            ? (typeof nextColors[0] === 'object' ? nextColors[0] : { name: nextColors[0], hex: nextColors[0] })
+            : { name: "", hex: "" };
+
+        setSelectedColor(nextInitialColor);
+        setSelectedSize(product?.sizes?.[0] || "");
+        setQuantity(1);
+        setTabValue(0);
+    }, [product?.id, product?.sku]);
+
     const scrollToReviews = () => {
         setTabValue(1);
         if (reviewsRef.current) {

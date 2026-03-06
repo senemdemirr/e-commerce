@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Close, Star } from '@mui/icons-material';
 import { apiFetch } from "@/lib/apiFetch/fetch";
 import { CircularProgress } from '@mui/material';
@@ -12,6 +12,15 @@ const ProductRatingModal = ({ isOpen, onClose, product, orderId, orderDate, onSu
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
     const [success, setSuccess] = useState(false);
+
+    useEffect(() => {
+        if (!isOpen) return;
+        setRating(0);
+        setHover(0);
+        setComment("");
+        setError(null);
+        setSuccess(false);
+    }, [isOpen, product?.product_id, orderId]);
 
     if (!isOpen) return null;
 

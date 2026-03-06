@@ -16,25 +16,33 @@ const ReturnRequest = ({ order, router, formatDate, onSuccess }) => {
     const [policyAccepted, setPolicyAccepted] = useState(false);
 
     useEffect(() => {
+        let active = true;
         const fetchReasons = async () => {
             try {
                 const res = await apiFetch("/api/orders/return-reasons");
+                if (!active) return;
                 if (res.reasons) {
                     setReasons(res.reasons);
                     // Initialize itemDetails with first reason for each item if not already set
-                    const details = { ...itemDetails };
-                    order.items?.forEach(item => {
-                        if (!details[item.id]) {
-                            details[item.id] = { reason_id: res.reasons[0].id, note: "" };
-                        }
+                    setItemDetails((prev) => {
+                        const details = { ...prev };
+                        order.items?.forEach(item => {
+                            if (!details[item.id]) {
+                                details[item.id] = { reason_id: res.reasons[0].id, note: "" };
+                            }
+                        });
+                        return details;
                     });
-                    setItemDetails(details);
                 }
             } catch (err) {
+                if (!active) return;
                 console.error("Error fetching return reasons:", err);
             }
         };
         fetchReasons();
+        return () => {
+            active = false;
+        };
     }, [order.items]);
 
     const handleItemToggle = (itemId) => {

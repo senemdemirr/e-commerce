@@ -10,9 +10,13 @@ export default function ProductList({ products, isFavoritePage = false }) {
     const searchParams = useSearchParams();
     const query = searchParams.get("query") || "";
     const queryValue = query.trim().toLocaleLowerCase('tr');
-    const [productList, setProductList] = useState(products);
+    const [productList, setProductList] = useState([]);
     const [favoriteIds, setFavoriteIds] = useState(new Set());
     // 'tr' locale is used for Turkish characters like 'i' and 'I'
+
+    useEffect(() => {
+        setProductList(Array.isArray(products) ? products : []);
+    }, [products]);
 
     useEffect(() => {
         if (isFavoritePage) {
@@ -53,6 +57,9 @@ export default function ProductList({ products, isFavoritePage = false }) {
             return next;
         });
     }
+    useEffect(() => {
+        setProductList(products || []);
+    }, [products]);
 
     function handleToggleFavorite(product_id, nextValue) {
         setFavoriteIds((prev) => {
