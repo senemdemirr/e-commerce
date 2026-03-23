@@ -1,1 +1,0 @@
-// Silme onay dialog bileşeni

@@ -1,1 +1,0 @@
-// Müşteri Detay Sayfası
