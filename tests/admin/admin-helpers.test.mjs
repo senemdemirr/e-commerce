@@ -17,10 +17,18 @@ describe('Admin Helpers', () => {
     });
 
     // --- Search Clause Builder ---
-    test('buildSearchClause - arama terimi ile WHERE koşulu oluşturur', () => {
+    test('buildSearchClause - güvenli WHERE koşulu ve parametreler oluşturur', () => {
         const result = helpers.buildSearchClause('iphone', ['name', 'description']);
-        expect(result).toContain("OR name ILIKE '%iphone%'");
-        expect(result).toContain("OR description ILIKE '%iphone%'");
+
+        expect(result.clause).toBe('AND (name ILIKE $1 OR description ILIKE $2)');
+        expect(result.values).toEqual(['%iphone%', '%iphone%']);
+    });
+
+    test('buildSearchClause - searchTerm boşsa boş clause döner', () => {
+        const result = helpers.buildSearchClause('', ['name', 'description']);
+
+        expect(result.clause).toBe('');
+        expect(result.values).toEqual([]);
     });
 
     // --- Admin Response Format ---
