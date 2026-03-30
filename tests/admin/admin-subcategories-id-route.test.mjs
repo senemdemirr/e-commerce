@@ -13,12 +13,18 @@ describe('Admin Subcategory ID Route', () => {
 
     // --- PUT: Alt Kategori Güncelleme ---
     test('PUT /api/admin/subcategories/[id] - geçerli verilerle günceller ve 200 döner', async () => {
-        const req = {
+        const req = { 
             headers: { get: () => 'admin' },
-            json: async () => ({ name: 'Yeni Alt İsim', slug: 'yeni-alt-slug', category_id: 1 })
+            json: async () => ({ 
+                name: 'Yeni Alt İsim', 
+                slug: 'yeni-alt-slug', 
+                category_id: 2 // Başka BİR tekil kategoriye taşıma
+            })
         };
         const response = await PUT(req, { params: { id: '1' } });
         expect(response.status).toBe(200);
+        const data = await response.json();
+        expect(data.category_id).toBe(2); // Tekil olarak güncellendiğini doğrulama
     });
     test('PUT /api/admin/subcategories/[id] - name eksikse 400 döner', async () => {
         const req = {

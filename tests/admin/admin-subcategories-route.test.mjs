@@ -57,15 +57,19 @@ describe('Admin Subcategories Route', () => {
     });
 
     test('POST /api/admin/subcategories - geçerli verilerle 201 döner', async () => {
-        const req = {
+        const req = { 
             headers: { get: () => 'admin' },
-            json: async () => ({
-                name: 'Test Alt Kategori',
-                slug: 'test-alt',
-                category_id: 1
+            json: async () => ({ 
+                name: 'Test Alt Kategori', 
+                slug: 'test-alt', 
+                category_id: 1 // Tek bir ana kategoriye bağlılık
             })
         };
         const response = await POST(req);
         expect(response.status).toBe(201);
+        const data = await response.json();
+        // Dönen verinin tek bir category_id içerdiğini doğruluyoruz
+        expect(data).toHaveProperty('category_id');
+        expect(typeof data.category_id).not.toBe('object'); // Dizi olmamalı
     });
 });
