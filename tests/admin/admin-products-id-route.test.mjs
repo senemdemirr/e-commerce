@@ -34,9 +34,25 @@ describe('Admin Product ID Route', () => {
         return {
             headers: { get: () => 'admin' },
             formData: async () => ({
-                get: (key) => data.get(key),
+                get: (key) => {
+                    const val = data.get(key);
+                    return Array.isArray(val) ? val[0] : val;
+                },
+                getAll: (key) => {
+                    const val = data.get(key);
+                    if (val === undefined) return [];
+                    return Array.isArray(val) ? val : [val];
+                },
                 has: (key) => data.has(key),
-                entries: () => Array.from(data.entries()),
+                entries: function* () {
+                    for (const [k, v] of data.entries()) {
+                        if (Array.isArray(v)) {
+                            for (const item of v) yield [k, item];
+                        } else {
+                            yield [k, v];
+                        }
+                    }
+                },
                 keys: () => Array.from(data.keys()),
                 values: () => Array.from(data.values()),
             }),
@@ -133,6 +149,14 @@ describe('Admin Product ID Route', () => {
         expect(response.status).toBe(400);
         const data = await response.json();
         expect(data.error).toMatch(/subcategory_id|kategori/i);
+    });
+
+    test('PUT /api/admin/products/[id] - alt kategori (subcategory_id) birden fazla (dizi) olamaz, olursa 400 döner', async () => {
+        const req = createMockRequest({ subcategory_id: ['1', '2'] });
+        const response = await PUT(req, { params: { id: '1' } });
+        expect(response.status).toBe(400);
+        const data = await response.json();
+        expect(data.error).toMatch(/subcategory_id|kategori|dizi|array/i);
     });
 
     test('PUT /api/admin/products/[id] - brand eksikse 400 döner', async () => {
