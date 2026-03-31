@@ -46,11 +46,11 @@ export default function AdminLayout({ children }) {
                                 href={item.path}
                                 key={item.path}
                                 className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${isActive
-                                    ? 'bg-primary text-white font-medium shadow-sm'
+                                    ? 'bg-primary !text-white font-medium shadow-sm'
                                     : 'text-slate-600 dark:text-slate-300 hover:bg-primary/10 hover:text-primary'
                                     }`}
                             >
-                                {item.icon}
+                                <span className={isActive ? 'text-white flex' : ''}>{item.icon}</span>
                                 <span>{item.name}</span>
                             </Link>
                         );
@@ -60,11 +60,11 @@ export default function AdminLayout({ children }) {
                     <Link
                         href="/admin/settings"
                         className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${pathname === '/admin/settings'
-                            ? 'bg-primary text-white font-medium shadow-sm'
+                            ? 'bg-primary !text-white font-medium shadow-sm'
                             : 'text-slate-600 dark:text-slate-300 hover:bg-primary/10 hover:text-primary'
                             }`}
                     >
-                        <SettingsIcon sx={{ fontSize: 20 }} />
+                        <SettingsIcon sx={{ fontSize: 20, color: pathname === '/admin/settings' ? 'white' : 'inherit' }} />
                         <span>Settings</span>
                     </Link>
                 </nav>
@@ -103,7 +103,7 @@ export default function AdminLayout({ children }) {
                 </header>
 
                 {/* Content */}
-                <div className="p-8 h-vh">
+                <div className="p-8 h-full">
                     {children}
                 </div>
             </main>
