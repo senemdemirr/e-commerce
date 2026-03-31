@@ -22,6 +22,10 @@ export default function AdminLayout({ children }) {
         { name: 'Ayarlar', path: '/admin/settings', icon: <SettingsIcon /> },
     ];
 
+    if (pathname === '/admin/login') {
+        return <>{children}</>;
+    }
+
     return (
         <div className="flex h-screen bg-gray-50 text-gray-800 font-sans">
             {/* Sidebar */}
