@@ -42,29 +42,27 @@ export default function AdminLayout({ children }) {
                     {menuItems.map((item) => {
                         const isActive = pathname === item.path || (pathname.startsWith(item.path) && item.path !== '/admin');
                         return (
-                            <Link 
-                                href={item.path} 
+                            <Link
+                                href={item.path}
                                 key={item.path}
-                                className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${
-                                    isActive 
-                                        ? 'bg-primary text-white font-medium shadow-sm' 
-                                        : 'text-slate-600 dark:text-slate-300 hover:bg-primary/10 hover:text-primary'
-                                }`}
+                                className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${isActive
+                                    ? 'bg-primary text-white font-medium shadow-sm'
+                                    : 'text-slate-600 dark:text-slate-300 hover:bg-primary/10 hover:text-primary'
+                                    }`}
                             >
                                 {item.icon}
                                 <span>{item.name}</span>
                             </Link>
                         );
                     })}
-                    
+
                     <div className="pt-4 pb-2 px-4 text-[10px] font-bold uppercase tracking-widest text-slate-400">System</div>
-                    <Link 
+                    <Link
                         href="/admin/settings"
-                        className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${
-                            pathname === '/admin/settings'
-                                ? 'bg-primary text-white font-medium shadow-sm'
-                                : 'text-slate-600 dark:text-slate-300 hover:bg-primary/10 hover:text-primary'
-                        }`}
+                        className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${pathname === '/admin/settings'
+                            ? 'bg-primary text-white font-medium shadow-sm'
+                            : 'text-slate-600 dark:text-slate-300 hover:bg-primary/10 hover:text-primary'
+                            }`}
                     >
                         <SettingsIcon sx={{ fontSize: 20 }} />
                         <span>Settings</span>
@@ -96,7 +94,7 @@ export default function AdminLayout({ children }) {
                                 <p className="text-sm font-bold">Alex Iron</p>
                                 <p className="text-[10px] text-slate-500">Store Manager</p>
                             </div>
-                            <div 
+                            <div
                                 className="size-10 rounded-full bg-secondary border-2 border-primary/20 bg-cover bg-center"
                                 style={{ backgroundImage: "url('https://lh3.googleusercontent.com/aida-public/AB6AXuDl_KZuxOIDFrJEg76maaotFvEPdLD1ll01z8r5tFj-JIumHgjTOCCQWM5JJDdD6IvjfUx9YCUl3pU314ZkPtqzQHhwNYtOSSIT-8u4Cu28aKKNzCTLMSYsaM4zuraCbnRQduLBC2n2oCLOkXgkQ9GDp93mHePUMv9gbKtIOCvPO_1hNBqfzIJrvZjTymP1zrzFDaBjPv6JfYJzh0_Q0CaLcZmCzXxxM9B3pCfW2u3Yj3MOgMAhdiyF3iZKe-2o1dyWdNoykb2WnPQ')" }}
                             ></div>
@@ -105,7 +103,7 @@ export default function AdminLayout({ children }) {
                 </header>
 
                 {/* Content */}
-                <div className="p-8 h-full">
+                <div className="p-8 h-vh">
                     {children}
                 </div>
             </main>
