@@ -19,6 +19,19 @@ describe('Admin Products Route', () => {
             ['price', '200.90'],
             ['brand', 'Test Brand'],
             ['subcategory_id', '1'],
+            ['colors', JSON.stringify([{ name: 'Red', hex: '#FF0000' }, { name: 'Blue', hex: '#0000FF' }])],
+            ['sizes', JSON.stringify(['S', 'M', 'L'])],
+            ['details', JSON.stringify({
+                care: ["Machine wash cold", "Tumble dry low", "Iron low heat"],
+                material: "100% Organic Cotton",
+                bullet_points: [
+                    "100% Sustainable Organic Cotton",
+                    "Natural dyes used",
+                    "Classic fit",
+                    "Reinforced seams"
+                ],
+                description_long: "A sustainable and stylish choice for your daily wardrobe. Made from premium organic cotton for maximum breathability and comfort."
+            })],
             ['image', { name: 'test.png', size: 1024 * 1024, type: 'image/png', arrayBuffer: async () => new ArrayBuffer(10) }]
         ]);
 
@@ -173,5 +186,84 @@ describe('Admin Products Route', () => {
         expect(response.status).toBe(400);
         const data = await response.json();
         expect(data.error).toMatch(/boyut|size|3MB/i);
+    });
+
+    test('POST /api/admin/products - colors alanı geçerli bir JSON formatında değilse 400 döner', async () => {
+        const req = createMockRequest({ colors: 'invalid-json' });
+        const response = await POST(req);
+        expect(response.status).toBe(400);
+        const data = await response.json();
+        expect(data.error).toMatch(/colors|json/i);
+    });
+
+    test('POST /api/admin/products - colors alanı JSON dizisi (array) değilse 400 döner', async () => {
+        const req = createMockRequest({ colors: '{"name": "Red"}' }); // Object instead of array
+        const response = await POST(req);
+        expect(response.status).toBe(400);
+        const data = await response.json();
+        expect(data.error).toMatch(/colors|dizi|array/i);
+    });
+
+    test('POST /api/admin/products - sizes alanı geçerli bir JSON formatında değilse 400 döner', async () => {
+        const req = createMockRequest({ sizes: 'invalid-json' });
+        const response = await POST(req);
+        expect(response.status).toBe(400);
+        const data = await response.json();
+        expect(data.error).toMatch(/sizes|json/i);
+    });
+
+    test('POST /api/admin/products - sizes alanı JSON dizisi (array) değilse 400 döner', async () => {
+        const req = createMockRequest({ sizes: '{"size": "M"}' }); // Object instead of array
+        const response = await POST(req);
+        expect(response.status).toBe(400);
+        const data = await response.json();
+        expect(data.error).toMatch(/sizes|dizi|array/i);
+    });
+
+    test('POST /api/admin/products - details alanı geçerli bir JSON formatında değilse 400 döner', async () => {
+        const req = createMockRequest({ details: 'invalid-json' });
+        const response = await POST(req);
+        expect(response.status).toBe(400);
+        const data = await response.json();
+        expect(data.error).toMatch(/details|json/i);
+    });
+
+    test('POST /api/admin/products - details alanı JSON nesnesi (object) değilse 400 döner', async () => {
+        const req = createMockRequest({ details: '["detail1", "detail2"]' }); // Array instead of object
+        const response = await POST(req);
+        expect(response.status).toBe(400);
+        const data = await response.json();
+        expect(data.error).toMatch(/details|nesne|object/i);
+    });
+
+    test('POST /api/admin/products - colors JSON dizisi içindeki öğeler name ve hex objesi değilse 400 döner', async () => {
+        const req = createMockRequest({ colors: JSON.stringify([{ name: 'Red' }]) }); // hex eksik
+        const response = await POST(req);
+        expect(response.status).toBe(400);
+        const data = await response.json();
+        expect(data.error).toMatch(/colors|name|hex/i);
+    });
+
+    test('POST /api/admin/products - sizes dizisi içindeki öğeler string değilse 400 döner', async () => {
+        const req = createMockRequest({ sizes: JSON.stringify([1, 2, 3]) }); // string yerine sayı
+        const response = await POST(req);
+        expect(response.status).toBe(400);
+        const data = await response.json();
+        expect(data.error).toMatch(/sizes|string/i);
+    });
+
+    test('POST /api/admin/products - details nesnesi gerekli alan (care, material, vb.) formatlarına uymazsa 400 döner', async () => {
+        const req = createMockRequest({ 
+            details: JSON.stringify({ 
+                care: "String gönderiyoruz ama dizi (array) olmalı", 
+                material: "Cotton", 
+                bullet_points: ["Point 1", "Point 2"], 
+                description_long: "Açıklama" 
+            }) 
+        });
+        const response = await POST(req);
+        expect(response.status).toBe(400);
+        const data = await response.json();
+        expect(data.error).toMatch(/details|format|array|dizi/i);
     });
 });
