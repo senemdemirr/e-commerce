@@ -15,6 +15,7 @@ export default {
                 "accent-champagne": "#e8d5c4",
                 "text-dark": "#131614",
                 "background-light": "#f8f9fa",
+                "background-light-admin": "#f6f7f7",
                 "background-dark": "#151d18",
                 "surface-light": "#ffffff",
                 "surface-dark": "#1e2621",
