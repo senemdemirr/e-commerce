@@ -20,11 +20,23 @@ describe('Admin Order ID Route', () => {
     });
 
     test('PATCH /api/admin/orders/[orderNumber] - geçerli durum ile günceller', async () => {
-        const req = { 
+        const req = {
             headers: { get: () => 'admin' },
             json: async () => ({ status: 'shipped' })
         };
         const response = await PATCH(req, { params: { orderNumber: 'ORD123' } });
         expect(response.status).toBe(200);
+    });
+
+    test('PATCH /api/admin/orders/[orderNumber] - sadece status alanı güncellenebilir diğer alanlar hata verir', async () => {
+        const req = {
+            headers: { get: () => 'admin' },
+            json: async () => ({ status: 'shipped', total_amount: 5000, user_id: 10 })
+        };
+        const response = await PATCH(req, { params: { orderNumber: 'ORD123' } });
+        expect(response.status).toBe(400);
+
+        const data = await response.json();
+        expect(data.error).toBeDefined();
     });
 });
