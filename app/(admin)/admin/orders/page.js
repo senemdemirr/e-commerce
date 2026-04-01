@@ -49,36 +49,6 @@ const STAT_CARDS = [
     },
 ];
 
-function normalizeStatusValue(value) {
-    return String(value || '')
-        .trim()
-        .toLocaleLowerCase('tr-TR')
-        .replace(/\s+/g, '_');
-}
-
-function findStatusCount(statuses, aliases) {
-    return statuses.reduce((total, item) => {
-        const normalized = normalizeStatusValue(item.title);
-        return aliases.includes(normalized) ? total + Number(item.count || 0) : total;
-    }, 0);
-}
-
-function getStatCardValue(statuses, totalOrders, key) {
-    if (key === 'total') {
-        return totalOrders;
-    }
-
-    if (key === 'pending') {
-        return findStatusCount(statuses, ['beklemede', 'sipariş_alındı']);
-    }
-
-    if (key === 'processing') {
-        return findStatusCount(statuses, ['hazırlanıyor', 'hazır']);
-    }
-
-    return findStatusCount(statuses, ['tamamlandı', 'teslim_edildi']);
-}
-
 function buildPaginationItems(page, totalPages) {
     if (totalPages <= 1) return [1];
     if (totalPages <= 5) return Array.from({ length: totalPages }, (_, index) => index + 1);
@@ -100,7 +70,12 @@ export default function OrdersPage() {
     const [pagination, setPagination] = useState({ page: 1, total: 0, totalPages: 1 });
     const [statusFilter, setStatusFilter] = useState('');
     const [statusOptions, setStatusOptions] = useState([]);
-    const [totalOrders, setTotalOrders] = useState(0);
+    const [summary, setSummary] = useState({
+        total: 0,
+        pending: 0,
+        processing: 0,
+        completed: 0,
+    });
     const [searchInput, setSearchInput] = useState('');
     const [debouncedSearch, setDebouncedSearch] = useState('');
     const [loading, setLoading] = useState(true);
@@ -145,7 +120,12 @@ export default function OrdersPage() {
                 if (!res.ok) throw new Error('Sipariş durumları getirilemedi');
                 const data = await res.json();
                 setStatusOptions(data.statuses || []);
-                setTotalOrders(data.totalOrders || 0);
+                setSummary(data.summary || {
+                    total: data.totalOrders || 0,
+                    pending: 0,
+                    processing: 0,
+                    completed: 0,
+                });
             } catch (error) {
                 enqueueSnackbar(error.message, { variant: 'error' });
             }
@@ -165,8 +145,8 @@ export default function OrdersPage() {
             <div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-4">
                 {STAT_CARDS.map((card) => {
                     const Icon = card.icon;
-                    const value = getStatCardValue(statusOptions, totalOrders, card.key);
-                    const ratio = totalOrders > 0 ? Math.round((value / totalOrders) * 100) : 0;
+                    const value = Number(summary[card.key] || 0);
+                    const ratio = summary.total > 0 ? Math.round((value / summary.total) * 100) : 0;
 
                     return (
                         <Paper
@@ -215,7 +195,7 @@ export default function OrdersPage() {
                             >
                                 <Chip
                                     clickable
-                                    label={`All (${totalOrders.toLocaleString('tr-TR')})`}
+                                    label={`All (${summary.total.toLocaleString('tr-TR')})`}
                                     onClick={() => setStatusFilter('')}
                                     className={statusFilter === ''
                                         ? '!shrink-0 !rounded-xl !bg-primary !font-semibold !text-white'
