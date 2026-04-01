@@ -1,9 +1,8 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { useRouter } from 'next/navigation';
 import { useSnackbar } from 'notistack';
-import { Box, Button, Chip, CircularProgress, IconButton, InputBase, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Tooltip } from '@mui/material';
+import { Button, Chip, CircularProgress, IconButton, InputBase, Paper } from '@mui/material';
 import CheckCircleOutlineRoundedIcon from '@mui/icons-material/CheckCircleOutlineRounded';
 import HourglassTopRoundedIcon from '@mui/icons-material/HourglassTopRounded';
 import Inventory2OutlinedIcon from '@mui/icons-material/Inventory2Outlined';
@@ -13,7 +12,7 @@ import LocalMallOutlinedIcon from '@mui/icons-material/LocalMallOutlined';
 import LocalShippingOutlinedIcon from '@mui/icons-material/LocalShippingOutlined';
 import ReceiptLongOutlinedIcon from '@mui/icons-material/ReceiptLongOutlined';
 import SearchRoundedIcon from '@mui/icons-material/SearchRounded';
-import VisibilityOutlinedIcon from '@mui/icons-material/VisibilityOutlined';
+import OrderTable from '@/components/admin/OrderTable';
 
 const STAT_CARDS = [
     {
@@ -57,53 +56,6 @@ function normalizeStatusValue(value) {
         .replace(/\s+/g, '_');
 }
 
-function getStatusTone(order) {
-    const normalized = normalizeStatusValue(order.status_title || order.status);
-
-    if (['tamamlandı', 'teslim_edildi'].includes(normalized)) {
-        return 'bg-primary/15 text-primary border-primary/15';
-    }
-    if (['hazırlanıyor', 'hazır'].includes(normalized)) {
-        return 'bg-secondary/15 text-secondary border-secondary/15';
-    }
-    if (['kargoda'].includes(normalized)) {
-        return 'bg-text-dark/10 text-text-dark border-text-dark/10';
-    }
-    if (['iptal_edildi', 'iade_talebi'].includes(normalized)) {
-        return 'bg-accent/15 text-accent border-accent/15';
-    }
-
-    return 'bg-accent/10 text-accent border-accent/10';
-}
-
-function formatDate(dateString) {
-    return new Date(dateString).toLocaleString('tr-TR', {
-        day: '2-digit',
-        month: 'short',
-        year: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit',
-    });
-}
-
-function formatCurrency(amount) {
-    return Number(amount || 0).toLocaleString('tr-TR', {
-        style: 'currency',
-        currency: 'TRY',
-        minimumFractionDigits: 2,
-    });
-}
-
-function getInitials(name) {
-    const parts = String(name || 'Müşteri')
-        .trim()
-        .split(/\s+/)
-        .filter(Boolean)
-        .slice(0, 2);
-
-    return parts.map((part) => part[0]).join('').toUpperCase();
-}
-
 function findStatusCount(statuses, aliases) {
     return statuses.reduce((total, item) => {
         const normalized = normalizeStatusValue(item.title);
@@ -144,7 +96,6 @@ function buildPaginationItems(page, totalPages) {
 }
 
 export default function OrdersPage() {
-    const router = useRouter();
     const [orders, setOrders] = useState([]);
     const [pagination, setPagination] = useState({ page: 1, total: 0, totalPages: 1 });
     const [statusFilter, setStatusFilter] = useState('');
@@ -304,69 +255,7 @@ export default function OrdersPage() {
                     </div>
                 ) : (
                     <>
-                        <TableContainer>
-                            <Table className="min-w-[860px]">
-                                <TableHead>
-                                    <TableRow className="bg-background-light">
-                                        <TableCell className="!border-b !border-primary/10 !px-6 !py-4 !text-xs !font-semibold !uppercase !tracking-[0.18em] !text-text-muted">Sipariş No</TableCell>
-                                        <TableCell className="!border-b !border-primary/10 !px-6 !py-4 !text-xs !font-semibold !uppercase !tracking-[0.18em] !text-text-muted">Müşteri</TableCell>
-                                        <TableCell className="!border-b !border-primary/10 !px-6 !py-4 !text-xs !font-semibold !uppercase !tracking-[0.18em] !text-text-muted">Tarih</TableCell>
-                                        <TableCell className="!border-b !border-primary/10 !px-6 !py-4 !text-xs !font-semibold !uppercase !tracking-[0.18em] !text-text-muted">Toplam</TableCell>
-                                        <TableCell className="!border-b !border-primary/10 !px-6 !py-4 !text-xs !font-semibold !uppercase !tracking-[0.18em] !text-text-muted">Durum</TableCell>
-                                        <TableCell className="!border-b !border-primary/10 !px-6 !py-4 !text-right !text-xs !font-semibold !uppercase !tracking-[0.18em] !text-text-muted">İşlem</TableCell>
-                                    </TableRow>
-                                </TableHead>
-                                <TableBody>
-                                    {orders.map((order) => (
-                                        <TableRow
-                                            key={order.order_number}
-                                            className="transition-colors hover:bg-background-light/80"
-                                        >
-                                            <TableCell className="!border-b !border-primary/10 !px-6 !py-4">
-                                                <div className="space-y-1">
-                                                    <p className="font-display text-sm font-bold text-text-main">#{order.order_number}</p>
-                                                    <p className="text-xs text-text-muted">Sipariş kaydı</p>
-                                                </div>
-                                            </TableCell>
-                                            <TableCell className="!border-b !border-primary/10 !px-6 !py-4">
-                                                <div className="flex items-center gap-3">
-                                                    <div className="flex size-11 items-center justify-center rounded-2xl bg-secondary/10 text-sm font-bold text-secondary">
-                                                        {getInitials(order.shipping_full_name)}
-                                                    </div>
-                                                    <div className="space-y-1">
-                                                        <p className="text-sm font-semibold text-text-main">{order.shipping_full_name || 'Misafir Müşteri'}</p>
-                                                        <p className="text-xs text-text-muted">Sipariş sahibi</p>
-                                                    </div>
-                                                </div>
-                                            </TableCell>
-                                            <TableCell className="!border-b !border-primary/10 !px-6 !py-4 !text-sm !text-text-muted">
-                                                {formatDate(order.created_at)}
-                                            </TableCell>
-                                            <TableCell className="!border-b !border-primary/10 !px-6 !py-4 !text-sm !font-semibold !text-text-main">
-                                                {formatCurrency(order.total_amount)}
-                                            </TableCell>
-                                            <TableCell className="!border-b !border-primary/10 !px-6 !py-4">
-                                                <span className={`inline-flex items-center rounded-full border px-3 py-1 text-xs font-semibold ${getStatusTone(order)}`}>
-                                                    {order.status_title || order.status}
-                                                </span>
-                                            </TableCell>
-                                            <TableCell className="!border-b !border-primary/10 !px-6 !py-4 !text-right">
-                                                <div className="flex items-center justify-end gap-2">
-                                                    <Tooltip title="Siparişi görüntüle">
-                                                        <IconButton
-                                                            onClick={() => router.push(`/admin/orders/${encodeURIComponent(order.order_number)}`)}
-                                                            className="!rounded-xl !text-text-muted hover:!bg-primary/10 hover:!text-primary"
-                                                        >
-                                                            <VisibilityOutlinedIcon fontSize="small" />
-                                                        </IconButton>
-                                                    </Tooltip>
-                                                </div>
-                                            </TableCell>
-                                        </TableRow>
-                                    ))}
-                                </TableBody>
-                            </Table>
-                        </TableContainer>
+                        <OrderTable orders={orders} variant="orders" />
 
                         <div className="flex flex-col gap-3 border-t border-primary/10 px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-6">
                             <p className="text-sm text-text-muted">

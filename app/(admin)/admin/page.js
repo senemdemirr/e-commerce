@@ -1,11 +1,12 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import Link from 'next/link';
 import { useSnackbar } from 'notistack';
 import StatsCards from '@/components/admin/Dashboard/StatsCards';
 import SalesChart from '@/components/admin/Dashboard/SalesChart';
 import TopCategories from '@/components/admin/Dashboard/TopCategories';
-import RecentOrdersTable from '@/components/admin/Dashboard/RecentOrdersTable';
+import OrderTable from '@/components/admin/OrderTable';
 
 export default function DashboardPage() {
     const { enqueueSnackbar } = useSnackbar();
@@ -28,7 +29,7 @@ export default function DashboardPage() {
             }
         };
         fetchDashboard();
-    }, [filter]);
+    }, [enqueueSnackbar, filter]);
 
     if (loading && !stats) {
         return (
@@ -54,7 +55,15 @@ export default function DashboardPage() {
                 <TopCategories topCategories={stats?.topCategories || []} />
             </div>
 
-            <RecentOrdersTable orders={stats?.recentOrders || []} />
+            <div className="bg-white dark:bg-slate-900 rounded-xl border border-primary/10 shadow-sm overflow-hidden">
+                <div className="p-6 border-b border-primary/10 flex justify-between items-center">
+                    <h2 className="text-lg font-bold font-display">Recent Orders</h2>
+                    <Link href="/admin/orders">
+                        <button className="text-primary text-sm font-bold hover:underline font-display outline-none">View All</button>
+                    </Link>
+                </div>
+                <OrderTable orders={stats?.recentOrders || []} variant="dashboard" />
+            </div>
         </div>
     );
 }

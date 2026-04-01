@@ -22,6 +22,7 @@ export default {
                 "text-main": "#131614",
                 "text-muted": "#6d7e73",
                 "white": "#ffffff",
+                "slate":"",
                 "gray": {
                     "50": "#f9fafb",
                     "100": "#f3f4f6",
