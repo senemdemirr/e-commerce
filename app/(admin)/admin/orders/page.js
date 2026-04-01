@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { useSnackbar } from 'notistack';
 import { Box, Button, Chip, CircularProgress, IconButton, InputBase, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Tooltip } from '@mui/material';
 import CheckCircleOutlineRoundedIcon from '@mui/icons-material/CheckCircleOutlineRounded';
@@ -144,6 +144,7 @@ function buildPaginationItems(page, totalPages) {
 }
 
 export default function OrdersPage() {
+    const router = useRouter();
     const [orders, setOrders] = useState([]);
     const [pagination, setPagination] = useState({ page: 1, total: 0, totalPages: 1 });
     const [statusFilter, setStatusFilter] = useState('');
@@ -353,20 +354,10 @@ export default function OrdersPage() {
                                                 <div className="flex items-center justify-end gap-2">
                                                     <Tooltip title="Siparişi görüntüle">
                                                         <IconButton
-                                                            component={Link}
-                                                            href={`/admin/orders/${order.order_number}`}
+                                                            onClick={() => router.push(`/admin/orders/${encodeURIComponent(order.order_number)}`)}
                                                             className="!rounded-xl !text-text-muted hover:!bg-primary/10 hover:!text-primary"
                                                         >
                                                             <VisibilityOutlinedIcon fontSize="small" />
-                                                        </IconButton>
-                                                    </Tooltip>
-                                                    <Tooltip title="Detay ekranı">
-                                                        <IconButton
-                                                            component={Link}
-                                                            href={`/admin/orders/${order.order_number}`}
-                                                            className="!rounded-xl !text-text-muted hover:!bg-secondary/10 hover:!text-secondary"
-                                                        >
-                                                            <LocalShippingOutlinedIcon fontSize="small" />
                                                         </IconButton>
                                                     </Tooltip>
                                                 </div>
