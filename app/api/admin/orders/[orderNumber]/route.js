@@ -1,9 +1,27 @@
 import { NextResponse } from 'next/server';
 import { pool } from '@/lib/db';
-import {
-    ORDER_STATUS_JOIN_CONDITION,
-    ORDER_STATUS_TITLE_EXPR,
-} from '@/lib/admin/order-status';
+import { ORDER_STATUS_TITLE_EXPR } from '@/lib/admin/order-status';
+
+async function getAdminFromRequest(req) {
+    const adminToken = req.cookies?.get?.('admin_token');
+
+    if (!adminToken?.value || !adminToken.value.startsWith('admin-session-token:')) {
+        return null;
+    }
+
+    const base64Email = adminToken.value.split(':')[1];
+    const email = Buffer.from(base64Email, 'base64').toString('utf-8');
+    const adminResult = await pool.query(
+        'SELECT id, email, name, surname, role FROM users WHERE email = $1 AND role = $2 LIMIT 1',
+        [email, 'admin']
+    );
+
+    if (adminResult.rowCount === 0) {
+        return null;
+    }
+
+    return adminResult.rows[0];
+}
 
 export async function GET(req, { params }) {
     try {
@@ -11,16 +29,20 @@ export async function GET(req, { params }) {
         const result = await pool.query(
             `
                 SELECT
-                    o.*,
+                    t.*,
                     u.email AS customer_email,
                     CONCAT_WS(' ', NULLIF(u.name, ''), NULLIF(u.surname, '')) AS customer_name,
                     u.phone AS customer_phone,
                     u.id AS customer_id,
+                    admin_user.email AS status_updated_by_admin_email,
+                    CONCAT_WS(' ', NULLIF(admin_user.name, ''), NULLIF(admin_user.surname, '')) AS status_updated_by_admin_name,
+                    os.id AS status_id,
                     ${ORDER_STATUS_TITLE_EXPR} AS status_title
-                FROM orders o
-                LEFT JOIN users u ON u.id = o.user_id
-                LEFT JOIN order_status os ON ${ORDER_STATUS_JOIN_CONDITION}
-                WHERE o.order_number = $1
+                FROM orders_table t
+                LEFT JOIN users u ON u.id = t.user_id
+                LEFT JOIN users admin_user ON admin_user.id = t.status_updated_by_admin_id
+                LEFT JOIN order_status os ON os.id = t.status
+                WHERE t.order_number = $1
             `,
             [orderNumber]
         );
@@ -56,8 +78,14 @@ export async function GET(req, { params }) {
 
 export async function PATCH(req, { params }) {
     try {
+        const role = req.headers.get('role');
+        if (role !== 'admin') {
+            return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+        }
+
         const { orderNumber } = await params;
         const body = await req.json();
+        const admin = await getAdminFromRequest(req);
 
         // Check if other fields are present
         const allowedFields = ['status'];
@@ -71,6 +99,10 @@ export async function PATCH(req, { params }) {
         const { status } = body;
         if (!status) {
              return NextResponse.json({ error: 'Status is required' }, { status: 400 });
+        }
+
+        if (!admin) {
+            return NextResponse.json({ error: 'Admin session not found' }, { status: 401 });
         }
 
         const statusResult = await pool.query(
@@ -90,8 +122,15 @@ export async function PATCH(req, { params }) {
         }
 
         const result = await pool.query(
-            'UPDATE orders SET status = $1, updated_at = CURRENT_TIMESTAMP WHERE order_number = $2 RETURNING *',
-            [statusResult.rows[0].id, orderNumber]
+            `UPDATE orders_table
+            SET
+                status = $1,
+                status_updated_by_admin_id = $2,
+                status_updated_at = CURRENT_TIMESTAMP,
+                updated_at = CURRENT_TIMESTAMP
+            WHERE order_number = $3
+            RETURNING *`,
+            [statusResult.rows[0].id, admin.id, orderNumber]
         );
 
         if (result.rowCount === 0) {
@@ -101,6 +140,9 @@ export async function PATCH(req, { params }) {
         return NextResponse.json({
             ...result.rows[0],
             status_title: statusResult.rows[0].title,
+            status_updated_by_admin_id: admin.id,
+            status_updated_by_admin_email: admin.email,
+            status_updated_by_admin_name: [admin.name, admin.surname].filter(Boolean).join(' ') || admin.email,
         });
     } catch (error) {
         return NextResponse.json({ error: 'Server error' }, { status: 500 });

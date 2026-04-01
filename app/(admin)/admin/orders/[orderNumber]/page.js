@@ -211,6 +211,7 @@ export default function OrderDetailPage() {
     const isCancelled = normalizedCurrentStatusTitle.includes('iptal');
     const isDelivered = normalizedCurrentStatusTitle.includes('teslim')
         || normalizedCurrentStatusTitle.includes('tamam');
+    const statusUpdatedByAdmin = order?.status_updated_by_admin_name || order?.status_updated_by_admin_email;
 
     const updateStatus = async ({ nextStatus = status, closeAfterUpdate = false } = {}) => {
         if (!nextStatus) {
@@ -475,6 +476,14 @@ export default function OrderDetailPage() {
                                 >
                                     {saving ? 'Güncelleniyor...' : 'Sipariş Güncelle'}
                                 </Button>
+
+                                {statusUpdatedByAdmin && order?.status_updated_at ? (
+                                    <div className="rounded-2xl border border-primary/10 bg-background-light px-4 py-3 text-sm text-text-muted">
+                                        Son güncelleme: <span className="font-semibold text-text-main">{statusUpdatedByAdmin}</span>
+                                        <br />
+                                        <span>{formatDate(order.status_updated_at)}</span>
+                                    </div>
+                                ) : null}
                             </div>
                         </Paper>
 
