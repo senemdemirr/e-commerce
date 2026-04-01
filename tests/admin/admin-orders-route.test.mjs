@@ -4,13 +4,37 @@ import { loadFresh } from '../helpers/load-module.mjs';
 describe('Admin Orders Route', () => {
     let GET;
 
-    beforeEach(async () => {
+    beforeEach(() => {
         jest.resetModules();
-        const module = await loadFresh('app/api/admin/orders/route.js');
-        GET = module.GET;
     });
 
+    async function loadRouteWithMock(queryMock) {
+        jest.unstable_mockModule('@/lib/db', () => ({
+            pool: { query: queryMock },
+        }));
+
+        const routeModule = await loadFresh('app/api/admin/orders/route.js');
+        return routeModule.GET;
+    }
+
     test('GET /api/admin/orders - tüm siparişleri pagination ile döner', async () => {
+        const queryMock = jest.fn()
+            .mockResolvedValueOnce({
+                rows: [
+                    {
+                        order_number: 'ORD-001',
+                        shipping_full_name: 'Mehmet Demir',
+                        total_amount: 2450,
+                        status: 1,
+                        status_title: 'Beklemede',
+                    },
+                ],
+            })
+            .mockResolvedValueOnce({
+                rows: [{ count: 1 }],
+            });
+
+        GET = await loadRouteWithMock(queryMock);
         const req = { 
             headers: { get: () => 'admin' },
             nextUrl: { searchParams: new URLSearchParams({ page: '1' }) }
@@ -22,11 +46,18 @@ describe('Admin Orders Route', () => {
     });
 
     test('GET /api/admin/orders - durum filtresi ile filtreleme yapar', async () => {
+        const queryMock = jest.fn()
+            .mockResolvedValueOnce({ rows: [] })
+            .mockResolvedValueOnce({ rows: [{ count: 0 }] });
+
+        GET = await loadRouteWithMock(queryMock);
         const req = { 
             headers: { get: () => 'admin' },
-            nextUrl: { searchParams: new URLSearchParams({ status: 'delivered' }) }
+            nextUrl: { searchParams: new URLSearchParams({ status: 'Tamamlandı' }) }
         };
         const response = await GET(req);
         expect(response.status).toBe(200);
+        expect(queryMock).toHaveBeenCalledTimes(2);
+        expect(queryMock.mock.calls[0][1]).toContain('Tamamlandı');
     });
 });
