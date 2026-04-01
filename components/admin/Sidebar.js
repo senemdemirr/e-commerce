@@ -22,9 +22,9 @@ const Sidebar = () => {
     return (
         <aside className="w-64 bg-white dark:bg-slate-900 border-r border-primary/10 flex flex-col">
             <div className="py-4 px-6 flex items-center gap-3">
-                <div className="size-10 rounded-lg flex items-center justify-center text-white shadow-lg">
+                <Link href="/admin" className="size-10 rounded-lg flex items-center justify-center text-white shadow-lg">
                     <Image className='max-w-[unset]' src="/just_logo.png" alt="Logo" width={100} height={100} />
-                </div>
+                </Link>
                 <div>
                     <h1 className="text-lg font-bold leading-tight">Iron E-Comm</h1>
                     <p className="text-xs text-slate-500 dark:text-slate-400">Admin Central</p>
