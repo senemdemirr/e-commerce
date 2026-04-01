@@ -7,7 +7,7 @@ export async function middleware(request) {
     // Eğer "/admin" ve alt yollara erişilmek isteniyorsa admin token'ını doğrula
     if (pathname.startsWith("/admin") && pathname !== "/admin/login") {
         const adminToken = request.cookies.get('admin_token');
-        if (!adminToken || adminToken.value !== 'admin-session-token') {
+        if (!adminToken || !adminToken.value.startsWith('admin-session-token:')) {
              return NextResponse.redirect(new URL("/admin/login", request.url));
         }
     }
@@ -15,7 +15,7 @@ export async function middleware(request) {
     // Eğer "/admin/login" gidiyorsa ve zaten oturum açıksa dashboard'a yönlendir
     if (pathname === "/admin/login") {
         const adminToken = request.cookies.get('admin_token');
-        if (adminToken && adminToken.value === 'admin-session-token') {
+        if (adminToken && adminToken.value.startsWith('admin-session-token:')) {
             return NextResponse.redirect(new URL("/admin", request.url));
         }
     }

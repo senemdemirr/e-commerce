@@ -38,9 +38,9 @@ export async function POST(req) {
         // Giriş başarılı senaryosu
         const response = NextResponse.json({ success: true, message: 'Giriş başarılı' }, { status: 200 });
         
-        // Admin Token Cookisi (1 Günlük)
-        // Mevcut middleware 'admin-session-token' sabit değerini bekliyor olabilir.
-        response.cookies.set('admin_token', 'admin-session-token', {
+        // Admin Token Cookisi (1 Günlük) — email bilgisi token'a gömülü
+        const tokenValue = 'admin-session-token:' + Buffer.from(user.email).toString('base64');
+        response.cookies.set('admin_token', tokenValue, {
             httpOnly: true,
             secure: process.env.NODE_ENV === 'production',
             sameSite: 'lax',

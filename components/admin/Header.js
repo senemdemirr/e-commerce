@@ -1,9 +1,38 @@
 'use client';
 
+import { useState, useEffect } from 'react';
 import SearchIcon from '@mui/icons-material/Search';
 import NotificationsIcon from '@mui/icons-material/Notifications';
 
 const Header = () => {
+    const [admin, setAdmin] = useState(null);
+
+    useEffect(() => {
+        const fetchAdmin = async () => {
+            try {
+                const res = await fetch('/api/admin/me');
+                if (res.ok) {
+                    const data = await res.json();
+                    setAdmin(data);
+                }
+            } catch (error) {
+                console.error('Admin bilgisi alınamadı:', error);
+            }
+        };
+        fetchAdmin();
+    }, []);
+
+    // İsmin baş harflerini al (avatar fallback için)
+    const getInitials = (name) => {
+        if (!name) return 'A';
+        return name
+            .split(' ')
+            .map((word) => word[0])
+            .join('')
+            .toUpperCase()
+            .slice(0, 2);
+    };
+
     return (
         <header className="h-16 bg-white dark:bg-slate-900 border-b border-primary/10 flex items-center justify-between px-8 py-4 sticky top-0 z-10">
             <div className="flex items-center gap-4 flex-1">
@@ -23,13 +52,16 @@ const Header = () => {
                 </button>
                 <div className="flex items-center gap-3 pl-6 border-l border-primary/10">
                     <div className="text-right">
-                        <p className="text-sm font-bold">Alex Iron</p>
-                        <p className="text-[10px] text-slate-500">Store Manager</p>
+                        <p className="text-sm font-bold">
+                            {admin ? admin.name : '...'}
+                        </p>
+                        <p className="text-[10px] text-slate-500">
+                            {admin ? admin.role === 'admin' ? 'Store Manager' : admin.role : '...'}
+                        </p>
                     </div>
-                    <div
-                        className="size-10 rounded-full bg-secondary border-2 border-primary/20 bg-cover bg-center"
-                        style={{ backgroundImage: "url('https://lh3.googleusercontent.com/aida-public/AB6AXuDl_KZuxOIDFrJEg76maaotFvEPdLD1ll01z8r5tFj-JIumHgjTOCCQWM5JJDdD6IvjfUx9YCUl3pU314ZkPtqzQHhwNYtOSSIT-8u4Cu28aKKNzCTLMSYsaM4zuraCbnRQduLBC2n2oCLOkXgkQ9GDp93mHePUMv9gbKtIOCvPO_1hNBqfzIJrvZjTymP1zrzFDaBjPv6JfYJzh0_Q0CaLcZmCzXxxM9B3pCfW2u3Yj3MOgMAhdiyF3iZKe-2o1dyWdNoykb2WnPQ')" }}
-                    ></div>
+                    <div className="size-10 rounded-full bg-primary/20 border-2 border-primary/20 flex items-center justify-center text-sm font-bold text-primary">
+                        {admin ? getInitials(admin.name) : '...'}
+                    </div>
                 </div>
             </div>
         </header>
