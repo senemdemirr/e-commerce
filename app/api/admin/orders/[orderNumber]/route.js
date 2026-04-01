@@ -1,6 +1,9 @@
 import { NextResponse } from 'next/server';
 import { pool } from '@/lib/db';
-import { ORDER_STATUS_TITLE_EXPR } from '@/lib/admin/order-status';
+import {
+    ORDER_STATUS_JOIN_CONDITION,
+    ORDER_STATUS_TITLE_EXPR,
+} from '@/lib/admin/order-status';
 
 async function getAdminFromRequest(req) {
     const adminToken = req.cookies?.get?.('admin_token');
@@ -38,10 +41,11 @@ export async function GET(req, { params }) {
                     CONCAT_WS(' ', NULLIF(admin_user.name, ''), NULLIF(admin_user.surname, '')) AS status_updated_by_admin_name,
                     os.id AS status_id,
                     ${ORDER_STATUS_TITLE_EXPR} AS status_title
-                FROM orders_table t
+                FROM orders o
+                JOIN orders_table t ON t.order_number = o.order_number
                 LEFT JOIN users u ON u.id = t.user_id
                 LEFT JOIN users admin_user ON admin_user.id = t.status_updated_by_admin_id
-                LEFT JOIN order_status os ON os.id = t.status
+                LEFT JOIN order_status os ON ${ORDER_STATUS_JOIN_CONDITION}
                 WHERE t.order_number = $1
             `,
             [orderNumber]
@@ -139,6 +143,7 @@ export async function PATCH(req, { params }) {
 
         return NextResponse.json({
             ...result.rows[0],
+            status_id: statusResult.rows[0].id,
             status_title: statusResult.rows[0].title,
             status_updated_by_admin_id: admin.id,
             status_updated_by_admin_email: admin.email,

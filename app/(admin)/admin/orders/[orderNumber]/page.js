@@ -173,7 +173,7 @@ export default function OrderDetailPage() {
                 }
 
                 setOrder(orderData);
-                setStatus(String(orderData.status ?? ''));
+                setStatus(String(orderData.status_id ?? orderData.status ?? ''));
                 setStatusOptions(statusesData.statuses || []);
             } catch (error) {
                 enqueueSnackbar(error.message, { variant: 'error' });
@@ -192,7 +192,7 @@ export default function OrderDetailPage() {
         };
     }, [enqueueSnackbar, orderNumber, router]);
 
-    const currentStatusOption = statusOptions.find((item) => String(item.id) === String(order?.status));
+    const currentStatusOption = statusOptions.find((item) => String(item.id) === String(order?.status_id ?? order?.status));
     const selectedStatusOption = statusOptions.find((item) => String(item.id) === String(status));
     const currentStatusTitle = order?.status_title
         || currentStatusOption?.title
@@ -204,7 +204,7 @@ export default function OrderDetailPage() {
     const customerName = order?.customer_name?.trim() || order?.shipping_full_name || 'Misafir Müşteri';
     const customerPhone = order?.customer_phone || order?.shipping_phone;
     const customerEmail = order?.customer_email || 'E-posta bilgisi bulunmuyor';
-    const currentStatusId = String(order?.status ?? '');
+    const currentStatusId = String(order?.status_id ?? order?.status ?? '');
     const isStatusChanged = status !== '' && status !== currentStatusId;
     const normalizedCurrentStatusTitle = normalizeStatusTitle(currentStatusTitle);
     const cancelledStatus = statusOptions.find((item) => normalizeStatusTitle(item.title).includes('iptal'));
@@ -249,10 +249,11 @@ export default function OrderDetailPage() {
             setOrder((prev) => ({
                 ...prev,
                 ...data,
+                status_id: data.status_id ?? data.status ?? nextStatus,
                 status: data.status ?? nextStatus,
                 status_title: nextTitle,
             }));
-            setStatus(String(data.status ?? nextStatus));
+            setStatus(String(data.status_id ?? data.status ?? nextStatus));
             enqueueSnackbar('Sipariş durumu güncellendi', { variant: 'success' });
 
             if (closeAfterUpdate) {
