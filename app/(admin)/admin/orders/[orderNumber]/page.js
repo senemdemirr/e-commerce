@@ -16,9 +16,9 @@ import MailOutlineRoundedIcon from '@mui/icons-material/MailOutlineRounded';
 import PaymentsOutlinedIcon from '@mui/icons-material/PaymentsOutlined';
 import PersonOutlineRoundedIcon from '@mui/icons-material/PersonOutlineRounded';
 import PhoneIphoneRoundedIcon from '@mui/icons-material/PhoneIphoneRounded';
-import PrintOutlinedIcon from '@mui/icons-material/PrintOutlined';
 import SaveRoundedIcon from '@mui/icons-material/SaveRounded';
 import ScheduleRoundedIcon from '@mui/icons-material/ScheduleRounded';
+import OrderPdfDownloadButton from './OrderPdfDownloadButton';
 
 function normalizeStatusTitle(value) {
     return String(value || '')
@@ -194,8 +194,8 @@ export default function OrderDetailPage() {
 
     const currentStatusOption = statusOptions.find((item) => String(item.id) === String(order?.status));
     const selectedStatusOption = statusOptions.find((item) => String(item.id) === String(status));
-    const currentStatusTitle = currentStatusOption?.title
-        || order?.status
+    const currentStatusTitle = order?.status_title
+        || currentStatusOption?.title
         || 'Durum seçilmedi';
     const selectedStatusTitle = selectedStatusOption?.title || currentStatusTitle;
     const currentStatusClasses = getStatusClasses(currentStatusTitle);
@@ -206,8 +206,11 @@ export default function OrderDetailPage() {
     const customerEmail = order?.customer_email || 'E-posta bilgisi bulunmuyor';
     const currentStatusId = String(order?.status ?? '');
     const isStatusChanged = status !== '' && status !== currentStatusId;
+    const normalizedCurrentStatusTitle = normalizeStatusTitle(currentStatusTitle);
     const cancelledStatus = statusOptions.find((item) => normalizeStatusTitle(item.title).includes('iptal'));
-    const isCancelled = normalizeStatusTitle(currentStatusTitle).includes('iptal');
+    const isCancelled = normalizedCurrentStatusTitle.includes('iptal');
+    const isDelivered = normalizedCurrentStatusTitle.includes('teslim')
+        || normalizedCurrentStatusTitle.includes('tamam');
 
     const updateStatus = async ({ nextStatus = status, closeAfterUpdate = false } = {}) => {
         if (!nextStatus) {
@@ -322,16 +325,10 @@ export default function OrderDetailPage() {
                             </div>
 
                             <div className="relative z-[1] flex flex-wrap gap-3">
-                                <Button
-                                    onClick={() => window.print()}
-                                    startIcon={<PrintOutlinedIcon />}
-                                    className="!rounded-2xl !border !border-primary/10 !bg-white !px-4 !py-2.5 !font-bold !text-text-main hover:!bg-background-light"
-                                >
-                                    Yazdır
-                                </Button>
+                                <OrderPdfDownloadButton order={order} currentStatusTitle={currentStatusTitle} />
                                 <Button
                                     onClick={handleCancelOrder}
-                                    disabled={saving || !cancelledStatus || isCancelled}
+                                    disabled={saving || !cancelledStatus || isCancelled || isDelivered}
                                     startIcon={<CancelOutlinedIcon />}
                                     className="!rounded-2xl !border !border-accent/20 !bg-red-500 !px-4 !py-2.5 !font-bold !text-white hover:!bg-red-600/5"
                                 >
