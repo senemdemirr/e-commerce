@@ -51,7 +51,6 @@ function formatDashboardCurrency(amount) {
 
 function getOrdersStatusTone(order) {
     const normalized = order?.status.toLowerCase() || '';
-    console.log('Order Status:', order?.status, 'Normalized:', normalized);
 
     if (normalized === 'delivered') {
         return 'bg-primary/15 text-primary ';
