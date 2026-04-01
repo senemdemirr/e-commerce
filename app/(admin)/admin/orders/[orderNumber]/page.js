@@ -195,7 +195,7 @@ export default function OrderDetailPage() {
     const currentStatusOption = statusOptions.find((item) => String(item.id) === String(order?.status));
     const selectedStatusOption = statusOptions.find((item) => String(item.id) === String(status));
     const currentStatusTitle = currentStatusOption?.title
-        || order?.status_title
+        || order?.status
         || 'Durum seçilmedi';
     const selectedStatusTitle = selectedStatusOption?.title || currentStatusTitle;
     const currentStatusClasses = getStatusClasses(currentStatusTitle);
@@ -333,7 +333,7 @@ export default function OrderDetailPage() {
                                     onClick={handleCancelOrder}
                                     disabled={saving || !cancelledStatus || isCancelled}
                                     startIcon={<CancelOutlinedIcon />}
-                                    className="!rounded-2xl !border !border-accent/20 !bg-white !px-4 !py-2.5 !font-bold !text-accent hover:!bg-accent/5 disabled:!opacity-50"
+                                    className="!rounded-2xl !border !border-accent/20 !bg-red-500 !px-4 !py-2.5 !font-bold !text-white hover:!bg-red-600/5"
                                 >
                                     Siparişi İptal Et
                                 </Button>
@@ -436,7 +436,6 @@ export default function OrderDetailPage() {
                         <Paper className="!rounded-3xl !border !border-primary/10 !bg-white !p-6 !shadow-sm">
                             <div className="mb-5">
                                 <h2 className="font-display text-xl font-bold text-text-main">Sipariş Durumu</h2>
-                                <p className="mt-1 text-sm text-text-muted">`order_status` listesinden güncelleyin.</p>
                             </div>
 
                             <div className="space-y-4">
@@ -449,18 +448,6 @@ export default function OrderDetailPage() {
                                         <p className="mt-1 text-sm font-bold">{currentStatusTitle}</p>
                                     </div>
                                 </div>
-
-                                {isStatusChanged ? (
-                                    <div className={`flex items-center gap-3 rounded-2xl border p-4 ${selectedStatusClasses.panel}`}>
-                                        <div className="flex size-11 items-center justify-center rounded-2xl bg-white/70">
-                                            {selectedStatusClasses.icon}
-                                        </div>
-                                        <div>
-                                            <p className="text-xs font-bold uppercase tracking-[0.2em]">Güncellenecek Durum</p>
-                                            <p className="mt-1 text-sm font-bold">{selectedStatusTitle}</p>
-                                        </div>
-                                    </div>
-                                ) : null}
 
                                 <TextField
                                     select
