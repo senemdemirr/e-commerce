@@ -51,13 +51,19 @@ export default function SubcategoryForm({
     const [values, setValues] = useState({ name: '', slug: '', category_id: '' });
     const [errors, setErrors] = useState({ name: '', slug: '', category_id: '' });
     const [slugTouched, setSlugTouched] = useState(false);
+    const activeCategories = categories.filter((category) => Number(category?.activate ?? 0) === 1);
 
     useEffect(() => {
         if (!open) {
             return;
         }
 
-        const initialCategoryId = initialValues?.category_id || categories[0]?.id || '';
+        const hasInitialActiveCategory = activeCategories.some(
+            (category) => String(category.id) === String(initialValues?.category_id)
+        );
+        const initialCategoryId = hasInitialActiveCategory
+            ? initialValues?.category_id
+            : activeCategories[0]?.id || '';
 
         setValues({
             name: initialValues?.name || '',
@@ -66,7 +72,7 @@ export default function SubcategoryForm({
         });
         setErrors({ name: '', slug: '', category_id: '' });
         setSlugTouched(Boolean(initialValues?.slug));
-    }, [categories, initialValues, open]);
+    }, [activeCategories, initialValues, open]);
 
     const selectedCategory = categories.find(
         (category) => String(category.id) === String(values.category_id)
@@ -217,7 +223,7 @@ export default function SubcategoryForm({
                                         }`}
                                     >
                                         <option value="">Select category</option>
-                                        {categories.map((category) => (
+                                        {activeCategories.map((category) => (
                                             <option key={category.id} value={category.id}>
                                                 {category.name}
                                             </option>
@@ -226,9 +232,9 @@ export default function SubcategoryForm({
                                 </div>
                                 {errors.category_id ? (
                                     <p className="text-xs font-medium text-red-500">{errors.category_id}</p>
-                                ) : categories.length === 0 ? (
+                                ) : activeCategories.length === 0 ? (
                                     <p className="text-xs font-medium text-amber-600">
-                                        Create a category first before adding a sub-category.
+                                        Create an active category first before adding a sub-category.
                                     </p>
                                 ) : null}
                             </div>
@@ -286,7 +292,7 @@ export default function SubcategoryForm({
                     </Button>
                     <Button
                         type="submit"
-                        disabled={submitting || categories.length === 0}
+                        disabled={submitting || activeCategories.length === 0}
                         variant="contained"
                         disableElevation
                         startIcon={isEditMode ? <DriveFileRenameOutlineRoundedIcon /> : <AddRoundedIcon />}

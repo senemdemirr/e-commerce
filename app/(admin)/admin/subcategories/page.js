@@ -145,6 +145,7 @@ export default function SubcategoriesPage() {
        }, [enqueueSnackbar]);
    
        const totalSubcategories = subcategories.length;
+       const activeCategories = categories.filter((category) => Number(category.activate) === 1);
        const activeSubcategories = subcategories.filter(
            (subcategory) => getSubcategoryStatus(subcategory).filterValue === 'active'
        ).length;
@@ -181,8 +182,8 @@ export default function SubcategoriesPage() {
        }, [filter]);
    
        const openCreateModal = () => {
-           if (categories.length === 0) {
-               enqueueSnackbar('Create a category first before adding a sub-category', {
+           if (activeCategories.length === 0) {
+               enqueueSnackbar('Create an active category first before adding a sub-category', {
                    variant: 'warning',
                });
                return;
@@ -308,7 +309,7 @@ export default function SubcategoriesPage() {
                                totalProducts={totalProducts}
                                categoriesCount={categories.length}
                                loading={loading}
-                               hasCategories={categories.length > 0}
+                               hasCategories={activeCategories.length > 0}
                                onCreate={openCreateModal}
                            />
    
