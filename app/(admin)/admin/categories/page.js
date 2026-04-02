@@ -8,15 +8,12 @@ import CategoryRoundedIcon from '@mui/icons-material/CategoryRounded';
 import CheckCircleRoundedIcon from '@mui/icons-material/CheckCircleRounded';
 import ChevronLeftRoundedIcon from '@mui/icons-material/ChevronLeftRounded';
 import ChevronRightRoundedIcon from '@mui/icons-material/ChevronRightRounded';
-import CheckroomRoundedIcon from '@mui/icons-material/CheckroomRounded';
 import DeleteRoundedIcon from '@mui/icons-material/DeleteRounded';
-import DevicesRoundedIcon from '@mui/icons-material/DevicesRounded';
 import EditRoundedIcon from '@mui/icons-material/EditRounded';
-import FaceRetouchingNaturalRoundedIcon from '@mui/icons-material/FaceRetouchingNaturalRounded';
-import HomeRoundedIcon from '@mui/icons-material/HomeRounded';
 import VisibilityOffRoundedIcon from '@mui/icons-material/VisibilityOffRounded';
 import CategoryForm from '@/components/admin/CategoryForm';
 import ConfirmDialog from '@/components/admin/ConfirmDialog';
+import CategoryIcon from '@mui/icons-material/Category';
 
 const PAGE_SIZE = 4;
 
@@ -50,27 +47,6 @@ function getCategoryStatus(category) {
     };
 }
 
-function getCategoryIcon(category) {
-    const haystack = `${category?.name || ''} ${category?.slug || ''}`.toLowerCase();
-
-    if (/(electronic|elektronik|device|tech|telefon|bilgisayar)/.test(haystack)) {
-        return DevicesRoundedIcon;
-    }
-
-    if (/(fashion|moda|giyim|apparel|ayakkabi|shoe)/.test(haystack)) {
-        return CheckroomRoundedIcon;
-    }
-
-    if (/(home|ev|living|mobilya|dekor)/.test(haystack)) {
-        return HomeRoundedIcon;
-    }
-
-    if (/(beauty|bakim|kozmetik|care)/.test(haystack)) {
-        return FaceRetouchingNaturalRoundedIcon;
-    }
-
-    return CategoryRoundedIcon;
-}
 
 function buildPageNumbers(page, totalPages) {
     if (totalPages <= 3) {
@@ -363,7 +339,6 @@ export default function CategoriesPage() {
                                                         </td>
                                                     </tr>
                                                 ) : visibleCategories.map((category) => {
-                                                    const Icon = getCategoryIcon(category);
                                                     const status = getCategoryStatus(category);
 
                                                     return (
@@ -374,7 +349,7 @@ export default function CategoriesPage() {
                                                             <td className="px-6 py-5">
                                                                 <div className="flex items-center gap-4">
                                                                     <div className="flex size-12 items-center justify-center rounded-xl bg-slate-100 text-slate-400 transition-colors group-hover:bg-primary/10 group-hover:text-primary dark:bg-slate-800">
-                                                                        <Icon />
+                                                                        <CategoryIcon />
                                                                     </div>
                                                                     <div>
                                                                         <div className="text-base font-bold text-slate-900 dark:text-white">
