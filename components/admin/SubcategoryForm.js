@@ -58,6 +58,7 @@ export default function SubcategoryForm({
             return;
         }
 
+        const activeCategories = categories.filter((category) => Number(category?.activate ?? 0) === 1);
         const hasInitialActiveCategory = activeCategories.some(
             (category) => String(category.id) === String(initialValues?.category_id)
         );
@@ -72,7 +73,7 @@ export default function SubcategoryForm({
         });
         setErrors({ name: '', slug: '', category_id: '' });
         setSlugTouched(Boolean(initialValues?.slug));
-    }, [activeCategories, initialValues, open]);
+    }, [categories, initialValues, open]);
 
     const selectedCategory = categories.find(
         (category) => String(category.id) === String(values.category_id)
