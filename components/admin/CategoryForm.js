@@ -187,6 +187,9 @@ export default function CategoryForm({
                             <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300">
                                 Slug (URL Dostu Ad)
                             </label>
+                            <p className="text-xs text-slate-500 dark:text-slate-400">
+                                Bu alanı elle düzenleyebilir veya kategori adına göre otomatik oluşturabilirsiniz.
+                            </p>
                             <div className="relative">
                                 <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-4 text-slate-400">
                                     <span className="text-sm">shop.com/</span>
