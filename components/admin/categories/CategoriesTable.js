@@ -12,7 +12,7 @@ function formatNumber(value) {
 }
 
 function getCategoryStatus(category) {
-    const isActive = Number(category?.product_count || 0) > 0;
+    const isActive = Number(category?.activate ?? 1) === 1;
 
     if (isActive) {
         return {

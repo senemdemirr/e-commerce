@@ -13,6 +13,7 @@ const PAGE_SIZE = 4;
 function normalizeCategory(category) {
     return {
         ...category,
+        activate: Number(category?.activate ?? 1) === 1 ? 1 : 0,
         product_count: Number(category?.product_count || 0),
         subcategories: Array.isArray(category?.subcategories) ? category.subcategories : [],
     };
@@ -79,7 +80,7 @@ export default function CategoriesPage() {
     }, [enqueueSnackbar]);
 
     const totalCategories = categories.length;
-    const activeCategories = categories.filter((category) => Number(category.product_count || 0) > 0).length;
+    const activeCategories = categories.filter((category) => Number(category.activate) === 1).length;
     const inactiveCategories = totalCategories - activeCategories;
     const totalPages = Math.max(1, Math.ceil(totalCategories / PAGE_SIZE));
     const safePage = Math.min(page, totalPages);

@@ -32,6 +32,7 @@ export async function GET(req) {
                 c.id AS category_id,
                 c.name AS category_name,
                 c.slug AS category_slug,
+                c.activate AS category_activate,
                 c.created_at AS category_created_at,
                 COALESCE(category_stats.subcategory_count, 0) AS category_subcategory_count,
                 COALESCE(category_stats.product_count, 0) AS category_product_count,
@@ -75,7 +76,7 @@ export async function POST(req) {
 
     try {
         const body = await req.json();
-        const { name, slug } = normalizeCategoryPayload(body);
+        const { name, slug, activate } = normalizeCategoryPayload(body);
 
         if (!name) {
             return invalidFieldResponse('name alanı zorunlu');
@@ -90,16 +91,17 @@ export async function POST(req) {
         }
 
         if (isCategoryTestMode()) {
-            return Response.json(createFallbackCategory({ name, slug }), { status: 201 });
+            return Response.json(createFallbackCategory({ name, slug, activate }), { status: 201 });
         }
 
         const result = await pool.query(
-            'INSERT INTO categories (name, slug) VALUES ($1, $2) RETURNING id, name, slug, created_at',
-            [name, slug]
+            'INSERT INTO categories (name, slug, activate) VALUES ($1, $2, $3) RETURNING id, name, slug, activate, created_at',
+            [name, slug, activate]
         );
 
         return Response.json({
             ...result.rows[0],
+            activate: Number(result.rows[0].activate || 0) === 1 ? 1 : 0,
             product_count: 0,
             subcategory_count: 0,
             subcategories: [],

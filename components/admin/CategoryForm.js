@@ -38,6 +38,22 @@ function toCategorySlug(value = '') {
         .replace(/-{2,}/g, '-');
 }
 
+function resolveInitialActivate(initialValues) {
+    if (typeof initialValues?.activate === 'number') {
+        return initialValues.activate === 1;
+    }
+
+    if (typeof initialValues?.activate === 'boolean') {
+        return initialValues.activate;
+    }
+
+    if (typeof initialValues?.is_active === 'boolean') {
+        return initialValues.is_active;
+    }
+
+    return true;
+}
+
 export default function CategoryForm({
     open,
     mode = 'create',
@@ -62,7 +78,7 @@ export default function CategoryForm({
         setValues({ name: nextName, slug: nextSlug });
         setErrors({ name: '', slug: '' });
         setSlugTouched(Boolean(nextSlug));
-        setIsActive(typeof initialValues?.is_active === 'boolean' ? initialValues.is_active : true);
+        setIsActive(resolveInitialActivate(initialValues));
     }, [initialValues, open]);
 
     const handleNameChange = (event) => {
@@ -95,7 +111,7 @@ export default function CategoryForm({
         const payload = {
             name: values.name.trim(),
             slug: toCategorySlug(values.slug || values.name),
-            is_active: isActive,
+            activate: isActive ? 1 : 0,
         };
 
         const nextErrors = {

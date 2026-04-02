@@ -1,6 +1,7 @@
 import { pool } from '../../../../../lib/db.js';
 import {
     deleteFallbackCategory,
+    findFallbackCategoryById,
     isAdminRequest,
     isCategoryTestMode,
     isValidCategorySlug,
@@ -38,7 +39,49 @@ export async function PUT(req, { params } = {}) {
         }
 
         const body = await req.json();
-        const { name, slug } = normalizeCategoryPayload(body);
+        if (isCategoryTestMode()) {
+            const currentCategory = findFallbackCategoryById(id);
+            if (!currentCategory) {
+                return notFoundResponse();
+            }
+
+            const { name, slug, activate } = normalizeCategoryPayload(body, {
+                defaultActivate: currentCategory.activate,
+            });
+
+            if (!name) {
+                return invalidFieldResponse('name alanı zorunlu');
+            }
+
+            if (!slug) {
+                return invalidFieldResponse('slug alanı zorunlu');
+            }
+
+            if (!isValidCategorySlug(slug)) {
+                return invalidFieldResponse('slug alanı Türkçe karakter içeremez');
+            }
+
+            const updatedCategory = updateFallbackCategory(id, { name, slug, activate });
+            if (!updatedCategory) {
+                return notFoundResponse();
+            }
+
+            return Response.json(updatedCategory, { status: 200 });
+        }
+
+        const currentResult = await pool.query(
+            'SELECT id, name, slug, activate, created_at FROM categories WHERE id = $1 LIMIT 1',
+            [id]
+        );
+
+        if (currentResult.rowCount === 0) {
+            return notFoundResponse();
+        }
+
+        const currentCategory = currentResult.rows[0];
+        const { name, slug, activate } = normalizeCategoryPayload(body, {
+            defaultActivate: Number(currentCategory.activate) === 1 ? 1 : 0,
+        });
 
         if (!name) {
             return invalidFieldResponse('name alanı zorunlu');
@@ -52,39 +95,26 @@ export async function PUT(req, { params } = {}) {
             return invalidFieldResponse('slug alanı Türkçe karakter içeremez');
         }
 
-        if (isCategoryTestMode()) {
-            const updatedCategory = updateFallbackCategory(id, { name, slug });
-            if (!updatedCategory) {
-                return notFoundResponse();
-            }
-
-            return Response.json(updatedCategory, { status: 200 });
-        }
-
-        const currentResult = await pool.query(
-            'SELECT id, name, slug, created_at FROM categories WHERE id = $1 LIMIT 1',
-            [id]
-        );
-
-        if (currentResult.rowCount === 0) {
-            return notFoundResponse();
-        }
-
-        const currentCategory = currentResult.rows[0];
-        if (currentCategory.name === name && currentCategory.slug === slug) {
+        if (
+            currentCategory.name === name
+            && currentCategory.slug === slug
+            && Number(currentCategory.activate) === activate
+        ) {
             return Response.json({
                 ...currentCategory,
+                activate: Number(currentCategory.activate) === 1 ? 1 : 0,
                 updated: false,
             }, { status: 200 });
         }
 
         const result = await pool.query(
-            'UPDATE categories SET name = $1, slug = $2 WHERE id = $3 RETURNING id, name, slug, created_at',
-            [name, slug, id]
+            'UPDATE categories SET name = $1, slug = $2, activate = $3 WHERE id = $4 RETURNING id, name, slug, activate, created_at',
+            [name, slug, activate, id]
         );
 
         return Response.json({
             ...result.rows[0],
+            activate: Number(result.rows[0].activate) === 1 ? 1 : 0,
             updated: true,
         }, { status: 200 });
     } catch (error) {

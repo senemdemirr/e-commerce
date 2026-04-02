@@ -6,9 +6,9 @@ describe('Admin Categories Route', () => {
 
     beforeEach(async () => {
         jest.resetModules();
-        const module = await loadFresh('app/api/admin/categories/route.js');
-        GET = module.GET;
-        POST = module.POST;
+        const routeModule = await loadFresh('app/api/admin/categories/route.js');
+        GET = routeModule.GET;
+        POST = routeModule.POST;
     });
 
     // --- GET ---
@@ -28,6 +28,8 @@ describe('Admin Categories Route', () => {
         // Eğer data varsa, subcategories alanının (boş olsa bile) var olduğunu kontrol ediyoruz
         if (data.length > 0) {
             expect(data[0]).toHaveProperty('subcategories');
+            expect(data[0]).toHaveProperty('activate');
+            expect([0, 1]).toContain(data[0].activate);
             expect(Array.isArray(data[0].subcategories)).toBe(true);
         }
     });
@@ -66,12 +68,14 @@ describe('Admin Categories Route', () => {
         expect(response.status).toBe(400);
     });
 
-    test('POST /api/admin/categories - geçerli verilerle 201 döner', async () => {
+    test('POST /api/admin/categories - activate alanını da kaydederek 201 döner', async () => {
         const req = { 
             headers: { get: () => 'admin' },
-            json: async () => ({ name: 'Elektronik', slug: 'elektronik' })
+            json: async () => ({ name: 'Elektronik', slug: 'elektronik', activate: 0 })
         };
         const response = await POST(req);
         expect(response.status).toBe(201);
+        const data = await response.json();
+        expect(data.activate).toBe(0);
     });
 });

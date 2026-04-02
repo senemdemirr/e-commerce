@@ -6,9 +6,9 @@ describe('Admin Category ID Route', () => {
 
     beforeEach(async () => {
         jest.resetModules();
-        const module = await loadFresh('app/api/admin/categories/[id]/route.js');
-        PUT = module.PUT;
-        DELETE = module.DELETE;
+        const routeModule = await loadFresh('app/api/admin/categories/[id]/route.js');
+        PUT = routeModule.PUT;
+        DELETE = routeModule.DELETE;
     });
 
     // --- PUT ---
@@ -21,16 +21,18 @@ describe('Admin Category ID Route', () => {
     test('PUT /api/admin/categories/[id] - geçerli verilerle günceller ve 200 döner', async () => {
         const req = {
             headers: { get: () => 'admin' },
-            json: async () => ({ name: 'Yeni Kategori', slug: 'yeni-kategori' })
+            json: async () => ({ name: 'Yeni Kategori', slug: 'yeni-kategori', activate: 0 })
         };
         const response = await PUT(req, { params: { id: '1' } });
         expect(response.status).toBe(200);
+        const data = await response.json();
+        expect(data.activate).toBe(0);
     });
 
     test('PUT /api/admin/categories/[id] - Next async params ile günceller ve 200 döner', async () => {
         const req = {
             headers: { get: () => 'admin' },
-            json: async () => ({ name: 'Yeni Kategori', slug: 'yeni-kategori' })
+            json: async () => ({ name: 'Yeni Kategori', slug: 'yeni-kategori', activate: 0 })
         };
         const response = await PUT(req, { params: Promise.resolve({ id: '1' }) });
         expect(response.status).toBe(200);
@@ -66,7 +68,7 @@ describe('Admin Category ID Route', () => {
     test('PUT /api/admin/categories/[id] - veriler mevcut veri ile aynıysa güncelleme yapmaz (304 veya 200 döner ama DB tetiklenmez)', async () => {
         const req = {
             headers: { get: () => 'admin' },
-            json: async () => ({ name: 'Eski İsim', slug: 'eski-slug' }) // DB'deki ile aynı varsayalım
+            json: async () => ({ name: 'Eski İsim', slug: 'eski-slug', activate: 1 }) // DB'deki ile aynı varsayalım
         };
         const response = await PUT(req, { params: { id: '1' } });
 
