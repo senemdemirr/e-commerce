@@ -9,11 +9,11 @@ export default function OrderItemsCard({ items = [] }) {
         <Paper className="!overflow-hidden !rounded-3xl !border !border-primary/10 !bg-white !shadow-sm">
             <div className="flex flex-wrap items-center justify-between gap-3 border-b border-primary/10 px-6 py-5">
                 <div>
-                    <h2 className="font-display text-xl font-bold text-text-main">Sipariş Edilen Ürünler</h2>
-                    <p className="mt-1 text-sm text-text-muted">Siparişe bağlı tüm kalemler</p>
+                    <h2 className="font-display text-xl font-bold text-text-main">Ordered Items</h2>
+                    <p className="mt-1 text-sm text-text-muted">All line items for this order</p>
                 </div>
                 <Chip
-                    label={`${items.length} kalem ürün`}
+                    label={`${items.length} line items`}
                     className="!rounded-full !bg-primary/10 !px-2 !font-semibold !text-primary"
                 />
             </div>
@@ -22,10 +22,10 @@ export default function OrderItemsCard({ items = [] }) {
                 <Table className="min-w-[760px]">
                     <TableHead>
                         <TableRow className="bg-background-light">
-                            <TableCell className="!border-b !border-primary/10 !px-6 !py-3 !text-xs !font-bold !uppercase !tracking-[0.18em] !text-text-muted">Ürün</TableCell>
-                            <TableCell className="!border-b !border-primary/10 !px-6 !py-3 !text-xs !font-bold !uppercase !tracking-[0.18em] !text-text-muted">Adet</TableCell>
-                            <TableCell className="!border-b !border-primary/10 !px-6 !py-3 !text-xs !font-bold !uppercase !tracking-[0.18em] !text-text-muted">Birim Fiyat</TableCell>
-                            <TableCell className="!border-b !border-primary/10 !px-6 !py-3 !text-right !text-xs !font-bold !uppercase !tracking-[0.18em] !text-text-muted">Toplam</TableCell>
+                            <TableCell className="!border-b !border-primary/10 !px-6 !py-3 !text-xs !font-bold !uppercase !tracking-[0.18em] !text-text-muted">Product</TableCell>
+                            <TableCell className="!border-b !border-primary/10 !px-6 !py-3 !text-xs !font-bold !uppercase !tracking-[0.18em] !text-text-muted">Qty</TableCell>
+                            <TableCell className="!border-b !border-primary/10 !px-6 !py-3 !text-xs !font-bold !uppercase !tracking-[0.18em] !text-text-muted">Unit Price</TableCell>
+                            <TableCell className="!border-b !border-primary/10 !px-6 !py-3 !text-right !text-xs !font-bold !uppercase !tracking-[0.18em] !text-text-muted">Total</TableCell>
                         </TableRow>
                     </TableHead>
                     <TableBody>
@@ -48,8 +48,8 @@ export default function OrderItemsCard({ items = [] }) {
                                         <div className="space-y-1">
                                             <p className="text-sm font-bold text-text-main">{item.item_title}</p>
                                             <p className="text-xs text-text-muted">
-                                                {item.selected_size ? `Beden: ${item.selected_size}` : 'Standart'}
-                                                {item.selected_color ? ` | Renk: ${item.selected_color}` : ''}
+                                                {item.selected_size ? `Size: ${item.selected_size}` : 'Standard'}
+                                                {item.selected_color ? ` | Color: ${item.selected_color}` : ''}
                                             </p>
                                             <p className="text-xs text-text-muted">SKU: {formatText(item.sku, formatText(item.product_sku))}</p>
                                         </div>

@@ -34,14 +34,14 @@ export default function AdminLoginPage() {
             });
 
             if (res.ok) {
-                enqueueSnackbar('Giriş başarılı, yönlendiriliyorsunuz...', { variant: 'success' });
+                enqueueSnackbar('Login successful, redirecting...', { variant: 'success' });
                 router.push('/admin');
             } else {
                 const data = await res.json();
-                enqueueSnackbar(data.error || 'Giriş başarısız', { variant: 'error' });
+                enqueueSnackbar(data.error || 'Login failed', { variant: 'error' });
             }
         } catch (error) {
-            enqueueSnackbar('Sunucu bağlantı hatası', { variant: 'error' });
+            enqueueSnackbar('Server connection error', { variant: 'error' });
         } finally {
             setIsLoading(false);
         }
@@ -61,7 +61,7 @@ export default function AdminLoginPage() {
                             Iron E-Commerce
                         </h1>
                         <p className="text-slate-500 dark:text-slate-400 mt-2 text-sm">
-                            Yönetim paneline erişmek için bilgilerinizi girin.
+                            Enter your credentials to access the admin panel.
                         </p>
                     </div>
                     {/* Form Area */}
@@ -70,7 +70,7 @@ export default function AdminLoginPage() {
                             {/* Email Input */}
                             <div className="flex flex-col gap-2">
                                 <label className="text-sm font-semibold text-slate-700 dark:text-slate-300 ml-1">
-                                    E-posta Adresi
+                                    Email Address
                                 </label>
                                 <div className="relative flex items-center">
                                     <div className="absolute left-4 text-slate-400 flex items-center justify-center">
@@ -90,10 +90,10 @@ export default function AdminLoginPage() {
                             <div className="flex flex-col gap-2">
                                 <div className="flex justify-between items-center px-1">
                                     <label className="text-sm font-semibold text-slate-700 dark:text-slate-300">
-                                        Şifre
+                                        Password
                                     </label>
                                     <Link className="text-xs font-bold !text-primary hover:!text-primary/80 transition-colors" href="#">
-                                        Şifremi Unuttum
+                                        Forgot Password
                                     </Link>
                                 </div>
                                 <div className="relative flex items-center">
@@ -125,7 +125,7 @@ export default function AdminLoginPage() {
                                     type="checkbox"
                                 />
                                 <label className="text-sm text-slate-600 dark:text-slate-400 cursor-pointer" htmlFor="remember">
-                                    Beni Hatırla
+                                    Remember Me
                                 </label>
                             </div>
                             {/* Submit Button */}
@@ -134,7 +134,7 @@ export default function AdminLoginPage() {
                                 disabled={isLoading}
                                 className="w-full bg-primary hover:bg-primary/90 text-slate-900 font-bold py-4 rounded-lg shadow-lg shadow-primary/20 transition-all flex items-center justify-center gap-2 group mt-2 disabled:opacity-75 disabled:cursor-not-allowed text-white"
                             >
-                                <span>{isLoading ? 'Giriş Yapılıyor...' : 'Giriş Yap'}</span>
+                                <span>{isLoading ? 'Signing In...' : 'Sign In'}</span>
                                 {!isLoading && <LoginOutlinedIcon className="group-hover:translate-x-1 transition-transform" />}
                             </button>
                         </form>
@@ -151,15 +151,15 @@ export default function AdminLoginPage() {
                     <div className="flex items-center justify-center gap-6">
                         <Link className="text-xs text-slate-500 hover:text-primary transition-colors flex items-center gap-1" href="#">
                             <HelpOutlineIcon fontSize="small" />
-                            Yardım Merkezi
+                            Help Center
                         </Link>
                         <Link className="text-xs text-slate-500 hover:text-primary transition-colors flex items-center gap-1" href="#">
                             <DescriptionOutlinedIcon fontSize="small" />
-                            Kullanım Şartları
+                            Terms of Use
                         </Link>
                     </div>
                     <p className="text-[10px] uppercase tracking-widest text-slate-400 font-bold">
-                        © 2024 Iron E-Commerce Admin Panel. Tüm hakları saklıdır.
+                        © 2024 Iron E-Commerce Admin Panel. All rights reserved.
                     </p>
                 </div>
             </div>

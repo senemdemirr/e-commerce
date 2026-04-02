@@ -50,15 +50,15 @@ export async function PUT(req, { params } = {}) {
             });
 
             if (!name) {
-                return invalidFieldResponse('name alanı zorunlu');
+                return invalidFieldResponse('Name is required');
             }
 
             if (!slug) {
-                return invalidFieldResponse('slug alanı zorunlu');
+                return invalidFieldResponse('Slug is required');
             }
 
             if (!isValidCategorySlug(slug)) {
-                return invalidFieldResponse('slug alanı Türkçe karakter içeremez');
+                return invalidFieldResponse('Slug cannot contain Turkish characters');
             }
 
             const updatedCategory = updateFallbackCategory(id, { name, slug, activate });
@@ -84,15 +84,15 @@ export async function PUT(req, { params } = {}) {
         });
 
         if (!name) {
-            return invalidFieldResponse('name alanı zorunlu');
+            return invalidFieldResponse('Name is required');
         }
 
         if (!slug) {
-            return invalidFieldResponse('slug alanı zorunlu');
+            return invalidFieldResponse('Slug is required');
         }
 
         if (!isValidCategorySlug(slug)) {
-            return invalidFieldResponse('slug alanı Türkçe karakter içeremez');
+            return invalidFieldResponse('Slug cannot contain Turkish characters');
         }
 
         if (

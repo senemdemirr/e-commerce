@@ -10,9 +10,9 @@ import CustomerDetailModal from '@/components/admin/customers/CustomerDetailModa
 import CustomersTable from '@/components/admin/customers/CustomersTable';
 
 function formatDate(value, options = {}) {
-    if (!value) return 'Belirtilmedi';
+    if (!value) return 'Not specified';
 
-    return new Intl.DateTimeFormat('tr-TR', {
+    return new Intl.DateTimeFormat('en-US', {
         day: '2-digit',
         month: 'short',
         year: 'numeric',
@@ -21,7 +21,7 @@ function formatDate(value, options = {}) {
 }
 
 function formatCurrency(value) {
-    return `${new Intl.NumberFormat('tr-TR', {
+    return `${new Intl.NumberFormat('en-US', {
         minimumFractionDigits: 0,
         maximumFractionDigits: 0,
     }).format(Number(value || 0))} ₺`;
@@ -29,11 +29,11 @@ function formatCurrency(value) {
 
 function getFullName(customer) {
     const fullName = [customer.name, customer.surname].filter(Boolean).join(' ').trim();
-    return fullName || 'İsimsiz müşteri';
+    return fullName || 'Unnamed customer';
 }
 
 function exportCustomersToCsv(customers) {
-    const headers = ['Musteri ID', 'Ad Soyad', 'E-posta', 'Telefon', 'Kayit Tarihi', 'Siparis Sayisi', 'Toplam Harcama', 'Durum'];
+    const headers = ['Customer ID', 'Full Name', 'Email', 'Phone', 'Signup Date', 'Order Count', 'Total Spend', 'Status'];
     const rows = customers.map((customer) => [
         `C-${String(customer.id).padStart(4, '0')}`,
         getFullName(customer),
@@ -42,7 +42,7 @@ function exportCustomersToCsv(customers) {
         formatDate(customer.created_at),
         customer.order_count || 0,
         formatCurrency(customer.total_spent),
-        Number(customer.activate ?? 1) === 1 ? 'Aktif' : 'Pasif',
+        Number(customer.activate ?? 1) === 1 ? 'Active' : 'Inactive',
     ]);
 
     const csv = [headers, ...rows]
@@ -54,7 +54,7 @@ function exportCustomersToCsv(customers) {
     const link = document.createElement('a');
 
     link.href = url;
-    link.setAttribute('download', 'musteriler.csv');
+    link.setAttribute('download', 'customers.csv');
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -97,7 +97,7 @@ export default function CustomersPage() {
             const res = await fetch(`/api/admin/customers?${query.toString()}`, {
                 headers: { role: 'admin' },
             });
-            if (!res.ok) throw new Error('Müşteriler getirilemedi');
+            if (!res.ok) throw new Error('Customers could not be loaded');
             const data = await res.json();
 
             setCustomers(data.customers || []);
@@ -150,7 +150,7 @@ export default function CustomersPage() {
             });
             const data = await res.json();
 
-            if (!res.ok) throw new Error(data.error || 'Müşteri durumu güncellenemedi');
+            if (!res.ok) throw new Error(data.error || 'Customer status could not be updated');
 
             setSelectedCustomer((current) => (
                 current && current.id === data.id
@@ -166,7 +166,7 @@ export default function CustomersPage() {
 
             await fetchCustomers(pagination.page, activeSegment, debouncedSearch);
             enqueueSnackbar(
-                checked ? 'Müşteri hesabı aktif yapıldı' : 'Müşteri hesabı pasif yapıldı',
+                checked ? 'Customer account activated' : 'Customer account deactivated',
                 { variant: 'success' }
             );
         } catch (error) {
@@ -190,8 +190,8 @@ export default function CustomersPage() {
                                 Customer Management
                             </h1>
                             <p className="mt-3 max-w-xl text-sm leading-6 text-text-muted sm:text-base">
-                                Kayıt hacmini, sipariş aktivitesini ve doğrulama durumlarını aynı akışta izleyin.
-                                Arama ve segment filtreleri doğrudan gerçek veriye bağlı çalışır.
+                                Track signup volume, order activity, and verification status in one flow.
+                                Search and segment filters are connected directly to live data.
                             </p>
                         </div>
 
@@ -201,9 +201,9 @@ export default function CustomersPage() {
                                 <InputBase
                                     value={searchInput}
                                     onChange={(event) => setSearchInput(event.target.value)}
-                                    placeholder="İsim, e-posta veya telefon ile ara..."
+                                    placeholder="Search by name, email, or phone..."
                                     className="w-full text-sm text-text-main"
-                                    inputProps={{ 'aria-label': 'Müşteri ara' }}
+                                    inputProps={{ 'aria-label': 'Search customers' }}
                                 />
                             </Paper>
 
@@ -213,7 +213,7 @@ export default function CustomersPage() {
                                     startIcon={<FileDownloadOutlinedIcon />}
                                     className="!rounded-2xl !border !border-primary/10 !bg-white !px-5 !py-3 !font-semibold !normal-case !text-text-main hover:!bg-background-light"
                                 >
-                                    CSV Dışa Aktar
+                                    Export CSV
                                 </Button>
                             </div>
                         </div>

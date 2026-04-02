@@ -57,19 +57,19 @@ export async function PUT(req, { params } = {}) {
             });
 
             if (!name) {
-                return invalidFieldResponse('name alanı zorunlu');
+                return invalidFieldResponse('Name is required');
             }
 
             if (!category_id) {
-                return invalidFieldResponse('category_id alanı zorunlu');
+                return invalidFieldResponse('Parent category is required');
             }
 
             if (!slug) {
-                return invalidFieldResponse('slug alanı zorunlu');
+                return invalidFieldResponse('Slug is required');
             }
 
             if (!isValidSubcategorySlug(slug)) {
-                return invalidFieldResponse('slug alanı Türkçe karakter içeremez');
+                return invalidFieldResponse('Slug cannot contain Turkish characters');
             }
 
             if (!findFallbackParentCategoryById(category_id)) {
@@ -118,19 +118,19 @@ export async function PUT(req, { params } = {}) {
         });
 
         if (!name) {
-            return invalidFieldResponse('name alanı zorunlu');
+            return invalidFieldResponse('Name is required');
         }
 
         if (!category_id) {
-            return invalidFieldResponse('category_id alanı zorunlu');
+            return invalidFieldResponse('Parent category is required');
         }
 
         if (!slug) {
-            return invalidFieldResponse('slug alanı zorunlu');
+            return invalidFieldResponse('Slug is required');
         }
 
         if (!isValidSubcategorySlug(slug)) {
-            return invalidFieldResponse('slug alanı Türkçe karakter içeremez');
+            return invalidFieldResponse('Slug cannot contain Turkish characters');
         }
 
         const categoryResult = await pool.query(

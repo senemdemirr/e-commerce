@@ -17,7 +17,7 @@ export default function OrderPageActions({
                 startIcon={<ArrowBackRoundedIcon />}
                 className="!rounded-2xl !border !border-primary/10 !bg-white !px-6 !py-3 !font-bold !text-text-main hover:!bg-background-light"
             >
-                Vazgeç
+                Back
             </Button>
 
             <Button
@@ -26,7 +26,7 @@ export default function OrderPageActions({
                 startIcon={<SaveRoundedIcon />}
                 className="!rounded-2xl !bg-primary !px-6 !py-3 !font-bold !text-white hover:!bg-primary-dark disabled:!opacity-50"
             >
-                {saving ? 'Kaydediliyor...' : 'Güncelle ve Kapat'}
+                {saving ? 'Saving...' : 'Save and Close'}
             </Button>
         </div>
     );

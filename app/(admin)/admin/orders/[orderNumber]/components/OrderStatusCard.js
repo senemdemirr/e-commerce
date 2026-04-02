@@ -2,7 +2,7 @@
 
 import { Button, MenuItem, Paper, TextField } from '@mui/material';
 import SaveRoundedIcon from '@mui/icons-material/SaveRounded';
-import { formatDate } from '@/lib/admin/order-display';
+import { formatDate, formatOrderStatusLabel } from '@/lib/admin/order-display';
 
 export default function OrderStatusCard({
     status,
@@ -22,7 +22,7 @@ export default function OrderStatusCard({
     return (
         <Paper className="!rounded-3xl !border !border-primary/10 !bg-white !p-6 !shadow-sm">
             <div className="mb-5">
-                <h2 className="font-display text-xl font-bold text-text-main">Sipariş Durumu</h2>
+                <h2 className="font-display text-xl font-bold text-text-main">Order Status</h2>
             </div>
 
             <div className="space-y-4">
@@ -31,14 +31,14 @@ export default function OrderStatusCard({
                         <StatusIcon className={currentStatusClasses.iconClassName} />
                     </div>
                     <div>
-                        <p className="text-xs font-bold uppercase tracking-[0.2em]">Mevcut Durum</p>
+                        <p className="text-xs font-bold uppercase tracking-[0.2em]">Current Status</p>
                         <p className="mt-1 text-sm font-bold">{currentStatusTitle}</p>
                     </div>
                 </div>
 
                 <TextField
                     select
-                    label="Durumu Güncelle"
+                    label="Update Status"
                     value={status}
                     onChange={(event) => onStatusChange(event.target.value)}
                     disabled={isStatusLocked}
@@ -49,11 +49,11 @@ export default function OrderStatusCard({
                             backgroundColor: '#f8f9fa',
                         },
                     }}
-                    helperText={`Mevcut sipariş durumu: ${currentStatusTitle}`}
+                    helperText={`Current order status: ${currentStatusTitle}`}
                 >
                     {statusOptions.map((option) => (
                         <MenuItem key={option.id} value={String(option.id)}>
-                            {option.title}
+                            {formatOrderStatusLabel(option.title || option.id)}
                         </MenuItem>
                     ))}
                 </TextField>
@@ -64,12 +64,12 @@ export default function OrderStatusCard({
                     startIcon={<SaveRoundedIcon />}
                     className="!w-full !rounded-2xl !bg-primary !py-3 !font-bold !text-white hover:!bg-primary-dark disabled:!opacity-50"
                 >
-                    {saving ? 'Güncelleniyor...' : 'Sipariş Güncelle'}
+                    {saving ? 'Updating...' : 'Update Order'}
                 </Button>
 
                 {statusUpdatedByAdmin && statusUpdatedAt ? (
                     <div className="rounded-2xl border border-primary/10 bg-background-light px-4 py-3 text-sm text-text-muted mt-2">
-                        Son güncelleme: <span className="font-semibold text-text-main">{statusUpdatedByAdmin}</span>
+                        Last updated by: <span className="font-semibold text-text-main">{statusUpdatedByAdmin}</span>
                         <br />
                         <span>{formatDate(statusUpdatedAt)}</span>
                     </div>

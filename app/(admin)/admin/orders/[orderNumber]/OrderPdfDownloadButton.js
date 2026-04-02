@@ -13,7 +13,7 @@ import {
 } from '@/lib/admin/order-display';
 
 function formatPdfDate(dateString) {
-    return new Date(dateString).toLocaleString('tr-TR', {
+    return new Date(dateString).toLocaleString('en-US', {
         day: '2-digit',
         month: '2-digit',
         year: 'numeric',
@@ -23,19 +23,19 @@ function formatPdfDate(dateString) {
 }
 
 function formatPdfCurrency(amount) {
-    return `${Number(amount || 0).toLocaleString('tr-TR', {
+    return `₺${Number(amount || 0).toLocaleString('en-US', {
         minimumFractionDigits: 2,
         maximumFractionDigits: 2,
-    })} TL`;
+    })}`;
 }
 
 export default function OrderPdfDownloadButton({ order, currentStatusTitle }) {
     const { enqueueSnackbar } = useSnackbar();
     const [downloadingPdf, setDownloadingPdf] = useState(false);
 
-    const customerName = order?.customer_name?.trim() || order?.shipping_full_name || 'Misafir Müşteri';
+    const customerName = order?.customer_name?.trim() || order?.shipping_full_name || 'Guest Customer';
     const customerPhone = order?.customer_phone || order?.shipping_phone;
-    const customerEmail = order?.customer_email || 'E-posta bilgisi bulunmuyor';
+    const customerEmail = order?.customer_email || 'Email not available';
     const cardDetails = [order?.card_bank, order?.card_family, order?.card_mask].filter(Boolean).join(' • ');
     const shippingLocation = [order?.shipping_district, order?.shipping_city].filter(Boolean).join(' / ');
 
@@ -96,52 +96,52 @@ export default function OrderPdfDownloadButton({ order, currentStatusTitle }) {
             pdf.setFont('helvetica', 'bold');
             pdf.setFontSize(22);
             pdf.setTextColor(15, 23, 42);
-            pdf.text(`Siparis #${order.order_number}`, margin, cursorY);
+            pdf.text(`Order #${order.order_number}`, margin, cursorY);
 
             pdf.setFont('helvetica', 'normal');
             pdf.setFontSize(11);
             pdf.setTextColor(100, 116, 139);
-            pdf.text(`Olusturulma: ${formatPdfDate(order.created_at)}`, margin, cursorY + 18);
-            pdf.text(`Durum: ${currentStatusTitle}`, pageWidth - margin, cursorY, { align: 'right' });
-            pdf.text(`Odeme: ${formatPaymentStatus(order.payment_status)}`, pageWidth - margin, cursorY + 18, { align: 'right' });
+            pdf.text(`Created: ${formatPdfDate(order.created_at)}`, margin, cursorY + 18);
+            pdf.text(`Status: ${currentStatusTitle}`, pageWidth - margin, cursorY, { align: 'right' });
+            pdf.text(`Payment: ${formatPaymentStatus(order.payment_status)}`, pageWidth - margin, cursorY + 18, { align: 'right' });
             cursorY += 38;
 
             pdf.setDrawColor(226, 232, 240);
             pdf.line(margin, cursorY, pageWidth - margin, cursorY);
             cursorY += 24;
 
-            addSectionTitle('Musteri Bilgileri');
-            addDetailRow('Musteri', customerName);
-            addDetailRow('E-posta', customerEmail);
-            addDetailRow('Telefon', formatText(customerPhone));
-            addDetailRow('Musteri ID', order.customer_id ? `#${order.customer_id}` : 'Misafir');
+            addSectionTitle('Customer Information');
+            addDetailRow('Customer', customerName);
+            addDetailRow('Email', customerEmail);
+            addDetailRow('Phone', formatText(customerPhone));
+            addDetailRow('Customer ID', order.customer_id ? `#${order.customer_id}` : 'Guest');
             cursorY += 8;
 
-            addSectionTitle('Teslimat Bilgileri');
-            addDetailRow('Adres', formatText(order.shipping_address));
-            addDetailRow('Konum', shippingLocation ? `${shippingLocation}${order.shipping_postal_code ? ` (${order.shipping_postal_code})` : ''}` : '-');
+            addSectionTitle('Shipping Information');
+            addDetailRow('Address', formatText(order.shipping_address));
+            addDetailRow('Location', shippingLocation ? `${shippingLocation}${order.shipping_postal_code ? ` (${order.shipping_postal_code})` : ''}` : '-');
             cursorY += 8;
 
-            addSectionTitle('Odeme Bilgileri');
-            addDetailRow('Odeme Yontemi', formatPaymentMethod(order.payment_method));
-            addDetailRow('Odeme Durumu', formatPaymentStatus(order.payment_status));
+            addSectionTitle('Payment Information');
+            addDetailRow('Payment Method', formatPaymentMethod(order.payment_method));
+            addDetailRow('Payment Status', formatPaymentStatus(order.payment_status));
             if (cardDetails) {
-                addDetailRow('Kart Bilgisi', cardDetails);
+                addDetailRow('Card Details', cardDetails);
             }
             cursorY += 12;
 
             autoTable(pdf, {
                 startY: cursorY,
                 margin: { left: margin, right: margin },
-                head: [['Urun', 'Ozellik', 'Adet', 'Birim Fiyat', 'Toplam']],
+                head: [['Product', 'Variant', 'Qty', 'Unit Price', 'Total']],
                 body: (order.items || []).map((item) => ([
                     [
                         item.item_title,
                         `SKU: ${formatText(item.sku, formatText(item.product_sku))}`,
                     ].join('\n'),
                     [
-                        item.selected_size ? `Beden: ${item.selected_size}` : 'Standart',
-                        item.selected_color ? `Renk: ${item.selected_color}` : null,
+                        item.selected_size ? `Size: ${item.selected_size}` : 'Standard',
+                        item.selected_color ? `Color: ${item.selected_color}` : null,
                     ].filter(Boolean).join('\n'),
                     String(item.quantity || 0),
                     formatPdfCurrency(item.unit_price),
@@ -184,24 +184,24 @@ export default function OrderPdfDownloadButton({ order, currentStatusTitle }) {
             pdf.setFontSize(11);
             pdf.setTextColor(71, 85, 105);
             pdf.setFont('helvetica', 'normal');
-            pdf.text('Ara Toplam', totalsX - 90, cursorY, { align: 'right' });
+            pdf.text('Subtotal', totalsX - 90, cursorY, { align: 'right' });
             pdf.text(formatPdfCurrency(order.subtotal), totalsX, cursorY, { align: 'right' });
             cursorY += 20;
 
-            pdf.text('Kargo', totalsX - 90, cursorY, { align: 'right' });
+            pdf.text('Shipping', totalsX - 90, cursorY, { align: 'right' });
             pdf.text(formatPdfCurrency(order.shipping_cost), totalsX, cursorY, { align: 'right' });
             cursorY += 28;
 
             pdf.setFont('helvetica', 'bold');
             pdf.setFontSize(14);
             pdf.setTextColor(15, 23, 42);
-            pdf.text('Toplam', totalsX - 90, cursorY, { align: 'right' });
+            pdf.text('Total', totalsX - 90, cursorY, { align: 'right' });
             pdf.text(formatPdfCurrency(order.total_amount), totalsX, cursorY, { align: 'right' });
 
-            pdf.save(`siparis-${order.order_number}.pdf`);
+            pdf.save(`order-${order.order_number}.pdf`);
         } catch (error) {
             console.error('PDF generation failed:', error);
-            enqueueSnackbar('PDF dosyasi olusturulamadi', { variant: 'error' });
+            enqueueSnackbar('PDF could not be generated', { variant: 'error' });
         } finally {
             setDownloadingPdf(false);
         }
@@ -214,7 +214,7 @@ export default function OrderPdfDownloadButton({ order, currentStatusTitle }) {
             startIcon={<DownloadRoundedIcon />}
             className="!rounded-2xl !border !border-primary/10 !bg-white !px-4 !py-2.5 !font-bold !text-text-main hover:!bg-background-light"
         >
-            {downloadingPdf ? 'PDF Hazirlaniyor...' : 'Indir'}
+            {downloadingPdf ? 'Preparing PDF...' : 'Download'}
         </Button>
     );
 }

@@ -9,40 +9,40 @@ import Inventory2OutlinedIcon from '@mui/icons-material/Inventory2Outlined';
 import KeyboardArrowLeftRoundedIcon from '@mui/icons-material/KeyboardArrowLeftRounded';
 import KeyboardArrowRightRoundedIcon from '@mui/icons-material/KeyboardArrowRightRounded';
 import LocalMallOutlinedIcon from '@mui/icons-material/LocalMallOutlined';
-import LocalShippingOutlinedIcon from '@mui/icons-material/LocalShippingOutlined';
 import ReceiptLongOutlinedIcon from '@mui/icons-material/ReceiptLongOutlined';
 import SearchRoundedIcon from '@mui/icons-material/SearchRounded';
 import OrderTable from '@/components/admin/OrderTable';
+import { formatOrderStatusLabel } from '@/lib/admin/order-display';
 
 const STAT_CARDS = [
     {
         key: 'total',
-        title: 'Toplam Sipariş',
-        description: 'Genel sipariş hacmi',
+        title: 'Total Orders',
+        description: 'Overall order volume',
         icon: LocalMallOutlinedIcon,
         iconClassName: 'bg-primary/10 text-primary',
         glowClassName: 'bg-primary/5',
     },
     {
         key: 'pending',
-        title: 'Bekleyen Siparişler',
-        description: 'Aksiyon bekleyenler',
+        title: 'Pending Orders',
+        description: 'Awaiting action',
         icon: HourglassTopRoundedIcon,
         iconClassName: 'bg-accent/10 text-accent',
         glowClassName: 'bg-accent/10',
     },
     {
         key: 'processing',
-        title: 'Hazırlananlar',
-        description: 'Paketleme ve hazırlık',
+        title: 'Processing Orders',
+        description: 'Packing and preparation',
         icon: Inventory2OutlinedIcon,
         iconClassName: 'bg-secondary/15 text-secondary',
         glowClassName: 'bg-secondary/10',
     },
     {
         key: 'completed',
-        title: 'Tamamlananlar',
-        description: 'Teslim edilen siparişler',
+        title: 'Completed Orders',
+        description: 'Delivered orders',
         icon: CheckCircleOutlineRoundedIcon,
         iconClassName: 'bg-primary/15 text-primary-dark',
         glowClassName: 'bg-primary/10',
@@ -91,7 +91,7 @@ export default function OrdersPage() {
             const res = await fetch(`/api/admin/orders?${query.toString()}`, {
                 headers: { role: 'admin' },
             });
-            if (!res.ok) throw new Error('Siparişler getirilemedi');
+            if (!res.ok) throw new Error('Orders could not be loaded');
             const data = await res.json();
             
             setOrders(data.orders || []);
@@ -117,7 +117,7 @@ export default function OrdersPage() {
                 const res = await fetch('/api/admin/order-statuses', {
                     headers: { role: 'admin' },
                 });
-                if (!res.ok) throw new Error('Sipariş durumları getirilemedi');
+                if (!res.ok) throw new Error('Order statuses could not be loaded');
                 const data = await res.json();
                 setStatusOptions(data.statuses || []);
                 setSummary(data.summary || {
@@ -157,9 +157,9 @@ export default function OrdersPage() {
                             <div className="relative flex items-start justify-between gap-4">
                                 <div>
                                     <p className="text-sm font-medium text-text-muted">{card.title}</p>
-                                    <h2 className="mt-2 font-display text-3xl font-bold text-text-main">{value.toLocaleString('tr-TR')}</h2>
+                                    <h2 className="mt-2 font-display text-3xl font-bold text-text-main">{value.toLocaleString('en-US')}</h2>
                                     <p className="mt-2 inline-flex rounded-full bg-background-light px-2.5 py-1 text-xs font-medium text-text-muted">
-                                        %{ratio} pay
+                                        {ratio}% share
                                     </p>
                                     <p className="mt-4 text-xs text-text-muted">{card.description}</p>
                                 </div>
@@ -180,9 +180,9 @@ export default function OrdersPage() {
                             <InputBase
                                 value={searchInput}
                                 onChange={(event) => setSearchInput(event.target.value)}
-                                placeholder="Sipariş no veya müşteri adı ile ara..."
+                                placeholder="Search by order no or customer name..."
                                 className="w-full text-sm text-text-main"
-                                inputProps={{ 'aria-label': 'Sipariş ara' }}
+                                inputProps={{ 'aria-label': 'Search orders' }}
                             />
                         </Paper>
 
@@ -195,7 +195,7 @@ export default function OrdersPage() {
                             >
                                 <Chip
                                     clickable
-                                    label={`All (${summary.total.toLocaleString('tr-TR')})`}
+                                    label={`All (${summary.total.toLocaleString('en-US')})`}
                                     onClick={() => setStatusFilter('')}
                                     className={statusFilter === ''
                                         ? '!shrink-0 !rounded-xl !bg-primary !font-semibold !text-white'
@@ -206,7 +206,7 @@ export default function OrdersPage() {
                                         <Chip
                                             key={status.id || status.title}
                                             clickable
-                                            label={`${status.title || status.id} (${Number(status.count || 0).toLocaleString('tr-TR')})`}
+                                            label={`${formatOrderStatusLabel(status.title || status.id)} (${Number(status.count || 0).toLocaleString('en-US')})`}
                                             onClick={() => setStatusFilter(status.title || '')}
                                             className={statusFilter === (status.title || '')
                                                 ? '!shrink-0 !rounded-xl !bg-primary !font-semibold !text-white'
@@ -229,8 +229,8 @@ export default function OrdersPage() {
                             <ReceiptLongOutlinedIcon fontSize="large" />
                         </div>
                         <div className="space-y-1">
-                            <h3 className="font-display text-xl font-bold text-text-main">Kriterlere uygun sipariş bulunamadı</h3>
-                            <p className="text-sm text-text-muted">Arama veya durum filtresini değiştirerek listeyi genişletebilirsiniz.</p>
+                            <h3 className="font-display text-xl font-bold text-text-main">No orders matched the current filters</h3>
+                            <p className="text-sm text-text-muted">Adjust the search term or status filter to widen the list.</p>
                         </div>
                     </div>
                 ) : (
@@ -239,8 +239,7 @@ export default function OrdersPage() {
 
                         <div className="flex flex-col gap-3 border-t border-primary/10 px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-6">
                             <p className="text-sm text-text-muted">
-                                {pagination.total.toLocaleString('tr-TR')} siparişten{' '}
-                                {orders.length > 0 ? ((pagination.page - 1) * 10) + 1 : 0}-{((pagination.page - 1) * 10) + orders.length} arası gösteriliyor
+                                Showing {orders.length > 0 ? ((pagination.page - 1) * 10) + 1 : 0}-{((pagination.page - 1) * 10) + orders.length} of {pagination.total.toLocaleString('en-US')} orders
                             </p>
 
                             <div className="flex items-center gap-1 self-start sm:self-auto">

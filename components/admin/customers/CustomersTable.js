@@ -5,15 +5,14 @@ import FilterListRoundedIcon from '@mui/icons-material/FilterListRounded';
 import Groups2RoundedIcon from '@mui/icons-material/Groups2Rounded';
 import KeyboardArrowLeftRoundedIcon from '@mui/icons-material/KeyboardArrowLeftRounded';
 import KeyboardArrowRightRoundedIcon from '@mui/icons-material/KeyboardArrowRightRounded';
-import PrintOutlinedIcon from '@mui/icons-material/PrintOutlined';
 import VisibilityRoundedIcon from '@mui/icons-material/VisibilityRounded';
 
 const SEGMENT_OPTIONS = [
-    { key: 'all', label: 'Tümü', countKey: 'total' },
-    { key: 'active', label: 'Aktif', countKey: 'active' },
-    { key: 'prospect', label: 'Pasif', countKey: 'prospect' },
-    { key: 'verified', label: 'Doğrulanan', countKey: 'verified' },
-    { key: 'new', label: 'Bu Ay', countKey: 'newThisMonth' },
+    { key: 'all', label: 'All', countKey: 'total' },
+    { key: 'active', label: 'Active', countKey: 'active' },
+    { key: 'prospect', label: 'Inactive', countKey: 'prospect' },
+    { key: 'verified', label: 'Verified', countKey: 'verified' },
+    { key: 'new', label: 'This Month', countKey: 'newThisMonth' },
 ];
 
 function buildPaginationItems(page, totalPages) {
@@ -33,9 +32,9 @@ function buildPaginationItems(page, totalPages) {
 }
 
 function formatDate(value) {
-    if (!value) return 'Belirtilmedi';
+    if (!value) return 'Not specified';
 
-    return new Intl.DateTimeFormat('tr-TR', {
+    return new Intl.DateTimeFormat('en-US', {
         day: '2-digit',
         month: 'short',
         year: 'numeric',
@@ -43,7 +42,7 @@ function formatDate(value) {
 }
 
 function formatCurrency(value) {
-    return `${new Intl.NumberFormat('tr-TR', {
+    return `${new Intl.NumberFormat('en-US', {
         minimumFractionDigits: 0,
         maximumFractionDigits: 0,
     }).format(Number(value || 0))} ₺`;
@@ -51,7 +50,7 @@ function formatCurrency(value) {
 
 function getFullName(customer) {
     const fullName = [customer.name, customer.surname].filter(Boolean).join(' ').trim();
-    return fullName || 'İsimsiz müşteri';
+    return fullName || 'Unnamed customer';
 }
 
 function getInitials(customer) {
@@ -80,14 +79,14 @@ export default function CustomersTable({
             <div className="border-b border-primary/10 p-5 sm:p-6">
                 <div className="flex flex-col gap-5 xl:flex-row xl:items-center xl:justify-between">
                     <div>
-                        <h2 className="font-display text-2xl font-black text-text-main">Müşteri Listesi</h2>
+                        <h2 className="font-display text-2xl font-black text-text-main">Customer List</h2>
                         <p className="mt-1 text-sm text-text-muted">
-                            Sipariş aktivitesi, doğrulama durumu ve iletişim bilgileri tek görünümde.
+                            Order activity, verification status, and contact details in one view.
                         </p>
                     </div>
 
                     <div className="flex items-center gap-2 self-start xl:self-auto">
-                        <Tooltip title="Aktif görünümü göster">
+                        <Tooltip title="Show active customers">
                             <IconButton
                                 onClick={() => onSegmentChange('active')}
                                 className="!rounded-2xl !border !border-primary/10 !bg-background-light !text-text-muted hover:!bg-white"
@@ -107,7 +106,7 @@ export default function CustomersTable({
                             <Chip
                                 key={segment.key}
                                 clickable
-                                label={`${segment.label} (${Number(summary[segment.countKey] || 0).toLocaleString('tr-TR')})`}
+                                label={`${segment.label} (${Number(summary[segment.countKey] || 0).toLocaleString('en-US')})`}
                                 onClick={() => onSegmentChange(segment.key)}
                                 className={activeSegment === segment.key
                                     ? '!rounded-2xl !bg-primary !px-1 !font-semibold !text-white'
@@ -128,9 +127,9 @@ export default function CustomersTable({
                         <Groups2RoundedIcon fontSize="large" />
                     </div>
                     <div className="space-y-1">
-                        <h3 className="font-display text-xl font-black text-text-main">Eşleşen müşteri bulunamadı</h3>
+                        <h3 className="font-display text-xl font-black text-text-main">No matching customers found</h3>
                         <p className="text-sm text-text-muted">
-                            Arama ifadesini veya aktif segmenti değiştirerek listeyi yeniden genişletebilirsiniz.
+                            Adjust the search query or active segment to widen the list again.
                         </p>
                     </div>
                 </div>
@@ -148,25 +147,25 @@ export default function CustomersTable({
                             <TableHead>
                                 <TableRow className="bg-background-light">
                                     <TableCell className="!border-b !border-primary/10 !px-6 !py-4 !text-[11px] !font-bold !uppercase !tracking-[0.24em] !text-text-muted">
-                                        Müşteri Bilgileri
+                                        Customer
                                     </TableCell>
                                     <TableCell className="!border-b !border-primary/10 !px-6 !py-4 !text-[11px] !font-bold !uppercase !tracking-[0.24em] !text-text-muted">
-                                        İletişim
+                                        Contact
                                     </TableCell>
                                     <TableCell className="!border-b !border-primary/10 !px-6 !py-4 !text-[11px] !font-bold !uppercase !tracking-[0.24em] !text-text-muted">
-                                        Kayıt Tarihi
+                                        Signup Date
                                     </TableCell>
                                     <TableCell className="!border-b !border-primary/10 !px-6 !py-4 !text-[11px] !font-bold !uppercase !tracking-[0.24em] !text-text-muted">
-                                        Sipariş / Harcama
+                                        Orders / Spend
                                     </TableCell>
                                     <TableCell className="!border-b !border-primary/10 !px-6 !py-4 !text-[11px] !font-bold !uppercase !tracking-[0.24em] !text-text-muted">
-                                        Durum
+                                        Status
                                     </TableCell>
                                     <TableCell
                                         align="right"
                                         className="!border-b !border-primary/10 !px-6 !py-4 !text-[11px] !font-bold !uppercase !tracking-[0.24em] !text-text-muted"
                                     >
-                                        İşlemler
+                                        Actions
                                     </TableCell>
                                 </TableRow>
                             </TableHead>
@@ -197,13 +196,13 @@ export default function CustomersTable({
                                                             {customer.email_verified && (
                                                                 <Chip
                                                                     size="small"
-                                                                    label="Doğrulandı"
+                                                                    label="Verified"
                                                                     className="!h-6 !rounded-full !bg-primary/10 !text-[11px] !font-semibold !text-primary-dark"
                                                                 />
                                                             )}
                                                         </div>
                                                         <p className="mt-1 text-xs text-text-muted">
-                                                            Müşteri ID: #C-{String(customer.id).padStart(4, '0')}
+                                                            Customer ID: #C-{String(customer.id).padStart(4, '0')}
                                                         </p>
                                                     </div>
                                                 </div>
@@ -213,7 +212,7 @@ export default function CustomersTable({
                                                 <div className="text-sm">
                                                     <p className="font-semibold text-text-main">{customer.email}</p>
                                                     <p className="mt-1 text-xs text-text-muted">
-                                                        {customer.phone || 'Telefon bilgisi yok'}
+                                                        {customer.phone || 'No phone number'}
                                                     </p>
                                                 </div>
                                             </TableCell>
@@ -227,7 +226,7 @@ export default function CustomersTable({
                                             <TableCell className="!px-6 !py-5">
                                                 <div className="text-sm">
                                                     <p className="font-bold text-text-main">
-                                                        {customer.order_count.toLocaleString('tr-TR')} sipariş
+                                                        {customer.order_count.toLocaleString('en-US')} orders
                                                     </p>
                                                     <p className="mt-1 text-xs font-semibold text-primary-dark">
                                                         {formatCurrency(customer.total_spent)}
@@ -238,19 +237,19 @@ export default function CustomersTable({
                                             <TableCell className="!px-6 !py-5">
                                                 <div className="flex flex-col items-start gap-2">
                                                     <Chip
-                                                        label={isActive ? 'Aktif' : 'Pasif'}
+                                                        label={isActive ? 'Active' : 'Inactive'}
                                                         className={isActive
                                                             ? '!rounded-full !bg-green-100 !font-bold !text-green-700'
                                                             : '!rounded-full !bg-slate-100 !font-bold !text-slate-600'}
                                                     />
                                                     <span className="text-xs text-text-muted">
-                                                        {isActive ? 'Kullanıcı hesabı aktif' : 'Kullanıcı hesabı pasif'}
+                                                        {isActive ? 'Account is active' : 'Account is inactive'}
                                                     </span>
                                                 </div>
                                             </TableCell>
 
                                             <TableCell align="right" className="!px-6 !py-5">
-                                                <Tooltip title="Müşteri detayını aç">
+                                                <Tooltip title="Open customer details">
                                                     <IconButton
                                                         onClick={() => onOpenDetail(customer)}
                                                         className="!rounded-2xl !text-text-muted hover:!bg-primary/10 hover:!text-primary-dark"
@@ -268,10 +267,9 @@ export default function CustomersTable({
 
                     <div className="flex flex-col gap-3 border-t border-primary/10 px-5 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-6">
                         <p className="text-sm text-text-muted">
-                            {pagination.total.toLocaleString('tr-TR')} kayıttan{' '}
-                            {customers.length > 0 ? ((pagination.page - 1) * pagination.limit) + 1 : 0}
+                            Showing {customers.length > 0 ? ((pagination.page - 1) * pagination.limit) + 1 : 0}
                             -
-                            {((pagination.page - 1) * pagination.limit) + customers.length} arası gösteriliyor
+                            {((pagination.page - 1) * pagination.limit) + customers.length} of {pagination.total.toLocaleString('en-US')} customers
                         </p>
 
                         <div className="flex items-center gap-1 self-start sm:self-auto">

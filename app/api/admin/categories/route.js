@@ -79,15 +79,15 @@ export async function POST(req) {
         const { name, slug, activate } = normalizeCategoryPayload(body);
 
         if (!name) {
-            return invalidFieldResponse('name alanı zorunlu');
+            return invalidFieldResponse('Name is required');
         }
 
         if (!slug) {
-            return invalidFieldResponse('slug alanı zorunlu');
+            return invalidFieldResponse('Slug is required');
         }
 
         if (!isValidCategorySlug(slug)) {
-            return invalidFieldResponse('slug alanı Türkçe karakter içeremez');
+            return invalidFieldResponse('Slug cannot contain Turkish characters');
         }
 
         if (isCategoryTestMode()) {

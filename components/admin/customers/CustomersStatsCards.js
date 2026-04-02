@@ -9,29 +9,29 @@ import PersonOffRoundedIcon from '@mui/icons-material/PersonOffRounded';
 const STAT_CARDS = [
     {
         key: 'total',
-        title: 'Toplam Müşteri',
-        description: 'Portföydeki toplam kullanıcı sayısı',
+        title: 'Total Customers',
+        description: 'Total number of users in the portfolio',
         icon: Groups2RoundedIcon,
         iconClassName: 'bg-primary/10 text-primary-dark',
     },
     {
         key: 'newThisMonth',
-        title: 'Yeni Müşteriler',
-        description: 'Bu ay sisteme katılan kullanıcılar',
+        title: 'New Customers',
+        description: 'Users who joined the system this month',
         icon: PersonAddAlt1RoundedIcon,
         iconClassName: 'bg-secondary/20 text-secondary',
     },
     {
         key: 'active',
-        title: 'Aktif Alıcılar',
-        description: 'Hesabı aktif durumunda olan müşteriler',
+        title: 'Active Buyers',
+        description: 'Customers with an active account',
         icon: MarkEmailReadRoundedIcon,
         iconClassName: 'bg-accent/15 text-accent',
     },
     {
         key: 'prospect',
-        title: 'Pasif Müşteriler',
-        description: 'Hesabı pasif durumunda olan müşteriler',
+        title: 'Inactive Customers',
+        description: 'Customers with an inactive account',
         icon: PersonOffRoundedIcon,
         iconClassName: 'bg-slate-100 text-slate-500',
     },
@@ -54,10 +54,10 @@ export default function CustomersStatsCards({ summary }) {
                             <div>
                                 <p className="text-sm font-semibold text-text-muted">{card.title}</p>
                                 <h2 className="mt-3 font-display text-3xl font-black text-text-main">
-                                    {value.toLocaleString('tr-TR')}
+                                    {value.toLocaleString('en-US')}
                                 </h2>
                                 <p className="mt-3 inline-flex rounded-full bg-background-light px-2.5 py-1 text-xs font-semibold text-text-muted">
-                                    %{ratio} portföy payı
+                                    {ratio}% of customer base
                                 </p>
                                 <p className="mt-4 text-xs leading-5 text-text-muted">{card.description}</p>
                             </div>

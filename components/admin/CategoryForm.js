@@ -115,8 +115,8 @@ export default function CategoryForm({
         };
 
         const nextErrors = {
-            name: payload.name ? '' : 'Kategori adı zorunlu.',
-            slug: payload.slug ? '' : 'Slug zorunlu.',
+            name: payload.name ? '' : 'Category name is required.',
+            slug: payload.slug ? '' : 'Slug is required.',
         };
 
         setErrors(nextErrors);
@@ -129,10 +129,10 @@ export default function CategoryForm({
     };
 
     const isEditMode = mode === 'edit';
-    const title = isEditMode ? 'Kategoriyi Düzenle' : 'Yeni Kategori Ekle';
+    const title = isEditMode ? 'Edit Category' : 'Create Category';
     const submitLabel = submitting
-        ? 'Kaydediliyor...'
-        : isEditMode ? 'Değişiklikleri Kaydet' : 'Kategori Ekle';
+        ? 'Saving...'
+        : isEditMode ? 'Save Changes' : 'Create Category';
     const HeaderIcon = isEditMode ? DriveFileRenameOutlineRoundedIcon : CategoryRoundedIcon;
 
     return (
@@ -173,12 +173,12 @@ export default function CategoryForm({
                 <DialogContent className="!p-6">
                     <div className="space-y-5">
                         <p className="text-sm text-slate-500 dark:text-slate-400">
-                            Yeni bir ürün grubu oluşturmak için aşağıdaki bilgileri doldurun. Slug alanı otomatik oluşturulabilir.
+                            Fill out the fields below to create a new product group. The slug can be generated automatically.
                         </p>
 
                         <div className="space-y-2">
                             <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300">
-                                Kategori Adı
+                                Category Name
                             </label>
                             <div className="relative group">
                                 <input
@@ -186,7 +186,7 @@ export default function CategoryForm({
                                     type="text"
                                     value={values.name}
                                     onChange={handleNameChange}
-                                    placeholder="Örn: Elektronik Ürünler"
+                                    placeholder="e.g. Electronics"
                                     className={`h-12 w-full rounded-lg border bg-white px-4 text-slate-900 outline-none transition-all placeholder:text-slate-400 focus:border-primary focus:ring-2 focus:ring-primary/50 dark:bg-slate-800 dark:text-slate-100 ${
                                         errors.name
                                             ? 'border-red-300 dark:border-red-500'
@@ -201,10 +201,10 @@ export default function CategoryForm({
 
                         <div className="space-y-2">
                             <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300">
-                                Slug (URL Dostu Ad)
+                                Slug (URL-Friendly Name)
                             </label>
                             <p className="text-xs text-slate-500 dark:text-slate-400">
-                                Bu alanı elle düzenleyebilir veya kategori adına göre otomatik oluşturabilirsiniz.
+                                You can edit this field manually or generate it from the category name.
                             </p>
                             <div className="relative">
                                 <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-4 text-slate-400">
@@ -214,7 +214,7 @@ export default function CategoryForm({
                                     type="text"
                                     value={values.slug}
                                     onChange={handleSlugChange}
-                                    placeholder="elektronik-urunler"
+                                    placeholder="electronics"
                                     className={`h-12 w-full rounded-lg border bg-white pl-[84px] pr-4 text-slate-900 outline-none transition-all placeholder:text-slate-400 focus:border-primary focus:ring-2 focus:ring-primary/50 dark:bg-slate-800 dark:text-slate-100 ${
                                         errors.slug
                                             ? 'border-red-300 dark:border-red-500'
@@ -229,7 +229,7 @@ export default function CategoryForm({
 
                         <div className="space-y-3">
                             <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300">
-                                Kategori Durumu
+                                Category Status
                             </label>
                             <label className="group relative inline-flex cursor-pointer items-center">
                                 <input
@@ -244,7 +244,7 @@ export default function CategoryForm({
                                         ? 'text-slate-900 dark:text-slate-100'
                                         : 'text-slate-600 dark:text-slate-400'
                                 }`}>
-                                    {isActive ? 'Aktif' : 'Pasif'}
+                                    {isActive ? 'Active' : 'Inactive'}
                                 </span>
                             </label>
                         </div>
@@ -258,7 +258,7 @@ export default function CategoryForm({
                         sx={{ textTransform: 'none' }}
                         className="!h-11 !rounded-lg !px-6 !text-sm !font-bold !text-slate-600 transition-colors hover:!bg-slate-200 dark:!text-slate-300 dark:hover:!bg-slate-700"
                     >
-                        Vazgeç
+                        Cancel
                     </Button>
                     <Button
                         type="submit"

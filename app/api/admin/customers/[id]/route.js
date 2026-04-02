@@ -97,7 +97,7 @@ export async function PATCH(req, { params }) {
             const activate = normalizeCustomerActivate(body.activate);
 
             if (activate === null) {
-                return NextResponse.json({ error: 'Geçersiz aktiflik değeri' }, { status: 400 });
+                return NextResponse.json({ error: 'Invalid account status value' }, { status: 400 });
             }
 
             updates.push(`activate = $${index++}`);
@@ -139,7 +139,7 @@ export async function DELETE(req, { params }) {
 
         if (orderCount > 0) {
             return NextResponse.json(
-                { error: 'Sipariş geçmişi olan müşteri silinemez' },
+                { error: 'Customer with order history cannot be deleted' },
                 { status: 409 }
             );
         }

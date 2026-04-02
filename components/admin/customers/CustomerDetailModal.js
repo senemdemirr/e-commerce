@@ -95,7 +95,7 @@ export default function CustomerDetailModal({
                 <div className="flex items-start justify-between gap-4">
                     <div>
                         <h2 className="font-display text-xl font-black tracking-tight text-text-main">
-                            Müşteri Detayları
+                            Customer Details
                         </h2>
                         <p className="mt-0.5 text-xs font-semibold text-text-muted">
                             Customer Identity Management
@@ -116,19 +116,19 @@ export default function CustomerDetailModal({
                 <div className="space-y-6">
                     <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                         <ReadonlyField
-                            label="Ad"
+                            label="First Name"
                             value={customer?.name ?? ''}
                             icon={PersonRoundedIcon}
                         />
                         <ReadonlyField
-                            label="Soyad"
+                            label="Last Name"
                             value={customer?.surname ?? ''}
                             icon={BadgeRoundedIcon}
                         />
                     </div>
 
                     <ReadonlyField
-                        label="E-posta"
+                        label="Email"
                         value={customer?.email ?? ''}
                         type="email"
                         icon={MailOutlineRoundedIcon}
@@ -142,8 +142,8 @@ export default function CustomerDetailModal({
                                 <CheckCircleRoundedIcon />
                             </div>
                             <div>
-                                <p className="text-sm font-bold text-text-main">Müşteri Durumu</p>
-                                <p className="text-xs text-text-muted">Active subscription status</p>
+                                <p className="text-sm font-bold text-text-main">Account Status</p>
+                                <p className="text-xs text-text-muted">Customer account access</p>
                             </div>
                         </div>
 
@@ -157,7 +157,7 @@ export default function CustomerDetailModal({
                             />
                             <div className="relative h-7 w-14 rounded-full border border-primary/10 bg-white transition-all after:absolute after:left-1 after:top-1 after:h-5 after:w-5 after:rounded-full after:bg-text-main after:shadow-sm after:transition-transform peer-checked:border-primary/20 peer-checked:bg-primary/25 peer-checked:after:translate-x-7 peer-checked:after:bg-primary-dark" />
                             <span className={`ml-3 text-xs font-black uppercase tracking-[0.18em] ${draftActive ? 'text-primary-dark' : 'text-text-muted'}`}>
-                                {draftActive ? 'Active' : 'Passive'}
+                                {draftActive ? 'Active' : 'Inactive'}
                             </span>
                         </label>
                     </div>
@@ -172,7 +172,7 @@ export default function CustomerDetailModal({
                         variant="outlined"
                         className="!flex-1 !rounded-xl !border !border-primary/10 !bg-white !px-6 !py-3.5 !font-bold !normal-case !text-text-muted hover:!border-primary/20 hover:!bg-background-light hover:!text-text-main"
                     >
-                        Vazgeç
+                        Cancel
                     </Button>
                     <Button
                         onClick={handleSaveClick}
@@ -180,7 +180,7 @@ export default function CustomerDetailModal({
                         startIcon={<SaveRoundedIcon />}
                         className="!flex-[2] !rounded-xl !bg-primary !px-6 !py-3.5 !font-bold !normal-case !text-text-main hover:!bg-primary-dark hover:!text-white disabled:!bg-primary/20 disabled:!text-text-muted"
                     >
-                        {updating ? 'Kaydediliyor...' : 'Kaydet'}
+                        {updating ? 'Saving...' : 'Save'}
                     </Button>
                 </div>
             </DialogActions>

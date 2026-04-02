@@ -73,19 +73,19 @@ export async function POST(req) {
         const { name, slug, category_id, activate } = normalizeSubcategoryPayload(body);
 
         if (!name) {
-            return invalidFieldResponse('name alanı zorunlu');
+            return invalidFieldResponse('Name is required');
         }
 
         if (!category_id) {
-            return invalidFieldResponse('category_id alanı zorunlu');
+            return invalidFieldResponse('Parent category is required');
         }
 
         if (!slug) {
-            return invalidFieldResponse('slug alanı zorunlu');
+            return invalidFieldResponse('Slug is required');
         }
 
         if (!isValidSubcategorySlug(slug)) {
-            return invalidFieldResponse('slug alanı Türkçe karakter içeremez');
+            return invalidFieldResponse('Slug cannot contain Turkish characters');
         }
 
         if (isSubcategoryTestMode()) {

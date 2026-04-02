@@ -8,10 +8,10 @@ export async function POST(req) {
         const { email, password } = body;
 
         if (!email) {
-            return NextResponse.json({ error: 'Email alanı eksik' }, { status: 400 });
+            return NextResponse.json({ error: 'Email is required' }, { status: 400 });
         }
         if (!password) {
-            return NextResponse.json({ error: 'Şifre alanı eksik' }, { status: 400 });
+            return NextResponse.json({ error: 'Password is required' }, { status: 400 });
         }
 
         // Veritabanından kullanıcıyı bul
@@ -19,7 +19,7 @@ export async function POST(req) {
         
         if (result.rowCount === 0) {
             // Güvenlik gereği hem email hem şifre hatalarında genelde 401 dönülür
-            return NextResponse.json({ error: 'Geçersiz email' }, { status: 401 });
+            return NextResponse.json({ error: 'Invalid email' }, { status: 401 });
         }
 
         const user = result.rows[0];
@@ -27,16 +27,16 @@ export async function POST(req) {
         // Şifre kontrolü (bcrypt ile hashlere karşılaştırma)
         const isMatch = await bcrypt.compare(password, user.password);
         if (!isMatch) {
-            return NextResponse.json({ error: 'Geçersiz şifre' }, { status: 401 });
+            return NextResponse.json({ error: 'Invalid password' }, { status: 401 });
         }
 
         // Rol kontrolü (sadece admin girebilir)
         if (user.role !== 'admin') {
-            return NextResponse.json({ error: 'Kullanıcı admin değil' }, { status: 403 });
+            return NextResponse.json({ error: 'User is not an admin' }, { status: 403 });
         }
 
         // Giriş başarılı senaryosu
-        const response = NextResponse.json({ success: true, message: 'Giriş başarılı' }, { status: 200 });
+        const response = NextResponse.json({ success: true, message: 'Login successful' }, { status: 200 });
         
         // Admin Token Cookisi (1 Günlük) — email bilgisi token'a gömülü
         const tokenValue = 'admin-session-token:' + Buffer.from(user.email).toString('base64');
@@ -52,7 +52,6 @@ export async function POST(req) {
         
     } catch (error) {
         console.error('Login Error:', error);
-        return NextResponse.json({ error: 'Sunucu hatası' }, { status: 500 });
+        return NextResponse.json({ error: 'Server error' }, { status: 500 });
     }
 }
-

@@ -52,7 +52,7 @@ export default function OrderTable({ orders = [], variant = 'orders' }) {
                                 <TableCell className="!border-b !border-primary/10 !px-6 !py-4">
                                     <div className="space-y-1">
                                         <p className="font-display text-sm font-bold text-text-main">#{order.order_number}</p>
-                                        <p className="text-xs text-text-muted">Sipariş kaydı</p>
+                                        <p className="text-xs text-text-muted">Order record</p>
                                     </div>
                                 </TableCell>
                                 <TableCell className="!border-b !border-primary/10 !px-6 !py-4">
@@ -62,7 +62,7 @@ export default function OrderTable({ orders = [], variant = 'orders' }) {
                                         </div>
                                         <div className="space-y-1">
                                             <p className="text-sm font-semibold text-text-main">{customerName}</p>
-                                            <p className="text-xs text-text-muted">Sipariş sahibi</p>
+                                            <p className="text-xs text-text-muted">Order owner</p>
                                         </div>
                                     </div>
                                 </TableCell>
@@ -80,7 +80,7 @@ export default function OrderTable({ orders = [], variant = 'orders' }) {
                                 {variant === 'orders' && (
                                     <TableCell className="!border-b !border-primary/10 !px-6 !py-4 !text-right">
                                         <div className="flex items-center justify-end gap-2">
-                                            <Tooltip title="Siparişi görüntüle">
+                                            <Tooltip title="View order">
                                                 <IconButton
                                                     onClick={() => router.push(`/admin/orders/${encodeURIComponent(order.order_number)}`)}
                                                     className="!rounded-xl !text-text-muted hover:!bg-primary/10 hover:!text-primary"

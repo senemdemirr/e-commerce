@@ -14,24 +14,24 @@ export default function PaymentSummaryCard({ order }) {
     return (
         <Paper className="!rounded-3xl !border !border-primary/10 !bg-white !p-6 !shadow-sm">
             <div className="mb-5">
-                <h2 className="font-display text-xl font-bold text-text-main">Ödeme Özeti</h2>
-                <p className="mt-1 text-sm text-text-muted">Siparişin finansal görünümü</p>
+                <h2 className="font-display text-xl font-bold text-text-main">Payment Summary</h2>
+                <p className="mt-1 text-sm text-text-muted">Financial overview of this order</p>
             </div>
 
             <div className="space-y-4">
                 <div className="flex items-center justify-between text-sm">
-                    <span className="font-medium text-text-muted">Ara Toplam</span>
+                    <span className="font-medium text-text-muted">Subtotal</span>
                     <span className="font-bold text-text-main">{formatCurrency(order.subtotal)}</span>
                 </div>
                 <div className="flex items-center justify-between text-sm">
-                    <span className="font-medium text-text-muted">Kargo Ücreti</span>
+                    <span className="font-medium text-text-muted">Shipping Fee</span>
                     <span className="font-bold text-text-main">{formatCurrency(order.shipping_cost)}</span>
                 </div>
 
                 <Divider />
 
                 <div className="flex items-center justify-between">
-                    <span className="text-lg font-bold text-text-main">Toplam</span>
+                    <span className="text-lg font-bold text-text-main">Total</span>
                     <span className="font-display text-3xl font-black text-primary">{formatCurrency(order.total_amount)}</span>
                 </div>
 
@@ -58,8 +58,8 @@ export default function PaymentSummaryCard({ order }) {
                             <PaymentsOutlinedIcon />
                         </div>
                         <div className="space-y-1 text-sm">
-                            <p className="font-semibold text-text-main">Ödeme durumu operasyonel olarak tamamlandı</p>
-                            <p className="text-text-muted">Kayıt tarihi: {formatDate(order.created_at)}</p>
+                            <p className="font-semibold text-text-main">Payment has been recorded successfully</p>
+                            <p className="text-text-muted">Recorded on: {formatDate(order.created_at)}</p>
                         </div>
                     </div>
                 </div>

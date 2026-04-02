@@ -19,7 +19,7 @@ export default function DashboardPage() {
             setLoading(true);
             try {
                 const res = await fetch(`/api/admin/dashboard?filter=${filter}`, { headers: { role: 'admin' } });
-                if (!res.ok) throw new Error('Dashboard verileri alınamadı');
+                if (!res.ok) throw new Error('Dashboard data could not be loaded');
                 const data = await res.json();
                 setStats(data);
             } catch (error) {

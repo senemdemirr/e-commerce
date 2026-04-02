@@ -7,7 +7,7 @@ export async function GET(req) {
         const adminToken = req.cookies.get('admin_token');
 
         if (!adminToken || !adminToken.value.startsWith('admin-session-token:')) {
-            return NextResponse.json({ error: 'Yetkisiz erişim' }, { status: 401 });
+            return NextResponse.json({ error: 'Unauthorized access' }, { status: 401 });
         }
 
         // Token formatı: 'admin-session-token:BASE64_EMAIL'
@@ -20,7 +20,7 @@ export async function GET(req) {
         );
 
         if (result.rowCount === 0) {
-            return NextResponse.json({ error: 'Admin bulunamadı' }, { status: 404 });
+            return NextResponse.json({ error: 'Admin not found' }, { status: 404 });
         }
 
         const admin = result.rows[0];
@@ -34,6 +34,6 @@ export async function GET(req) {
 
     } catch (error) {
         console.error('Admin Me Error:', error);
-        return NextResponse.json({ error: 'Sunucu hatası' }, { status: 500 });
+        return NextResponse.json({ error: 'Server error' }, { status: 500 });
     }
 }

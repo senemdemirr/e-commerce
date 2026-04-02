@@ -12,6 +12,7 @@ import OrderPageActions from './components/OrderPageActions';
 import OrderStatusCard from './components/OrderStatusCard';
 import PaymentSummaryCard from './components/PaymentSummaryCard';
 import {
+    formatOrderStatusLabel,
     getStatusClasses,
     isCancelledStatus,
     isDeliveredStatus,
@@ -49,11 +50,11 @@ export default function OrderDetailPage() {
                 const statusesData = await statusesRes.json();
 
                 if (!orderRes.ok) {
-                    throw new Error(orderData.error || 'Sipariş bilgileri alınamadı');
+                    throw new Error(orderData.error || 'Order details could not be loaded');
                 }
 
                 if (!statusesRes.ok) {
-                    throw new Error(statusesData.error || 'Sipariş durumları alınamadı');
+                    throw new Error(statusesData.error || 'Order statuses could not be loaded');
                 }
 
                 if (!active) {
@@ -82,27 +83,28 @@ export default function OrderDetailPage() {
     }, [enqueueSnackbar, orderNumber, router]);
 
     const currentStatusOption = statusOptions.find((item) => String(item.id) === String(order?.status_id ?? order?.status));
-    const currentStatusTitle = order?.status_title
+    const rawCurrentStatusTitle = order?.status_title
         || currentStatusOption?.title
-        || 'Durum seçilmedi';
+        || 'No status selected';
+    const currentStatusTitle = formatOrderStatusLabel(rawCurrentStatusTitle);
     const currentStatusClasses = getStatusClasses(currentStatusTitle);
-    const customerName = order?.customer_name?.trim() || order?.shipping_full_name || 'Misafir Müşteri';
+    const customerName = order?.customer_name?.trim() || order?.shipping_full_name || 'Guest Customer';
     const customerPhone = order?.customer_phone || order?.shipping_phone;
-    const customerEmail = order?.customer_email || 'E-posta bilgisi bulunmuyor';
+    const customerEmail = order?.customer_email || 'Email not available';
     const currentStatusId = String(order?.status_id ?? order?.status ?? '');
     const isStatusChanged = status !== '' && status !== currentStatusId;
     const savedAdminNote = String(order?.status_update_note || '');
     const isAdminNoteChanged = adminNote.trim() !== savedAdminNote.trim();
     const hasPendingChanges = isStatusChanged || isAdminNoteChanged;
-    const cancelledStatus = statusOptions.find((item) => isCancelledStatus(item.title));
-    const isCancelled = isCancelledStatus(currentStatusTitle);
-    const isDelivered = isDeliveredStatus(currentStatusTitle);
+    const cancelledStatus = statusOptions.find((item) => isCancelledStatus(item.title || item.id));
+    const isCancelled = isCancelledStatus(rawCurrentStatusTitle);
+    const isDelivered = isDeliveredStatus(rawCurrentStatusTitle);
     const isStatusLocked = isCancelled || isDelivered;
     const statusUpdatedByAdmin = order?.status_updated_by_admin_name || order?.status_updated_by_admin_email;
 
     const updateStatus = async ({ nextStatus = status, nextNote = adminNote, closeAfterUpdate = false } = {}) => {
         if (!nextStatus) {
-            enqueueSnackbar('Lütfen geçerli bir durum seçin', { variant: 'warning' });
+            enqueueSnackbar('Please select a valid status', { variant: 'warning' });
             return;
         }
 
@@ -131,7 +133,7 @@ export default function OrderDetailPage() {
             const data = await res.json();
 
             if (!res.ok) {
-                throw new Error(data.error || 'Sipariş güncellenemedi');
+                throw new Error(data.error || 'Order could not be updated');
             }
 
             const nextTitle = data.status_title
@@ -148,7 +150,7 @@ export default function OrderDetailPage() {
             }));
             setStatus(String(data.status_id ?? data.status ?? nextStatus));
             setAdminNote(normalizedNextNote);
-            enqueueSnackbar('Sipariş durumu güncellendi', { variant: 'success' });
+            enqueueSnackbar('Order status updated', { variant: 'success' });
 
             if (closeAfterUpdate) {
                 router.push('/admin/orders');
@@ -162,7 +164,7 @@ export default function OrderDetailPage() {
 
     const handleCancelOrder = async () => {
         if (!cancelledStatus) {
-            enqueueSnackbar('İptal durumu bulunamadı', { variant: 'error' });
+            enqueueSnackbar('Cancelled status was not found', { variant: 'error' });
             return;
         }
 

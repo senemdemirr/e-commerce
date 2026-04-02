@@ -21,7 +21,7 @@ export default function OrderDetailHeader({
             <div className="flex flex-wrap items-center gap-1 text-sm text-text-muted">
                 <span>Panel</span>
                 <ChevronRightRoundedIcon className="!text-sm" />
-                <Link href="/admin/orders" className="hover:text-text-main">Siparişler</Link>
+                <Link href="/admin/orders" className="hover:text-text-main">Orders</Link>
                 <ChevronRightRoundedIcon className="!text-sm" />
                 <span className="font-semibold text-primary">#{order.order_number}</span>
             </div>
@@ -38,17 +38,17 @@ export default function OrderDetailHeader({
                                 className={`!rounded-full !border !px-3 !font-semibold ${currentStatusClasses.badge}`}
                             />
                             <Chip
-                                label={`Oluşturulma: ${formatDate(order.created_at)}`}
+                                label={`Created: ${formatDate(order.created_at)}`}
                                 className="!rounded-full !bg-white/80 !px-2 !font-medium !text-text-main"
                             />
                         </div>
 
                         <div className="space-y-2">
                             <h1 className="font-display text-3xl font-black tracking-tight text-text-main sm:text-4xl">
-                                Sipariş Düzenleme: <span className="text-primary">#{order.order_number}</span>
+                                Manage Order: <span className="text-primary">#{order.order_number}</span>
                             </h1>
                             <p className="text-sm font-medium text-text-muted">
-                                Ödeme, teslimat ve sipariş akışını tek ekrandan yönetin.
+                                Manage payment, delivery, and order flow from one screen.
                             </p>
                         </div>
                     </div>
@@ -61,7 +61,7 @@ export default function OrderDetailHeader({
                             startIcon={<CancelOutlinedIcon />}
                             className="!rounded-2xl !border !border-accent/20 !bg-red-500 !px-4 !py-2.5 !font-bold !text-white hover:!bg-red-600/5"
                         >
-                            Siparişi İptal Et
+                            Cancel Order
                         </Button>
                     </div>
                 </div>
