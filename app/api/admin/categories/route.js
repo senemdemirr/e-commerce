@@ -60,7 +60,7 @@ export async function GET(req) {
                 LEFT JOIN products p ON p.sub_category_id = sc.id
                 GROUP BY sc.id
             ) AS subcategory_stats ON subcategory_stats.subcategory_id = sc.id
-            ORDER BY c.id ASC, sc.id ASC
+            ORDER BY c.created_at DESC NULLS LAST, c.id DESC, sc.created_at DESC NULLS LAST, sc.id DESC
         `);
 
         return Response.json(buildCategoriesWithSubcategories(result.rows), { status: 200 });

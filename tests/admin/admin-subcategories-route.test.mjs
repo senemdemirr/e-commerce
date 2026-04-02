@@ -11,6 +11,19 @@ describe('Admin Subcategories Route', () => {
         POST = module.POST;
     });
 
+    test('GET /api/admin/subcategories - en yeni alt kategorileri üstte döner', async () => {
+        const req = { headers: { get: () => 'admin' } };
+        const response = await GET(req);
+        expect(response.status).toBe(200);
+        const data = await response.json();
+
+        expect(Array.isArray(data)).toBe(true);
+
+        if (data.length > 1) {
+            expect(data[0].id).toBeGreaterThan(data[1].id);
+        }
+    });
+
     // --- POST: Alt Kategori Oluşturma ---
     test('POST /api/admin/subcategories - admin olmayan kullanıcı 403 alır', async () => {
         const req = { headers: { get: () => 'customer' } };

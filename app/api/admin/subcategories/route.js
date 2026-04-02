@@ -46,7 +46,7 @@ export async function GET(req) {
             INNER JOIN categories c ON c.id = sc.category_id
             LEFT JOIN products p ON p.sub_category_id = sc.id
             GROUP BY sc.id, sc.activate, c.name, c.slug
-            ORDER BY sc.id ASC
+            ORDER BY sc.created_at DESC NULLS LAST, sc.id DESC
         `);
 
         return Response.json(

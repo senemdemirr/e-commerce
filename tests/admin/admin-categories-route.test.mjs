@@ -32,6 +32,10 @@ describe('Admin Categories Route', () => {
             expect([0, 1]).toContain(data[0].activate);
             expect(Array.isArray(data[0].subcategories)).toBe(true);
         }
+
+        if (data.length > 1) {
+            expect(data[0].id).toBeGreaterThan(data[1].id);
+        }
     });
 
     // --- POST: Kategori Oluşturma ---
