@@ -45,7 +45,7 @@ export default function DashboardPage() {
         <div className="space-y-8">
             <StatsCards stats={stats} />
 
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <div className="grid grid-cols-1 gap-8 xl:grid-cols-3">
                 <SalesChart 
                     chartData={stats?.salesChart || []} 
                     filter={filter} 

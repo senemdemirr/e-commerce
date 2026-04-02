@@ -16,11 +16,11 @@ export default function AdminLayout({ children }) {
             <Sidebar />
 
             {/* Main Content Area */}
-            <main className="flex-1 flex flex-col overflow-y-auto">
+            <main className="flex min-w-0 flex-1 flex-col overflow-y-auto">
                 <Header />
 
                 {/* Content */}
-                <div className="p-8 h-vh">
+                <div className="min-w-0 p-4 sm:p-6 lg:p-8 h-vh">
                     {children}
                 </div>
             </main>

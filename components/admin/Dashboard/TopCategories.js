@@ -24,7 +24,7 @@ const TopCategories = ({ topCategories }) => {
     };
 
     return (
-        <div className="bg-white dark:bg-slate-900 p-6 rounded-xl border border-primary/10 shadow-sm">
+        <div className="min-w-0 rounded-xl border border-primary/10 bg-white p-6 shadow-sm dark:bg-slate-900">
             <h2 className="text-lg font-bold mb-4 font-display">Top Categories</h2>
             <div className="space-y-4">
                 {topCategories.map((cat, index) => {
@@ -32,11 +32,11 @@ const TopCategories = ({ topCategories }) => {
                     return (
                         <div key={cat.name} className="space-y-2">
                             <div className="flex items-center justify-between">
-                                <div className="flex items-center gap-3">
+                                <div className="flex min-w-0 items-center gap-3">
                                     <div className={`size-8 ${colors.bg} rounded-lg flex items-center justify-center ${colors.text}`}>
                                         {getCategoryIcon(cat.name)}
                                     </div>
-                                    <span className="text-sm font-medium font-body">{cat.name}</span>
+                                    <span className="truncate text-sm font-medium font-body">{cat.name}</span>
                                 </div>
                                 <span className="text-sm font-bold font-display">${cat.amount}</span>
                             </div>
