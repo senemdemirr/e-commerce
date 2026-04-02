@@ -68,7 +68,7 @@ export default function OrderStatusCard({
                 </Button>
 
                 {statusUpdatedByAdmin && statusUpdatedAt ? (
-                    <div className="rounded-2xl border border-primary/10 bg-background-light px-4 py-3 text-sm text-text-muted">
+                    <div className="rounded-2xl border border-primary/10 bg-background-light px-4 py-3 text-sm text-text-muted mt-2">
                         Son güncelleme: <span className="font-semibold text-text-main">{statusUpdatedByAdmin}</span>
                         <br />
                         <span>{formatDate(statusUpdatedAt)}</span>
