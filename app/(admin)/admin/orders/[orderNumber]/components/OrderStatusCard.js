@@ -13,6 +13,7 @@ export default function OrderStatusCard({
     statusUpdatedAt,
     saving,
     isStatusChanged,
+    isStatusLocked,
     onStatusChange,
     onUpdateStatus,
 }) {
@@ -40,6 +41,7 @@ export default function OrderStatusCard({
                     label="Durumu Güncelle"
                     value={status}
                     onChange={(event) => onStatusChange(event.target.value)}
+                    disabled={isStatusLocked}
                     fullWidth
                     sx={{
                         '& .MuiOutlinedInput-root': {
@@ -58,7 +60,7 @@ export default function OrderStatusCard({
 
                 <Button
                     onClick={onUpdateStatus}
-                    disabled={saving || !isStatusChanged}
+                    disabled={saving || isStatusLocked || !isStatusChanged}
                     startIcon={<SaveRoundedIcon />}
                     className="!w-full !rounded-2xl !bg-primary !py-3 !font-bold !text-white hover:!bg-primary-dark disabled:!opacity-50"
                 >

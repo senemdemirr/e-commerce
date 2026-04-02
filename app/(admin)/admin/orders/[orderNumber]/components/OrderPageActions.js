@@ -6,6 +6,7 @@ import SaveRoundedIcon from '@mui/icons-material/SaveRounded';
 
 export default function OrderPageActions({
     saving,
+    isStatusLocked,
     onBack,
     onSaveAndClose,
 }) {
@@ -21,7 +22,7 @@ export default function OrderPageActions({
 
             <Button
                 onClick={onSaveAndClose}
-                disabled={saving}
+                disabled={saving || isStatusLocked}
                 startIcon={<SaveRoundedIcon />}
                 className="!rounded-2xl !bg-primary !px-6 !py-3 !font-bold !text-white hover:!bg-primary-dark disabled:!opacity-50"
             >

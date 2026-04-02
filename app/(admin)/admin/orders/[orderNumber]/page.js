@@ -93,6 +93,7 @@ export default function OrderDetailPage() {
     const cancelledStatus = statusOptions.find((item) => isCancelledStatus(item.title));
     const isCancelled = isCancelledStatus(currentStatusTitle);
     const isDelivered = isDeliveredStatus(currentStatusTitle);
+    const isStatusLocked = isCancelled || isDelivered;
     const statusUpdatedByAdmin = order?.status_updated_by_admin_name || order?.status_updated_by_admin_email;
 
     const updateStatus = async ({ nextStatus = status, closeAfterUpdate = false } = {}) => {
@@ -191,8 +192,7 @@ export default function OrderDetailPage() {
                     currentStatusClasses={currentStatusClasses}
                     saving={saving}
                     cancelledStatus={cancelledStatus}
-                    isCancelled={isCancelled}
-                    isDelivered={isDelivered}
+                    isStatusLocked={isStatusLocked}
                     onCancelOrder={handleCancelOrder}
                 />
 
@@ -212,6 +212,7 @@ export default function OrderDetailPage() {
                             statusUpdatedAt={order.status_updated_at}
                             saving={saving}
                             isStatusChanged={isStatusChanged}
+                            isStatusLocked={isStatusLocked}
                             onStatusChange={setStatus}
                             onUpdateStatus={() => updateStatus()}
                         />
@@ -227,6 +228,7 @@ export default function OrderDetailPage() {
 
                 <OrderPageActions
                     saving={saving}
+                    isStatusLocked={isStatusLocked}
                     onBack={handleBack}
                     onSaveAndClose={handleSaveAndClose}
                 />

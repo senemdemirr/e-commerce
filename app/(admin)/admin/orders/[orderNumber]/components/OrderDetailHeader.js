@@ -13,8 +13,7 @@ export default function OrderDetailHeader({
     currentStatusClasses,
     saving,
     cancelledStatus,
-    isCancelled,
-    isDelivered,
+    isStatusLocked,
     onCancelOrder,
 }) {
     return (
@@ -58,7 +57,7 @@ export default function OrderDetailHeader({
                         <OrderPdfDownloadButton order={order} currentStatusTitle={currentStatusTitle} />
                         <Button
                             onClick={onCancelOrder}
-                            disabled={saving || !cancelledStatus || isCancelled || isDelivered}
+                            disabled={saving || !cancelledStatus || isStatusLocked}
                             startIcon={<CancelOutlinedIcon />}
                             className="!rounded-2xl !border !border-accent/20 !bg-red-500 !px-4 !py-2.5 !font-bold !text-white hover:!bg-red-600/5"
                         >
