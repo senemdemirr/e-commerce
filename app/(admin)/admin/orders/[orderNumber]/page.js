@@ -11,7 +11,11 @@ import OrderItemsCard from './components/OrderItemsCard';
 import OrderPageActions from './components/OrderPageActions';
 import OrderStatusCard from './components/OrderStatusCard';
 import PaymentSummaryCard from './components/PaymentSummaryCard';
-import { getStatusClasses, normalizeStatusTitle } from './orderDetail.utils';
+import {
+    getStatusClasses,
+    isCancelledStatus,
+    isDeliveredStatus,
+} from '@/lib/admin/order-display';
 
 export default function OrderDetailPage() {
     const { orderNumber } = useParams();
@@ -86,11 +90,9 @@ export default function OrderDetailPage() {
     const customerEmail = order?.customer_email || 'E-posta bilgisi bulunmuyor';
     const currentStatusId = String(order?.status_id ?? order?.status ?? '');
     const isStatusChanged = status !== '' && status !== currentStatusId;
-    const normalizedCurrentStatusTitle = normalizeStatusTitle(currentStatusTitle);
-    const cancelledStatus = statusOptions.find((item) => normalizeStatusTitle(item.title).includes('iptal'));
-    const isCancelled = normalizedCurrentStatusTitle.includes('iptal');
-    const isDelivered = normalizedCurrentStatusTitle.includes('teslim')
-        || normalizedCurrentStatusTitle.includes('tamam');
+    const cancelledStatus = statusOptions.find((item) => isCancelledStatus(item.title));
+    const isCancelled = isCancelledStatus(currentStatusTitle);
+    const isDelivered = isDeliveredStatus(currentStatusTitle);
     const statusUpdatedByAdmin = order?.status_updated_by_admin_name || order?.status_updated_by_admin_email;
 
     const updateStatus = async ({ nextStatus = status, closeAfterUpdate = false } = {}) => {

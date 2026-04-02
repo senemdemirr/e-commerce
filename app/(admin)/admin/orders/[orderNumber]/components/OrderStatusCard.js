@@ -2,7 +2,7 @@
 
 import { Button, MenuItem, Paper, TextField } from '@mui/material';
 import SaveRoundedIcon from '@mui/icons-material/SaveRounded';
-import { formatDate } from '../orderDetail.utils';
+import { formatDate } from '@/lib/admin/order-display';
 
 export default function OrderStatusCard({
     status,

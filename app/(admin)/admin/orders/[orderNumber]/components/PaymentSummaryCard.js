@@ -8,7 +8,7 @@ import {
     formatDate,
     formatPaymentMethod,
     formatPaymentStatus,
-} from '../orderDetail.utils';
+} from '@/lib/admin/order-display';
 
 export default function PaymentSummaryCard({ order }) {
     return (

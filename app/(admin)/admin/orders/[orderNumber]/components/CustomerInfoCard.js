@@ -4,7 +4,7 @@ import { Avatar, Paper } from '@mui/material';
 import MailOutlineRoundedIcon from '@mui/icons-material/MailOutlineRounded';
 import PersonOutlineRoundedIcon from '@mui/icons-material/PersonOutlineRounded';
 import PhoneIphoneRoundedIcon from '@mui/icons-material/PhoneIphoneRounded';
-import { formatText, getInitials } from '../orderDetail.utils';
+import { formatText, getInitials } from '@/lib/admin/order-display';
 
 export default function CustomerInfoCard({
     order,

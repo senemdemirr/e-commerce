@@ -6,6 +6,11 @@ import { jsPDF } from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import { Button } from '@mui/material';
 import DownloadRoundedIcon from '@mui/icons-material/DownloadRounded';
+import {
+    formatPaymentMethod,
+    formatPaymentStatus,
+    formatText,
+} from '@/lib/admin/order-display';
 
 function formatPdfDate(dateString) {
     return new Date(dateString).toLocaleString('tr-TR', {
@@ -22,38 +27,6 @@ function formatPdfCurrency(amount) {
         minimumFractionDigits: 2,
         maximumFractionDigits: 2,
     })} TL`;
-}
-
-function formatText(value, fallback = '-') {
-    return value ? String(value) : fallback;
-}
-
-function formatPaymentMethod(method) {
-    const normalized = String(method || '').toLowerCase();
-
-    if (normalized === 'credit_card') {
-        return 'Kredi Kartı';
-    }
-
-    return formatText(method);
-}
-
-function formatPaymentStatus(status) {
-    const normalized = String(status || '').toLowerCase();
-
-    if (normalized === 'completed') {
-        return 'Tamamlandı';
-    }
-
-    if (normalized === 'pending') {
-        return 'Beklemede';
-    }
-
-    if (normalized === 'failed') {
-        return 'Başarısız';
-    }
-
-    return formatText(status);
 }
 
 export default function OrderPdfDownloadButton({ order, currentStatusTitle }) {

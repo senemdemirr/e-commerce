@@ -2,7 +2,7 @@
 
 import { Chip, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow } from '@mui/material';
 import Inventory2OutlinedIcon from '@mui/icons-material/Inventory2Outlined';
-import { formatCurrency, formatText } from '../orderDetail.utils';
+import { formatCurrency, formatText } from '@/lib/admin/order-display';
 
 export default function OrderItemsCard({ items = [] }) {
     return (

@@ -5,7 +5,7 @@ import { Button, Chip, Paper } from '@mui/material';
 import CancelOutlinedIcon from '@mui/icons-material/CancelOutlined';
 import ChevronRightRoundedIcon from '@mui/icons-material/ChevronRightRounded';
 import OrderPdfDownloadButton from '../OrderPdfDownloadButton';
-import { formatDate } from '../orderDetail.utils';
+import { formatDate } from '@/lib/admin/order-display';
 
 export default function OrderDetailHeader({
     order,
