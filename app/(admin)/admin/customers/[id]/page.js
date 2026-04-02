@@ -20,7 +20,9 @@ export default function CustomerDetailPage() {
     useEffect(() => {
         const fetchCustomer = async () => {
             try {
-                const res = await fetch(`/api/admin/customers/${id}`);
+                const res = await fetch(`/api/admin/customers/${id}`, {
+                    headers: { role: 'admin' },
+                });
                 if (!res.ok) throw new Error('Müşteri bilgileri alınamadı');
                 const data = await res.json();
                 
@@ -36,7 +38,7 @@ export default function CustomerDetailPage() {
             }
         };
         fetchCustomer();
-    }, [id]);
+    }, [enqueueSnackbar, id, router]);
 
     const handleUpdateCustomer = async (e) => {
         e.preventDefault();
@@ -44,7 +46,10 @@ export default function CustomerDetailPage() {
             setUpdating(true);
             const res = await fetch(`/api/admin/customers/${id}`, {
                 method: 'PATCH',
-                headers: { 'Content-Type': 'application/json' },
+                headers: {
+                    'Content-Type': 'application/json',
+                    role: 'admin',
+                },
                 body: JSON.stringify({ name, surname, phone })
             });
             const data = await res.json();
