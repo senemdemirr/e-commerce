@@ -59,7 +59,7 @@ describe('Admin Order ID Route', () => {
             cookies: {
                 get: () => ({ value: `admin-session-token:${Buffer.from('admin@example.com').toString('base64')}` }),
             },
-            json: async () => ({ status: '3' })
+            json: async () => ({ status: '3', statusUpdateNote: 'Kargoya verildi' })
         };
         const response = await PATCH(req, { params: Promise.resolve({ orderNumber: 'ORD123' }) });
         expect(response.status).toBe(200);
@@ -68,20 +68,21 @@ describe('Admin Order ID Route', () => {
             SET
                 status = $1,
                 status_updated_by_admin_id = $2,
+                status_update_note = $3,
                 status_updated_at = CURRENT_TIMESTAMP,
                 updated_at = CURRENT_TIMESTAMP
-            WHERE order_number = $3
+            WHERE order_number = $4
             RETURNING *`,
-            [3, 24, 'ORD123']
+            [3, 24, 'Kargoya verildi', 'ORD123']
         );
     });
 
-    test('PATCH /api/admin/orders/[orderNumber] - sadece status alanı güncellenebilir diğer alanlar hata verir', async () => {
+    test('PATCH /api/admin/orders/[orderNumber] - sadece status ve statusUpdateNote alanlari guncellenebilir', async () => {
         const queryMock = jest.fn();
         ({ PATCH } = await loadRouteWithMock(queryMock));
         const req = {
             headers: { get: () => 'admin' },
-            json: async () => ({ status: 'shipped', total_amount: 5000, user_id: 10 })
+            json: async () => ({ status: 'shipped', statusUpdateNote: 'Not', total_amount: 5000, user_id: 10 })
         };
         const response = await PATCH(req, { params: Promise.resolve({ orderNumber: 'ORD123' }) });
         expect(response.status).toBe(400);

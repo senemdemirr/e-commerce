@@ -62,6 +62,7 @@ export default function OrderDetailPage() {
 
                 setOrder(orderData);
                 setStatus(String(orderData.status_id ?? orderData.status ?? ''));
+                setAdminNote(String(orderData.status_update_note || ''));
                 setStatusOptions(statusesData.statuses || []);
             } catch (error) {
                 enqueueSnackbar(error.message, { variant: 'error' });
@@ -90,21 +91,26 @@ export default function OrderDetailPage() {
     const customerEmail = order?.customer_email || 'E-posta bilgisi bulunmuyor';
     const currentStatusId = String(order?.status_id ?? order?.status ?? '');
     const isStatusChanged = status !== '' && status !== currentStatusId;
+    const savedAdminNote = String(order?.status_update_note || '');
+    const isAdminNoteChanged = adminNote.trim() !== savedAdminNote.trim();
+    const hasPendingChanges = isStatusChanged || isAdminNoteChanged;
     const cancelledStatus = statusOptions.find((item) => isCancelledStatus(item.title));
     const isCancelled = isCancelledStatus(currentStatusTitle);
     const isDelivered = isDeliveredStatus(currentStatusTitle);
     const isStatusLocked = isCancelled || isDelivered;
     const statusUpdatedByAdmin = order?.status_updated_by_admin_name || order?.status_updated_by_admin_email;
 
-    const updateStatus = async ({ nextStatus = status, closeAfterUpdate = false } = {}) => {
+    const updateStatus = async ({ nextStatus = status, nextNote = adminNote, closeAfterUpdate = false } = {}) => {
         if (!nextStatus) {
             enqueueSnackbar('Lütfen geçerli bir durum seçin', { variant: 'warning' });
             return;
         }
 
         const hasStatusChanged = String(nextStatus) !== currentStatusId;
+        const normalizedNextNote = String(nextNote || '').trim();
+        const hasNoteChanged = normalizedNextNote !== savedAdminNote.trim();
 
-        if (!hasStatusChanged && !closeAfterUpdate) {
+        if (!hasStatusChanged && !hasNoteChanged && !closeAfterUpdate) {
             return;
         }
 
@@ -116,7 +122,10 @@ export default function OrderDetailPage() {
                     'Content-Type': 'application/json',
                     role: 'admin',
                 },
-                body: JSON.stringify({ status: nextStatus }),
+                body: JSON.stringify({
+                    status: nextStatus,
+                    statusUpdateNote: normalizedNextNote,
+                }),
             });
 
             const data = await res.json();
@@ -135,8 +144,10 @@ export default function OrderDetailPage() {
                 status_id: data.status_id ?? data.status ?? nextStatus,
                 status: data.status ?? nextStatus,
                 status_title: nextTitle,
+                status_update_note: normalizedNextNote || null,
             }));
             setStatus(String(data.status_id ?? data.status ?? nextStatus));
+            setAdminNote(normalizedNextNote);
             enqueueSnackbar('Sipariş durumu güncellendi', { variant: 'success' });
 
             if (closeAfterUpdate) {
@@ -163,7 +174,7 @@ export default function OrderDetailPage() {
     };
 
     const handleSaveAndClose = () => {
-        if (!isStatusChanged) {
+        if (!hasPendingChanges) {
             router.push('/admin/orders');
             return;
         }
@@ -199,7 +210,12 @@ export default function OrderDetailPage() {
                 <div className="grid grid-cols-1 gap-6 xl:grid-cols-3">
                     <div className="flex flex-col gap-6 xl:col-span-2">
                         <OrderItemsCard items={order.items} />
-                        <OrderAdminNoteCard value={adminNote} onChange={setAdminNote} />
+                        <OrderAdminNoteCard
+                            value={adminNote}
+                            disabled={isStatusLocked}
+                            hasSavedNote={Boolean(savedAdminNote.trim())}
+                            onChange={setAdminNote}
+                        />
                     </div>
 
                     <div className="flex flex-col gap-6">
@@ -211,7 +227,7 @@ export default function OrderDetailPage() {
                             statusUpdatedByAdmin={statusUpdatedByAdmin}
                             statusUpdatedAt={order.status_updated_at}
                             saving={saving}
-                            isStatusChanged={isStatusChanged}
+                            hasPendingChanges={hasPendingChanges}
                             isStatusLocked={isStatusLocked}
                             onStatusChange={setStatus}
                             onUpdateStatus={() => updateStatus()}

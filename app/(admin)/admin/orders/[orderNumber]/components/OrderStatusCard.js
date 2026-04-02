@@ -12,7 +12,7 @@ export default function OrderStatusCard({
     statusUpdatedByAdmin,
     statusUpdatedAt,
     saving,
-    isStatusChanged,
+    hasPendingChanges,
     isStatusLocked,
     onStatusChange,
     onUpdateStatus,
@@ -60,7 +60,7 @@ export default function OrderStatusCard({
 
                 <Button
                     onClick={onUpdateStatus}
-                    disabled={saving || isStatusLocked || !isStatusChanged}
+                    disabled={saving || isStatusLocked || !hasPendingChanges}
                     startIcon={<SaveRoundedIcon />}
                     className="!w-full !rounded-2xl !bg-primary !py-3 !font-bold !text-white hover:!bg-primary-dark disabled:!opacity-50"
                 >

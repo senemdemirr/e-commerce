@@ -92,15 +92,18 @@ export async function PATCH(req, { params }) {
         const admin = await getAdminFromRequest(req);
 
         // Check if other fields are present
-        const allowedFields = ['status'];
+        const allowedFields = ['status', 'statusUpdateNote'];
         const bodyKeys = Object.keys(body);
         
         const hasNotAllowedFields = bodyKeys.some(key => !allowedFields.includes(key));
         if (hasNotAllowedFields) {
-            return NextResponse.json({ error: 'Only status field can be updated' }, { status: 400 });
+            return NextResponse.json({ error: 'Only status and statusUpdateNote fields can be updated' }, { status: 400 });
         }
 
         const { status } = body;
+        const statusUpdateNote = typeof body.statusUpdateNote === 'string'
+            ? body.statusUpdateNote.trim()
+            : '';
         if (!status) {
              return NextResponse.json({ error: 'Status is required' }, { status: 400 });
         }
@@ -130,11 +133,12 @@ export async function PATCH(req, { params }) {
             SET
                 status = $1,
                 status_updated_by_admin_id = $2,
+                status_update_note = $3,
                 status_updated_at = CURRENT_TIMESTAMP,
                 updated_at = CURRENT_TIMESTAMP
-            WHERE order_number = $3
+            WHERE order_number = $4
             RETURNING *`,
-            [statusResult.rows[0].id, admin.id, orderNumber]
+            [statusResult.rows[0].id, admin.id, statusUpdateNote || null, orderNumber]
         );
 
         if (result.rowCount === 0) {
@@ -148,6 +152,7 @@ export async function PATCH(req, { params }) {
             status_updated_by_admin_id: admin.id,
             status_updated_by_admin_email: admin.email,
             status_updated_by_admin_name: [admin.name, admin.surname].filter(Boolean).join(' ') || admin.email,
+            status_update_note: statusUpdateNote || null,
         });
     } catch (error) {
         return NextResponse.json({ error: 'Server error' }, { status: 500 });
