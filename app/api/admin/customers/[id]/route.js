@@ -74,3 +74,40 @@ export async function PATCH(req, { params }) {
         return NextResponse.json({ error: 'Server error' }, { status: 500 });
     }
 }
+
+export async function DELETE(req, { params }) {
+    try {
+        const role = req.headers.get('role');
+        if (role !== 'admin') {
+            return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+        }
+
+        const { id } = params;
+        const orderCountResult = await pool.query(
+            'SELECT COUNT(*)::int AS count FROM orders WHERE user_id = $1',
+            [id]
+        );
+        const orderCount = Number(orderCountResult.rows[0]?.count || 0);
+
+        if (orderCount > 0) {
+            return NextResponse.json(
+                { error: 'Sipariş geçmişi olan müşteri silinemez' },
+                { status: 409 }
+            );
+        }
+
+        const result = await pool.query(
+            'DELETE FROM users WHERE id = $1 RETURNING id, email, name, surname',
+            [id]
+        );
+
+        if (result.rowCount === 0) {
+            return NextResponse.json({ error: 'Customer not found' }, { status: 404 });
+        }
+
+        return NextResponse.json(result.rows[0]);
+    } catch (error) {
+        console.error('Customer delete API error:', error);
+        return NextResponse.json({ error: 'Server error' }, { status: 500 });
+    }
+}
