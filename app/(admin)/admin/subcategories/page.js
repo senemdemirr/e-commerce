@@ -26,6 +26,7 @@ function normalizeSubcategory(subcategory) {
         category_id: Number(subcategory?.category_id),
         name: subcategory?.name || 'Untitled Sub-Category',
         slug: subcategory?.slug || '',
+        activate: Number(subcategory?.activate ?? 1) === 1 ? 1 : 0,
         category_name: subcategory?.category_name || 'Unknown Category',
         category_slug: subcategory?.category_slug || '',
         product_count: Number(subcategory?.product_count || 0),
@@ -47,24 +48,22 @@ function buildPageNumbers(page, totalPages) {
 }
 
 function getSubcategoryStatus(subcategory) {
-    const hasProducts = Number(subcategory?.product_count || 0) > 0;
+    const isActive = Number(subcategory?.activate ?? 1) === 1;
 
-    if (hasProducts) {
+    if (isActive) {
         return {
             label: 'Active',
             chipClassName: 'bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-300',
             dotClassName: 'bg-green-500',
             filterValue: 'active',
-            meta: `${formatNumber(subcategory.product_count)} products assigned`,
         };
     }
 
     return {
-        label: 'Empty',
+        label: 'Inactive',
         chipClassName: 'bg-slate-100 text-slate-500 dark:bg-slate-800 dark:text-slate-400',
         dotClassName: 'bg-slate-400',
-        filterValue: 'empty',
-        meta: 'No products assigned yet',
+        filterValue: 'inactive',
     };
 }
 export default function SubcategoriesPage() {
@@ -149,7 +148,7 @@ export default function SubcategoriesPage() {
        const activeSubcategories = subcategories.filter(
            (subcategory) => getSubcategoryStatus(subcategory).filterValue === 'active'
        ).length;
-       const emptySubcategories = totalSubcategories - activeSubcategories;
+       const inactiveSubcategories = totalSubcategories - activeSubcategories;
        const totalProducts = subcategories.reduce(
            (sum, subcategory) => sum + Number(subcategory.product_count || 0),
            0
@@ -235,16 +234,15 @@ export default function SubcategoriesPage() {
    
                const normalizedSubcategory = normalizeSubcategory(data);
    
-               if (isEditMode) {
-                   setSubcategories((current) => current.map((subcategory) => (
-                       subcategory.id === selectedSubcategory.id
-                           ? {
-                               ...subcategory,
-                               ...normalizedSubcategory,
-                               product_count: subcategory.product_count,
-                           }
-                           : subcategory
-                   )));
+           if (isEditMode) {
+               setSubcategories((current) => current.map((subcategory) => (
+                   subcategory.id === selectedSubcategory.id
+                       ? {
+                           ...subcategory,
+                           ...normalizedSubcategory,
+                        }
+                        : subcategory
+               )));
                    enqueueSnackbar('Sub-category updated', { variant: 'success' });
                } else {
                    setSubcategories((current) => [normalizedSubcategory, ...current]);
@@ -297,7 +295,7 @@ export default function SubcategoriesPage() {
        const filters = [
            { value: 'all', label: 'All', count: totalSubcategories },
            { value: 'active', label: 'Active', count: activeSubcategories },
-           { value: 'empty', label: 'Empty', count: emptySubcategories },
+           { value: 'inactive', label: 'Inactive', count: inactiveSubcategories },
        ];
    
        return (
@@ -316,7 +314,7 @@ export default function SubcategoriesPage() {
                            <SubcategoriesStatsCards
                                totalSubcategories={totalSubcategories}
                                activeSubcategories={activeSubcategories}
-                               emptySubcategories={emptySubcategories}
+                               inactiveSubcategories={inactiveSubcategories}
                            />
    
                            <SubcategoriesTable

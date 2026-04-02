@@ -37,6 +37,7 @@ export async function GET(req) {
                 sc.category_id,
                 sc.name,
                 sc.slug,
+                sc.activate,
                 sc.created_at,
                 c.name AS category_name,
                 c.slug AS category_slug,
@@ -44,7 +45,7 @@ export async function GET(req) {
             FROM sub_categories sc
             INNER JOIN categories c ON c.id = sc.category_id
             LEFT JOIN products p ON p.sub_category_id = sc.id
-            GROUP BY sc.id, c.name, c.slug
+            GROUP BY sc.id, sc.activate, c.name, c.slug
             ORDER BY sc.id ASC
         `);
 
@@ -52,6 +53,7 @@ export async function GET(req) {
             result.rows.map((subcategory) => ({
                 ...subcategory,
                 category_id: Number(subcategory.category_id),
+                activate: Number(subcategory.activate ?? 1) === 1 ? 1 : 0,
                 product_count: Number(subcategory.product_count || 0),
             })),
             { status: 200 }
@@ -68,7 +70,7 @@ export async function POST(req) {
 
     try {
         const body = await req.json();
-        const { name, slug, category_id } = normalizeSubcategoryPayload(body);
+        const { name, slug, category_id, activate } = normalizeSubcategoryPayload(body);
 
         if (!name) {
             return invalidFieldResponse('name alanı zorunlu');
@@ -94,7 +96,7 @@ export async function POST(req) {
             }
 
             return Response.json(
-                createFallbackSubcategory({ name, slug, category_id }),
+                createFallbackSubcategory({ name, slug, category_id, activate }),
                 { status: 201 }
             );
         }
@@ -110,13 +112,14 @@ export async function POST(req) {
 
         const parentCategory = categoryResult.rows[0];
         const result = await pool.query(
-            'INSERT INTO sub_categories (category_id, name, slug) VALUES ($1, $2, $3) RETURNING id, category_id, name, slug, created_at',
-            [category_id, name, slug]
+            'INSERT INTO sub_categories (category_id, name, slug, activate) VALUES ($1, $2, $3, $4) RETURNING id, category_id, name, slug, activate, created_at',
+            [category_id, name, slug, activate]
         );
 
         return Response.json({
             ...result.rows[0],
             category_id: Number(result.rows[0].category_id),
+            activate: Number(result.rows[0].activate ?? 1) === 1 ? 1 : 0,
             category_name: parentCategory.name,
             category_slug: parentCategory.slug,
             product_count: 0,

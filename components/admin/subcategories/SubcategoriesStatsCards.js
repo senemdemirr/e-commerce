@@ -11,7 +11,7 @@ function formatNumber(value) {
 export default function SubcategoriesStatsCards({
     totalSubcategories,
     activeSubcategories,
-    emptySubcategories,
+    inactiveSubcategories,
 }) {
     return (
         <div className="mb-8 grid grid-cols-1 gap-6 md:grid-cols-3">
@@ -51,9 +51,9 @@ export default function SubcategoriesStatsCards({
                 <div className="absolute inset-y-0 right-0 w-24 bg-gradient-to-l from-slate-200/60 to-transparent dark:from-slate-800/60" />
                 <div className="relative flex items-center justify-between gap-4">
                     <div>
-                        <p className="text-sm font-medium text-slate-500">Empty Groups</p>
+                        <p className="text-sm font-medium text-slate-500">Inactive Groups</p>
                         <p className="mt-2 text-3xl font-black text-slate-900 dark:text-slate-50">
-                            {formatNumber(emptySubcategories)}
+                            {formatNumber(inactiveSubcategories)}
                         </p>
                     </div>
 

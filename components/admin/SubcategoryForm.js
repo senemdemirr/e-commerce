@@ -39,6 +39,22 @@ function toSubcategorySlug(value = '') {
         .replace(/-{2,}/g, '-');
 }
 
+function resolveInitialActivate(initialValues) {
+    if (typeof initialValues?.activate === 'number') {
+        return initialValues.activate === 1;
+    }
+
+    if (typeof initialValues?.activate === 'boolean') {
+        return initialValues.activate;
+    }
+
+    if (typeof initialValues?.is_active === 'boolean') {
+        return initialValues.is_active;
+    }
+
+    return true;
+}
+
 export default function SubcategoryForm({
     open,
     mode = 'create',
@@ -51,6 +67,7 @@ export default function SubcategoryForm({
     const [values, setValues] = useState({ name: '', slug: '', category_id: '' });
     const [errors, setErrors] = useState({ name: '', slug: '', category_id: '' });
     const [slugTouched, setSlugTouched] = useState(false);
+    const [isActive, setIsActive] = useState(true);
     const activeCategories = categories.filter((category) => Number(category?.activate ?? 0) === 1);
 
     useEffect(() => {
@@ -73,6 +90,7 @@ export default function SubcategoryForm({
         });
         setErrors({ name: '', slug: '', category_id: '' });
         setSlugTouched(Boolean(initialValues?.slug));
+        setIsActive(resolveInitialActivate(initialValues));
     }, [categories, initialValues, open]);
 
     const selectedCategory = categories.find(
@@ -118,6 +136,7 @@ export default function SubcategoryForm({
             name: values.name.trim(),
             slug: toSubcategorySlug(values.slug || values.name),
             category_id: Number(values.category_id),
+            activate: isActive ? 1 : 0,
         };
 
         const nextErrors = {
@@ -278,6 +297,28 @@ export default function SubcategoryForm({
                             <p className="mt-2 break-all font-mono text-xs font-bold text-primary">
                                 /{selectedCategory?.slug || 'category'}/{values.slug || 'sub-category'}
                             </p>
+                        </div>
+
+                        <div className="space-y-3">
+                            <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300">
+                                Sub-Category Status
+                            </label>
+                            <label className="group relative inline-flex cursor-pointer items-center">
+                                <input
+                                    type="checkbox"
+                                    checked={isActive}
+                                    onChange={(event) => setIsActive(event.target.checked)}
+                                    className="peer sr-only"
+                                />
+                                <div className="relative h-6 w-11 rounded-full bg-slate-200 transition-colors after:absolute after:start-[2px] after:top-[2px] after:h-5 after:w-5 after:rounded-full after:border after:border-gray-300 after:bg-white after:transition-all after:content-[''] peer-checked:bg-primary peer-checked:after:translate-x-full peer-checked:after:border-white dark:bg-slate-700 rtl:peer-checked:after:-translate-x-full" />
+                                <span className={`ms-3 text-sm font-medium transition-colors ${
+                                    isActive
+                                        ? 'text-slate-900 dark:text-slate-100'
+                                        : 'text-slate-600 dark:text-slate-400'
+                                }`}>
+                                    {isActive ? 'Active' : 'Inactive'}
+                                </span>
+                            </label>
                         </div>
                     </div>
                 </DialogContent>

@@ -118,7 +118,7 @@ export default function SubcategoriesTable({
                                                         {subcategory.name}
                                                     </p>
                                                     <p className="mt-1 text-xs font-medium text-slate-500 dark:text-slate-400">
-                                                        {subcategory.status.meta}
+                                                        {formatNumber(subcategory.product_count)} products assigned
                                                     </p>
                                                 </div>
                                             </div>

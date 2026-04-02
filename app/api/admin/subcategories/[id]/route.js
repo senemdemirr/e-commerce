@@ -52,7 +52,9 @@ export async function PUT(req, { params } = {}) {
                 return notFoundResponse();
             }
 
-            const { name, slug, category_id } = normalizeSubcategoryPayload(body);
+            const { name, slug, category_id, activate } = normalizeSubcategoryPayload(body, {
+                defaultActivate: currentSubcategory.activate,
+            });
 
             if (!name) {
                 return invalidFieldResponse('name alanı zorunlu');
@@ -74,7 +76,12 @@ export async function PUT(req, { params } = {}) {
                 return parentCategoryNotFoundResponse();
             }
 
-            const updatedSubcategory = updateFallbackSubcategory(id, { name, slug, category_id });
+            const updatedSubcategory = updateFallbackSubcategory(id, {
+                name,
+                slug,
+                category_id,
+                activate,
+            });
             if (!updatedSubcategory) {
                 return notFoundResponse();
             }
@@ -89,6 +96,7 @@ export async function PUT(req, { params } = {}) {
                     sc.category_id,
                     sc.name,
                     sc.slug,
+                    sc.activate,
                     sc.created_at,
                     c.name AS category_name,
                     c.slug AS category_slug
@@ -105,7 +113,9 @@ export async function PUT(req, { params } = {}) {
         }
 
         const currentSubcategory = currentResult.rows[0];
-        const { name, slug, category_id } = normalizeSubcategoryPayload(body);
+        const { name, slug, category_id, activate } = normalizeSubcategoryPayload(body, {
+            defaultActivate: Number(currentSubcategory.activate ?? 1) === 1 ? 1 : 0,
+        });
 
         if (!name) {
             return invalidFieldResponse('name alanı zorunlu');
@@ -138,22 +148,25 @@ export async function PUT(req, { params } = {}) {
             currentSubcategory.name === name
             && currentSubcategory.slug === slug
             && Number(currentSubcategory.category_id) === category_id
+            && Number(currentSubcategory.activate ?? 1) === activate
         ) {
             return Response.json({
                 ...currentSubcategory,
                 category_id: Number(currentSubcategory.category_id),
+                activate: Number(currentSubcategory.activate ?? 1) === 1 ? 1 : 0,
                 updated: false,
             }, { status: 200 });
         }
 
         const result = await pool.query(
-            'UPDATE sub_categories SET name = $1, slug = $2, category_id = $3 WHERE id = $4 RETURNING id, category_id, name, slug, created_at',
-            [name, slug, category_id, id]
+            'UPDATE sub_categories SET name = $1, slug = $2, category_id = $3, activate = $4 WHERE id = $5 RETURNING id, category_id, name, slug, activate, created_at',
+            [name, slug, category_id, activate, id]
         );
 
         return Response.json({
             ...result.rows[0],
             category_id: Number(result.rows[0].category_id),
+            activate: Number(result.rows[0].activate ?? 1) === 1 ? 1 : 0,
             category_name: parentCategory.name,
             category_slug: parentCategory.slug,
             updated: true,
