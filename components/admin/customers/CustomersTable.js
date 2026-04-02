@@ -87,14 +87,6 @@ export default function CustomersTable({
                     </div>
 
                     <div className="flex items-center gap-2 self-start xl:self-auto">
-                        <Tooltip title="Listeyi yazdır">
-                            <IconButton
-                                onClick={() => window.print()}
-                                className="!rounded-2xl !border !border-primary/10 !bg-background-light !text-text-muted hover:!bg-white"
-                            >
-                                <PrintOutlinedIcon />
-                            </IconButton>
-                        </Tooltip>
                         <Tooltip title="Aktif görünümü göster">
                             <IconButton
                                 onClick={() => onSegmentChange('active')}
