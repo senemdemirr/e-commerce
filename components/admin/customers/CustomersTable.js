@@ -6,7 +6,6 @@ import FilterListRoundedIcon from '@mui/icons-material/FilterListRounded';
 import Groups2RoundedIcon from '@mui/icons-material/Groups2Rounded';
 import KeyboardArrowLeftRoundedIcon from '@mui/icons-material/KeyboardArrowLeftRounded';
 import KeyboardArrowRightRoundedIcon from '@mui/icons-material/KeyboardArrowRightRounded';
-import DeleteRoundedIcon from '@mui/icons-material/DeleteRounded';
 import PrintOutlinedIcon from '@mui/icons-material/PrintOutlined';
 import VisibilityRoundedIcon from '@mui/icons-material/VisibilityRounded';
 
@@ -73,7 +72,6 @@ export default function CustomersTable({
     activeSegment,
     onSegmentChange,
     onPageChange,
-    onDelete,
 }) {
     const paginationItems = buildPaginationItems(pagination.page, pagination.totalPages);
 
@@ -183,7 +181,6 @@ export default function CustomersTable({
                             <TableBody>
                                 {customers.map((customer) => {
                                     const isActive = Number(customer.activate ?? 1) === 1;
-                                    const canDelete = customer.order_count === 0;
                                     const name = getFullName(customer);
 
                                     return (
@@ -261,29 +258,15 @@ export default function CustomersTable({
                                             </TableCell>
 
                                             <TableCell align="right" className="!px-6 !py-5">
-                                                <div className="flex justify-end gap-1">
-                                                    <Tooltip title="Müşteri detayını aç">
-                                                        <IconButton
-                                                            component={Link}
-                                                            href={`/admin/customers/${customer.id}`}
-                                                            className="!rounded-2xl !text-text-muted hover:!bg-primary/10 hover:!text-primary-dark"
-                                                        >
-                                                            <VisibilityRoundedIcon />
-                                                        </IconButton>
-                                                    </Tooltip>
-
-                                                    <Tooltip title={canDelete ? 'Müşteriyi sil' : 'Sipariş geçmişi olan müşteri silinemez'}>
-                                                        <span>
-                                                            <IconButton
-                                                                disabled={!canDelete}
-                                                                onClick={() => onDelete(customer)}
-                                                                className="!rounded-2xl !text-text-muted hover:!bg-red-50 hover:!text-red-500 disabled:!opacity-40"
-                                                            >
-                                                                <DeleteRoundedIcon />
-                                                            </IconButton>
-                                                        </span>
-                                                    </Tooltip>
-                                                </div>
+                                                <Tooltip title="Müşteri detayını aç">
+                                                    <IconButton
+                                                        component={Link}
+                                                        href={`/admin/customers/${customer.id}`}
+                                                        className="!rounded-2xl !text-text-muted hover:!bg-primary/10 hover:!text-primary-dark"
+                                                    >
+                                                        <VisibilityRoundedIcon />
+                                                    </IconButton>
+                                                </Tooltip>
                                             </TableCell>
                                         </TableRow>
                                     );
