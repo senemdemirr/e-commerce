@@ -24,14 +24,14 @@ const STAT_CARDS = [
     {
         key: 'active',
         title: 'Aktif Alıcılar',
-        description: 'En az bir sipariş veren müşteriler',
+        description: 'Hesabı aktif durumunda olan müşteriler',
         icon: MarkEmailReadRoundedIcon,
         iconClassName: 'bg-accent/15 text-accent',
     },
     {
         key: 'prospect',
         title: 'Pasif Müşteriler',
-        description: 'Henüz sipariş vermemiş hesaplar',
+        description: 'Hesabı pasif durumunda olan müşteriler',
         icon: PersonOffRoundedIcon,
         iconClassName: 'bg-slate-100 text-slate-500',
     },

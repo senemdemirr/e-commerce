@@ -1,6 +1,13 @@
 import { NextResponse } from 'next/server';
 import { pool } from '@/lib/db';
 
+const USER_ACTIVATE_EXPR = `
+    CASE
+        WHEN LOWER(TRIM(COALESCE(activate::text, '1'))) IN ('1', 'true', 't') THEN 1
+        ELSE 0
+    END
+`;
+
 export async function GET(req, { params }) {
     try {
         const role = req.headers.get('role');
@@ -8,10 +15,13 @@ export async function GET(req, { params }) {
             return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
         }
 
-        const { id } = params;
+        const { id } = await params;
 
         // Get customer info
-        const userResult = await pool.query('SELECT id, email, name, surname, phone, email_verified, created_at FROM users WHERE id = $1', [id]);
+        const userResult = await pool.query(
+            `SELECT id, email, name, surname, phone, role, ${USER_ACTIVATE_EXPR} AS activate, email_verified, created_at FROM users WHERE id = $1 AND LOWER(COALESCE(role, '')) = 'customer'`,
+            [id]
+        );
         
         if (userResult.rowCount === 0) {
             return NextResponse.json({ error: 'Customer not found' }, { status: 404 });
@@ -36,7 +46,7 @@ export async function PATCH(req, { params }) {
             return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
         }
 
-        const { id } = params;
+        const { id } = await params;
         const body = await req.json();
 
         const updates = [];
@@ -61,7 +71,7 @@ export async function PATCH(req, { params }) {
         }
 
         values.push(id);
-        const query = `UPDATE users SET ${updates.join(', ')} WHERE id = $${index} RETURNING id, email, name, surname, phone, email_verified, created_at`;
+        const query = `UPDATE users SET ${updates.join(', ')} WHERE id = $${index} AND LOWER(COALESCE(role, '')) = 'customer' RETURNING id, email, name, surname, phone, role, ${USER_ACTIVATE_EXPR} AS activate, email_verified, created_at`;
 
         const result = await pool.query(query, values);
 
@@ -82,7 +92,7 @@ export async function DELETE(req, { params }) {
             return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
         }
 
-        const { id } = params;
+        const { id } = await params;
         const orderCountResult = await pool.query(
             'SELECT COUNT(*)::int AS count FROM orders WHERE user_id = $1',
             [id]
@@ -97,7 +107,7 @@ export async function DELETE(req, { params }) {
         }
 
         const result = await pool.query(
-            'DELETE FROM users WHERE id = $1 RETURNING id, email, name, surname',
+            "DELETE FROM users WHERE id = $1 AND LOWER(COALESCE(role, '')) = 'customer' RETURNING id, email, name, surname",
             [id]
         );
 

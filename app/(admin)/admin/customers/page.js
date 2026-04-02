@@ -42,7 +42,7 @@ function exportCustomersToCsv(customers) {
         formatDate(customer.created_at),
         customer.order_count || 0,
         formatCurrency(customer.total_spent),
-        customer.order_count > 0 ? 'Aktif' : 'Pasif',
+        Number(customer.activate ?? 1) === 1 ? 'Aktif' : 'Pasif',
     ]);
 
     const csv = [headers, ...rows]

@@ -182,7 +182,7 @@ export default function CustomersTable({
                             </TableHead>
                             <TableBody>
                                 {customers.map((customer) => {
-                                    const isActive = customer.order_count > 0;
+                                    const isActive = Number(customer.activate ?? 1) === 1;
                                     const canDelete = customer.order_count === 0;
                                     const name = getFullName(customer);
 
@@ -255,7 +255,7 @@ export default function CustomersTable({
                                                             : '!rounded-full !bg-slate-100 !font-bold !text-slate-600'}
                                                     />
                                                     <span className="text-xs text-text-muted">
-                                                        {customer.email_verified ? 'E-posta doğrulandı' : 'E-posta doğrulanmadı'}
+                                                        {isActive ? 'Kullanıcı hesabı aktif' : 'Kullanıcı hesabı pasif'}
                                                     </span>
                                                 </div>
                                             </TableCell>

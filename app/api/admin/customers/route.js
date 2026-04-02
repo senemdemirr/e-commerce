@@ -37,7 +37,13 @@ export async function GET(req) {
             FROM users u
             LEFT JOIN customer_orders co ON co.user_id = u.id
         `;
-        const filters = [];
+        const userActivateExpr = `
+            CASE
+                WHEN LOWER(TRIM(COALESCE(u.activate::text, '1'))) IN ('1', 'true', 't') THEN 1
+                ELSE 0
+            END
+        `;
+        const filters = ["LOWER(COALESCE(u.role, '')) = 'customer'"];
         const values = [];
 
         if (search) {
@@ -53,8 +59,8 @@ export async function GET(req) {
         }
 
         const segmentFilters = {
-            active: 'COALESCE(co.order_count, 0) > 0',
-            prospect: 'COALESCE(co.order_count, 0) = 0',
+            active: `${userActivateExpr} = 1`,
+            prospect: `${userActivateExpr} = 0`,
             verified: 'u.email_verified = TRUE',
             new: "u.created_at >= date_trunc('month', CURRENT_DATE)",
         };
@@ -73,6 +79,8 @@ export async function GET(req) {
                 u.name,
                 u.surname,
                 u.phone,
+                u.role,
+                ${userActivateExpr} AS activate,
                 u.email_verified,
                 u.created_at,
                 COALESCE(co.order_count, 0)::int AS order_count,
@@ -95,10 +103,11 @@ export async function GET(req) {
             SELECT
                 COUNT(*)::int AS total,
                 COUNT(*) FILTER (WHERE u.created_at >= date_trunc('month', CURRENT_DATE))::int AS new_this_month,
-                COUNT(*) FILTER (WHERE COALESCE(co.order_count, 0) > 0)::int AS active,
-                COUNT(*) FILTER (WHERE COALESCE(co.order_count, 0) = 0)::int AS prospect,
+                COUNT(*) FILTER (WHERE ${userActivateExpr} = 1)::int AS active,
+                COUNT(*) FILTER (WHERE ${userActivateExpr} = 0)::int AS prospect,
                 COUNT(*) FILTER (WHERE u.email_verified IS TRUE)::int AS verified
             ${baseQuery}
+            WHERE LOWER(COALESCE(u.role, '')) = 'customer'
         `;
         const countValues = [...values];
         values.push(limit, offset);
@@ -114,6 +123,7 @@ export async function GET(req) {
         const summaryRow = summaryResult.rows[0] || {};
         const customers = customerResult.rows.map((customer) => ({
             ...customer,
+            activate: Number(customer.activate ?? 1) === 1 ? 1 : 0,
             order_count: Number(customer.order_count || 0),
             total_spent: Number(customer.total_spent || 0),
         }));
