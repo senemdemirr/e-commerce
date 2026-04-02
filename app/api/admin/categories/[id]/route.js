@@ -20,8 +20,9 @@ function notFoundResponse() {
     return Response.json({ error: 'Category not found' }, { status: 404 });
 }
 
-function parseCategoryId(params) {
-    const id = Number(params?.id);
+async function parseCategoryId(params) {
+    const resolvedParams = await params;
+    const id = Number(resolvedParams?.id);
     return Number.isInteger(id) && id > 0 ? id : null;
 }
 
@@ -31,7 +32,7 @@ export async function PUT(req, { params } = {}) {
     }
 
     try {
-        const id = parseCategoryId(params);
+        const id = await parseCategoryId(params);
         if (!id) {
             return notFoundResponse();
         }
@@ -101,7 +102,7 @@ export async function DELETE(req, { params } = {}) {
     }
 
     try {
-        const id = parseCategoryId(params);
+        const id = await parseCategoryId(params);
         if (!id) {
             return notFoundResponse();
         }

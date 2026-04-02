@@ -27,6 +27,15 @@ describe('Admin Category ID Route', () => {
         expect(response.status).toBe(200);
     });
 
+    test('PUT /api/admin/categories/[id] - Next async params ile günceller ve 200 döner', async () => {
+        const req = {
+            headers: { get: () => 'admin' },
+            json: async () => ({ name: 'Yeni Kategori', slug: 'yeni-kategori' })
+        };
+        const response = await PUT(req, { params: Promise.resolve({ id: '1' }) });
+        expect(response.status).toBe(200);
+    });
+
     test('PUT /api/admin/categories/[id] - name alanı boş olamaz (400 döner)', async () => {
         const req = {
             headers: { get: () => 'admin' },
@@ -78,6 +87,12 @@ describe('Admin Category ID Route', () => {
     test('DELETE /api/admin/categories/[id] - siler ve 200 döner', async () => {
         const req = { headers: { get: () => 'admin' } };
         const response = await DELETE(req, { params: { id: '1' } });
+        expect(response.status).toBe(200);
+    });
+
+    test('DELETE /api/admin/categories/[id] - Next async params ile siler ve 200 döner', async () => {
+        const req = { headers: { get: () => 'admin' } };
+        const response = await DELETE(req, { params: Promise.resolve({ id: '1' }) });
         expect(response.status).toBe(200);
     });
 });
