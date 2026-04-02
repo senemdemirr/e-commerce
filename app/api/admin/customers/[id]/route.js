@@ -8,6 +8,34 @@ const USER_ACTIVATE_EXPR = `
     END
 `;
 
+function normalizeCustomerActivate(value) {
+    if (typeof value === 'boolean') {
+        return value ? 1 : 0;
+    }
+
+    if (typeof value === 'number') {
+        if (value === 1 || value === 0) {
+            return value;
+        }
+
+        return null;
+    }
+
+    if (typeof value === 'string') {
+        const normalized = value.trim().toLowerCase();
+
+        if (['1', 'true', 't'].includes(normalized)) {
+            return 1;
+        }
+
+        if (['0', 'false', 'f'].includes(normalized)) {
+            return 0;
+        }
+    }
+
+    return null;
+}
+
 export async function GET(req, { params }) {
     try {
         const role = req.headers.get('role');
@@ -64,6 +92,16 @@ export async function PATCH(req, { params }) {
         if (body.phone !== undefined) {
             updates.push(`phone = $${index++}`);
             values.push(body.phone);
+        }
+        if (body.activate !== undefined) {
+            const activate = normalizeCustomerActivate(body.activate);
+
+            if (activate === null) {
+                return NextResponse.json({ error: 'Geçersiz aktiflik değeri' }, { status: 400 });
+            }
+
+            updates.push(`activate = $${index++}`);
+            values.push(activate);
         }
 
         if (updates.length === 0) {

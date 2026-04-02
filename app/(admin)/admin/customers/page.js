@@ -6,6 +6,7 @@ import { Button, InputBase, Paper } from '@mui/material';
 import FileDownloadOutlinedIcon from '@mui/icons-material/FileDownloadOutlined';
 import SearchRoundedIcon from '@mui/icons-material/SearchRounded';
 import CustomersStatsCards from '@/components/admin/customers/CustomersStatsCards';
+import CustomerDetailModal from '@/components/admin/customers/CustomerDetailModal';
 import CustomersTable from '@/components/admin/customers/CustomersTable';
 
 function formatDate(value, options = {}) {
@@ -74,6 +75,8 @@ export default function CustomersPage() {
     const [searchInput, setSearchInput] = useState('');
     const [debouncedSearch, setDebouncedSearch] = useState('');
     const [loading, setLoading] = useState(true);
+    const [selectedCustomer, setSelectedCustomer] = useState(null);
+    const [detailUpdating, setDetailUpdating] = useState(false);
     const { enqueueSnackbar } = useSnackbar();
 
     useEffect(() => {
@@ -116,6 +119,62 @@ export default function CustomersPage() {
     useEffect(() => {
         fetchCustomers(1, activeSegment, debouncedSearch);
     }, [activeSegment, debouncedSearch, fetchCustomers]);
+
+    const handleOpenCustomerDetail = useCallback((customer) => {
+        setSelectedCustomer(customer);
+    }, []);
+
+    const handleCloseCustomerDetail = useCallback(() => {
+        if (detailUpdating) {
+            return;
+        }
+
+        setSelectedCustomer(null);
+    }, [detailUpdating]);
+
+    const handleCustomerActiveChange = useCallback(async (checked) => {
+        if (!selectedCustomer) {
+            return;
+        }
+
+        try {
+            setDetailUpdating(true);
+
+            const res = await fetch(`/api/admin/customers/${selectedCustomer.id}`, {
+                method: 'PATCH',
+                headers: {
+                    'Content-Type': 'application/json',
+                    role: 'admin',
+                },
+                body: JSON.stringify({ activate: checked ? 1 : 0 }),
+            });
+            const data = await res.json();
+
+            if (!res.ok) throw new Error(data.error || 'Müşteri durumu güncellenemedi');
+
+            setSelectedCustomer((current) => (
+                current && current.id === data.id
+                    ? { ...current, ...data }
+                    : current
+            ));
+            setCustomers((current) => current.map((customer) => (
+                customer.id === data.id
+                    ? { ...customer, ...data, order_count: customer.order_count, total_spent: customer.total_spent }
+                    : customer
+            )));
+            setSelectedCustomer(null);
+
+            await fetchCustomers(pagination.page, activeSegment, debouncedSearch);
+            enqueueSnackbar(
+                checked ? 'Müşteri hesabı aktif yapıldı' : 'Müşteri hesabı pasif yapıldı',
+                { variant: 'success' }
+            );
+        } catch (error) {
+            enqueueSnackbar(error.message, { variant: 'error' });
+        } finally {
+            setDetailUpdating(false);
+        }
+    }, [activeSegment, debouncedSearch, enqueueSnackbar, fetchCustomers, pagination.page, selectedCustomer]);
 
     return (
         <div className="space-y-8">
@@ -172,6 +231,15 @@ export default function CustomersPage() {
                 activeSegment={activeSegment}
                 onSegmentChange={setActiveSegment}
                 onPageChange={(page) => fetchCustomers(page, activeSegment, debouncedSearch)}
+                onOpenDetail={handleOpenCustomerDetail}
+            />
+
+            <CustomerDetailModal
+                open={Boolean(selectedCustomer)}
+                customer={selectedCustomer}
+                updating={detailUpdating}
+                onClose={handleCloseCustomerDetail}
+                onSave={handleCustomerActiveChange}
             />
         </div>
     );

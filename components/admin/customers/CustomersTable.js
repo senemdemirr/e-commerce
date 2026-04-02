@@ -1,6 +1,5 @@
 'use client';
 
-import Link from 'next/link';
 import { Avatar, Button, Chip, CircularProgress, IconButton, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Tooltip, } from '@mui/material';
 import FilterListRoundedIcon from '@mui/icons-material/FilterListRounded';
 import Groups2RoundedIcon from '@mui/icons-material/Groups2Rounded';
@@ -72,6 +71,7 @@ export default function CustomersTable({
     activeSegment,
     onSegmentChange,
     onPageChange,
+    onOpenDetail,
 }) {
     const paginationItems = buildPaginationItems(pagination.page, pagination.totalPages);
 
@@ -260,8 +260,7 @@ export default function CustomersTable({
                                             <TableCell align="right" className="!px-6 !py-5">
                                                 <Tooltip title="Müşteri detayını aç">
                                                     <IconButton
-                                                        component={Link}
-                                                        href={`/admin/customers/${customer.id}`}
+                                                        onClick={() => onOpenDetail(customer)}
                                                         className="!rounded-2xl !text-text-muted hover:!bg-primary/10 hover:!text-primary-dark"
                                                     >
                                                         <VisibilityRoundedIcon />
