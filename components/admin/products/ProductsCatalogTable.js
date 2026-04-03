@@ -26,7 +26,7 @@ export default function ProductsCatalogTable({ visibleProducts, onCopySku }) {
                             Fiyat
                         </th>
                         <th className="px-6 py-4 text-xs font-black uppercase tracking-[0.2em] text-text-muted">
-                            Katalog Skoru
+                            Durum
                         </th>
                         <th className="px-6 py-4 text-right text-xs font-black uppercase tracking-[0.2em] text-text-muted">
                             İşlemler
@@ -121,18 +121,27 @@ export default function ProductsCatalogTable({ visibleProducts, onCopySku }) {
                             </td>
 
                             <td className="px-6 py-5">
-                                <div className="space-y-3">
-                                    <div className="flex items-center justify-between text-xs font-bold">
-                                        <span className="text-text-main">{product.catalogScore}/100</span>
-                                        <span className="text-text-muted">{product.readiness.label}</span>
-                                    </div>
-                                    <div className="h-2 overflow-hidden rounded-full bg-background-light">
-                                        <div
-                                            className={`h-full rounded-full ${product.readiness.meterClassName}`}
-                                            style={{ width: `${product.catalogScore}%` }}
-                                        />
-                                    </div>
-                                </div>
+                                {(() => {
+                                    const isActive = String(product.activate ?? 1).trim().toLowerCase();
+                                    const enabled = isActive === '1' || isActive === 'true' || isActive === 't';
+
+                                    return (
+                                        <div className="flex items-center">
+                                            <span
+                                                className={enabled
+                                                    ? 'inline-flex items-center gap-2 rounded-full bg-primary/15 px-3 py-1.5 text-xs font-bold text-primary-dark'
+                                                    : 'inline-flex items-center gap-2 rounded-full bg-red-50 px-3 py-1.5 text-xs font-bold text-red-500'}
+                                            >
+                                                <span
+                                                    className={enabled
+                                                        ? 'size-2 rounded-full bg-primary-dark'
+                                                        : 'size-2 rounded-full bg-red-500'}
+                                                />
+                                                {enabled ? 'Aktif' : 'Pasif'}
+                                            </span>
+                                        </div>
+                                    );
+                                })()}
                             </td>
 
                             <td className="px-6 py-5">
