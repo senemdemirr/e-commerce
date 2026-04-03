@@ -7,6 +7,7 @@ import Inventory2RoundedIcon from '@mui/icons-material/Inventory2Rounded';
 import PaidRoundedIcon from '@mui/icons-material/PaidRounded';
 import WarningAmberRoundedIcon from '@mui/icons-material/WarningAmberRounded';
 import ProductsCatalogContent from '@/components/admin/products/ProductsCatalogContent';
+import ProductDeleteDialog from '@/components/admin/products/ProductDeleteDialog';
 import ProductsFiltersPanel from '@/components/admin/products/ProductsFiltersPanel';
 import ProductsHeader from '@/components/admin/products/ProductsHeader';
 import ProductsSummaryCard from '@/components/admin/products/ProductsSummaryCard';
@@ -26,6 +27,8 @@ export default function ProductsPage() {
     const [sortBy, setSortBy] = useState('newest');
     const [page, setPage] = useState(1);
     const [menuState, setMenuState] = useState({ key: '', anchorEl: null });
+    const [deleteTarget, setDeleteTarget] = useState(null);
+    const [deleteLoading, setDeleteLoading] = useState(false);
     const { enqueueSnackbar } = useSnackbar();
 
     useEffect(() => {
@@ -248,10 +251,47 @@ export default function ProductsPage() {
     }
 
     function handleDeleteProduct(product) {
-        enqueueSnackbar(
-            `${product?.title || 'Ürün'} için silme akışı henüz bağlı değil.`,
-            { variant: 'info' }
-        );
+        setDeleteTarget(product);
+    }
+
+    function closeDeleteDialog() {
+        if (deleteLoading) {
+            return;
+        }
+
+        setDeleteTarget(null);
+    }
+
+    async function confirmDeleteProduct() {
+        if (!deleteTarget?.id) {
+            return;
+        }
+
+        try {
+            setDeleteLoading(true);
+
+            const response = await fetch(`/api/admin/products/${deleteTarget.id}`, {
+                method: 'DELETE',
+                headers: {
+                    role: 'admin',
+                },
+            });
+            const data = await response.json().catch(() => null);
+
+            if (!response.ok) {
+                throw new Error(data?.error || 'Ürün silinemedi.');
+            }
+
+            setProducts((current) => current.filter(
+                (product) => Number(product.id) !== Number(deleteTarget.id)
+            ));
+            enqueueSnackbar(`${deleteTarget.title || 'Ürün'} silindi.`, { variant: 'success' });
+            setDeleteTarget(null);
+        } catch (error) {
+            enqueueSnackbar(error.message || 'Ürün silinemedi.', { variant: 'error' });
+        } finally {
+            setDeleteLoading(false);
+        }
     }
 
     return (
@@ -337,6 +377,14 @@ export default function ProductsPage() {
                     onDeleteProduct={handleDeleteProduct}
                 />
             </div>
+
+            <ProductDeleteDialog
+                open={Boolean(deleteTarget)}
+                productTitle={deleteTarget?.title || 'Ürün'}
+                loading={deleteLoading}
+                onClose={closeDeleteDialog}
+                onConfirm={confirmDeleteProduct}
+            />
         </div>
     );
 }

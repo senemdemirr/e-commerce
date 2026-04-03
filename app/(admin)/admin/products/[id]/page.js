@@ -18,6 +18,7 @@ import WarningAmberRoundedIcon from '@mui/icons-material/WarningAmberRounded';
 import { useSnackbar } from 'notistack';
 import ProductCategoryFlowSection from '@/components/admin/products/ProductCategoryFlowSection';
 import ProductContentSection from '@/components/admin/products/ProductContentSection';
+import ProductDeleteDialog from '@/components/admin/products/ProductDeleteDialog';
 import { SurfaceCard } from '@/components/admin/products/ProductFormPrimitives';
 import ProductGeneralInfoSection from '@/components/admin/products/ProductGeneralInfoSection';
 import ProductImageField from '@/components/admin/products/ProductImageField';
@@ -192,6 +193,7 @@ export default function ProductDetailPage() {
     const [loadError, setLoadError] = useState('');
     const [submitting, setSubmitting] = useState(false);
     const [deleting, setDeleting] = useState(false);
+    const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
     const [skuTouched, setSkuTouched] = useState(false);
     const [form, setForm] = useState(INITIAL_FORM);
     const [colors, setColors] = useState([createEmptyColor()]);
@@ -557,14 +559,24 @@ export default function ProductDetailPage() {
         }
     }
 
-    async function handleDelete() {
-        if (!productId || deleting) {
+    function openDeleteDialog() {
+        if (deleting) {
             return;
         }
 
-        const confirmed = window.confirm('Bu ürünü kalıcı olarak silmek istediğinize emin misiniz?');
+        setDeleteDialogOpen(true);
+    }
 
-        if (!confirmed) {
+    function closeDeleteDialog() {
+        if (deleting) {
+            return;
+        }
+
+        setDeleteDialogOpen(false);
+    }
+
+    async function confirmDelete() {
+        if (!productId || deleting) {
             return;
         }
 
@@ -583,6 +595,7 @@ export default function ProductDetailPage() {
                 throw new Error(data?.error || 'Ürün silinemedi.');
             }
 
+            setDeleteDialogOpen(false);
             enqueueSnackbar('Ürün silindi.', { variant: 'success' });
             router.push('/admin/products');
             router.refresh();
@@ -674,7 +687,7 @@ export default function ProductDetailPage() {
                         </Button>
                         <Button
                             type="button"
-                            onClick={handleDelete}
+                            onClick={openDeleteDialog}
                             disabled={submitting || deleting}
                             startIcon={<DeleteRoundedIcon />}
                             className="!rounded-2xl !border !border-red-100 !bg-white !px-5 !py-3 !font-semibold !normal-case !text-red-500 hover:!bg-red-50"
@@ -950,6 +963,14 @@ export default function ProductDetailPage() {
                     </SurfaceCard>
                 </aside>
             </div>
+
+            <ProductDeleteDialog
+                open={deleteDialogOpen}
+                productTitle={form.title.trim() || 'Ürün'}
+                loading={deleting}
+                onClose={closeDeleteDialog}
+                onConfirm={confirmDelete}
+            />
         </form>
     );
 }
