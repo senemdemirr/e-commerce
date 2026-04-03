@@ -11,6 +11,7 @@ import CheckCircleRoundedIcon from '@mui/icons-material/CheckCircleRounded';
 import ColorLensRoundedIcon from '@mui/icons-material/ColorLensRounded';
 import Inventory2RoundedIcon from '@mui/icons-material/Inventory2Rounded';
 import LocalOfferRoundedIcon from '@mui/icons-material/LocalOfferRounded';
+import KeyboardArrowDownRoundedIcon from '@mui/icons-material/KeyboardArrowDownRounded';
 import PublishRoundedIcon from '@mui/icons-material/PublishRounded';
 import RestartAltRoundedIcon from '@mui/icons-material/RestartAltRounded';
 import StraightenRoundedIcon from '@mui/icons-material/StraightenRounded';
@@ -147,6 +148,20 @@ function Textarea({ className = '', ...props }) {
     );
 }
 
+function Select({ className = '', children, ...props }) {
+    return (
+        <div className="relative">
+            <select
+                {...props}
+                className={`h-12 w-full appearance-none rounded-2xl border border-primary/10 bg-background-light px-4 pr-11 text-sm font-medium text-text-main outline-none transition focus:border-primary focus:bg-white focus:ring-4 focus:ring-primary/10 disabled:cursor-not-allowed disabled:opacity-60 ${className}`}
+            >
+                {children}
+            </select>
+            <KeyboardArrowDownRoundedIcon className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-text-muted" />
+        </div>
+    );
+}
+
 export default function NewProductPage() {
     const router = useRouter();
     const { enqueueSnackbar } = useSnackbar();
@@ -169,22 +184,60 @@ export default function NewProductPage() {
                 setLoading(true);
                 setLoadError('');
 
-                const response = await fetch('/api/categories');
-                const data = await response.json().catch(() => []);
+                const [categoriesResponse, subcategoriesResponse] = await Promise.all([
+                    fetch('/api/admin/categories', {
+                        headers: { role: 'admin' },
+                    }),
+                    fetch('/api/admin/subcategories', {
+                        headers: { role: 'admin' },
+                    }),
+                ]);
+                const [categoriesData, subcategoriesData] = await Promise.all([
+                    categoriesResponse.json().catch(() => []),
+                    subcategoriesResponse.json().catch(() => []),
+                ]);
 
-                if (!response.ok) {
-                    throw new Error(data?.message || 'Kategoriler yüklenemedi.');
+                if (!categoriesResponse.ok) {
+                    throw new Error(categoriesData?.error || 'Kategoriler yüklenemedi.');
+                }
+
+                if (!subcategoriesResponse.ok) {
+                    throw new Error(subcategoriesData?.error || 'Alt kategoriler yüklenemedi.');
                 }
 
                 if (!active) {
                     return;
                 }
 
-                const nextCategories = Array.isArray(data) ? data : [];
+                const activeSubcategories = Array.isArray(subcategoriesData)
+                    ? subcategoriesData.filter((subcategory) => Number(subcategory?.activate ?? 0) === 1)
+                    : [];
+                const nextCategories = Array.isArray(categoriesData)
+                    ? categoriesData
+                        .filter((category) => Number(category?.activate ?? 0) === 1)
+                        .map((category) => ({
+                            id: Number(category?.id),
+                            name: category?.name || 'İsimsiz Kategori',
+                            slug: category?.slug || '',
+                            subcategories: activeSubcategories
+                                .filter((subcategory) => Number(subcategory?.category_id) === Number(category?.id))
+                                .map((subcategory) => ({
+                                    id: Number(subcategory?.id),
+                                    name: subcategory?.name || 'İsimsiz Alt Kategori',
+                                    slug: subcategory?.slug || '',
+                                })),
+                        }))
+                        .filter((category) => category.subcategories.length > 0)
+                    : [];
+
                 setCategories(nextCategories);
 
                 const firstCategory = nextCategories[0];
                 const firstSubcategory = firstCategory?.subcategories?.[0];
+
+                if (nextCategories.length === 0) {
+                    setLoadError('Ürün eklemek için önce aktif kategori ve aktif alt kategori oluşturun.');
+                }
 
                 setForm((current) => ({
                     ...current,
@@ -314,12 +367,13 @@ export default function NewProductPage() {
         updateForm('sku', createSku(event.target.value));
     }
 
-    function handleCategorySelect(category) {
+    function handleCategorySelect(categoryId) {
+        const category = categories.find((item) => String(item.id) === String(categoryId));
         const firstSubcategory = category?.subcategories?.[0];
 
         setForm((current) => ({
             ...current,
-            categoryId: String(category.id),
+            categoryId: category ? String(category.id) : '',
             subcategoryId: firstSubcategory ? String(firstSubcategory.id) : '',
         }));
 
@@ -431,14 +485,6 @@ export default function NewProductPage() {
 
                 <div className="relative flex flex-col gap-6 p-6 sm:p-8 xl:flex-row xl:items-end xl:justify-between">
                     <div className="max-w-3xl">
-                        <Link
-                            href="/admin/products"
-                            className="inline-flex items-center gap-2 text-sm font-bold text-text-muted transition hover:text-primary-dark"
-                        >
-                            <ArrowBackRoundedIcon className="!text-base" />
-                            Ürün listesine dön
-                        </Link>
-
                         <h1 className="mt-5 font-display text-4xl font-black tracking-tight text-text-main">
                             Yeni ürün kurgusunu vitrinden önce burada netleştirin
                         </h1>
@@ -547,65 +593,66 @@ export default function NewProductPage() {
                             </div>
                         ) : (
                             <>
-                                <div className="mt-8 grid gap-3 md:grid-cols-2 xl:grid-cols-3">
-                                    {categories.map((category) => {
-                                        const isActive = String(category.id) === form.categoryId;
+                                <div className="mt-8 grid gap-5 md:grid-cols-2">
+                                    <Field
+                                        label="Kategori"
+                                        hint={`${categories.length} aktif kategori`}
+                                    >
+                                        <Select
+                                            value={form.categoryId}
+                                            onChange={(event) => handleCategorySelect(event.target.value)}
+                                            disabled={categories.length === 0}
+                                        >
+                                            <option value="">Aktif kategori seçin</option>
+                                            {categories.map((category) => (
+                                                <option key={category.id} value={String(category.id)}>
+                                                    {category.name}
+                                                </option>
+                                            ))}
+                                        </Select>
+                                    </Field>
 
-                                        return (
-                                            <button
-                                                key={category.id}
-                                                type="button"
-                                                onClick={() => handleCategorySelect(category)}
-                                                className={isActive
-                                                    ? 'rounded-[24px] border border-primary/30 bg-primary/10 p-4 text-left shadow-sm'
-                                                    : 'rounded-[24px] border border-primary/10 bg-background-light p-4 text-left transition hover:border-primary/20 hover:bg-white'}
-                                            >
-                                                <p className="text-base font-black text-text-main">{category.name}</p>
-                                                <p className="mt-2 text-xs font-semibold text-text-muted">
-                                                    {category.subcategories?.length || 0} alt kategori
-                                                </p>
-                                            </button>
-                                        );
-                                    })}
+                                    <Field
+                                        label="Alt kategori"
+                                        hint={`${availableSubcategories.length} aktif alt kategori`}
+                                        error={errors.subcategoryId}
+                                    >
+                                        <Select
+                                            value={form.subcategoryId}
+                                            onChange={(event) => handleSubcategorySelect(event.target.value)}
+                                            disabled={!selectedCategory || availableSubcategories.length === 0}
+                                        >
+                                            <option value="">
+                                                {selectedCategory
+                                                    ? 'Aktif alt kategori seçin'
+                                                    : 'Önce kategori seçin'}
+                                            </option>
+                                            {availableSubcategories.map((subcategory) => (
+                                                <option key={subcategory.id} value={String(subcategory.id)}>
+                                                    {subcategory.name}
+                                                </option>
+                                            ))}
+                                        </Select>
+                                    </Field>
                                 </div>
 
                                 <div className="mt-6 rounded-[28px] border border-primary/10 bg-background-light p-5">
-                                    <div className="flex flex-wrap items-center gap-3">
-                                        <p className="text-sm font-black text-text-main">Alt kategori seçimi</p>
-                                        {selectedCategory ? (
-                                            <Chip
-                                                label={selectedCategory.name}
-                                                className="!rounded-full !bg-primary/10 !font-semibold !text-primary-dark"
-                                            />
-                                        ) : null}
+                                    <p className="text-[11px] font-black uppercase tracking-[0.24em] text-text-muted">
+                                        Aktif Filtre
+                                    </p>
+                                    <div className="mt-3 flex flex-wrap items-center gap-3">
+                                        <Chip
+                                            label={selectedCategory?.name || 'Kategori seçilmedi'}
+                                            className="!rounded-full !bg-primary/10 !font-semibold !text-primary-dark"
+                                        />
+                                        <Chip
+                                            label={selectedSubcategory?.name || 'Alt kategori seçilmedi'}
+                                            className="!rounded-full !bg-white !font-semibold !text-text-main"
+                                        />
                                     </div>
-
-                                    <div className="mt-4 flex flex-wrap gap-3">
-                                        {availableSubcategories.length > 0 ? availableSubcategories.map((subcategory) => {
-                                            const isActive = String(subcategory.id) === form.subcategoryId;
-
-                                            return (
-                                                <button
-                                                    key={subcategory.id}
-                                                    type="button"
-                                                    onClick={() => handleSubcategorySelect(subcategory.id)}
-                                                    className={isActive
-                                                        ? 'rounded-full border border-text-main bg-text-main px-4 py-2 text-sm font-bold text-white'
-                                                        : 'rounded-full border border-primary/10 bg-white px-4 py-2 text-sm font-bold text-text-main transition hover:border-primary/20 hover:bg-primary/5'}
-                                                >
-                                                    {subcategory.name}
-                                                </button>
-                                            );
-                                        }) : (
-                                            <p className="text-sm font-medium text-text-muted">
-                                                Seçili kategori için alt kategori bulunamadı.
-                                            </p>
-                                        )}
-                                    </div>
-
-                                    {errors.subcategoryId ? (
-                                        <p className="mt-3 text-xs font-semibold text-red-500">{errors.subcategoryId}</p>
-                                    ) : null}
+                                    <p className="mt-4 text-sm leading-6 text-text-muted">
+                                        Dropdown listelerinde yalnızca `active` durumundaki kategori ve alt kategoriler gösterilir.
+                                    </p>
                                 </div>
                             </>
                         )}
