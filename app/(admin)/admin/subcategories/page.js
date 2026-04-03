@@ -300,9 +300,9 @@ export default function SubcategoriesPage() {
    
        return (
            <>
-               <div className="-m-8 flex min-h-[calc(100vh-4rem)] flex-col overflow-hidden">
-                   <main className="flex-1 overflow-y-auto bg-background-light p-8 dark:bg-background-dark">
-                       <div className="mx-auto max-w-7xl">
+               <div className="-m-4 flex min-h-[calc(100vh-4rem)] flex-col overflow-hidden sm:-m-6 lg:-m-8">
+                   <section className="flex-1 overflow-y-auto bg-background-light p-4 dark:bg-background-dark sm:p-6 lg:p-8">
+                       <div className="w-full">
                            <SubcategoriesHeader
                                totalProducts={totalProducts}
                                categoriesCount={categories.length}
@@ -334,7 +334,7 @@ export default function SubcategoriesPage() {
                                onDelete={setDeleteTarget}
                            />
                        </div>
-                   </main>
+                   </section>
                </div>
    
                <SubcategoryForm

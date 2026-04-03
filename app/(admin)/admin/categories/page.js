@@ -196,9 +196,9 @@ export default function CategoriesPage() {
 
     return (
         <>
-            <div className="-m-8 flex min-h-[calc(100vh-4rem)] flex-col overflow-hidden">
-                <div className="flex-1 overflow-y-auto bg-slate-50/50 p-8 dark:bg-background-dark/50">
-                    <div className="mx-auto max-w-6xl">
+            <div className="-m-4 flex min-h-[calc(100vh-4rem)] flex-col overflow-hidden sm:-m-6 lg:-m-8">
+                <div className="flex-1 overflow-y-auto bg-slate-50/50 p-4 dark:bg-background-dark/50 sm:p-6 lg:p-8">
+                    <div className="w-full">
                         <CategoriesHeader onCreate={openCreateModal} />
 
                         <CategoriesStatsCards

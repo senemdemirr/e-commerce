@@ -198,7 +198,7 @@ export default function OrderDetailPage() {
 
     return (
         <div className="relative flex min-h-screen w-full flex-col overflow-x-hidden">
-            <div className="flex w-full max-w-[1240px] flex-col gap-6">
+            <div className="flex w-full flex-col gap-6">
                 <OrderDetailHeader
                     order={order}
                     currentStatusTitle={currentStatusTitle}

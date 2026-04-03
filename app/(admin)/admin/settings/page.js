@@ -171,8 +171,8 @@ export default function SettingsPage() {
 
     return (
         <div className="-m-4 sm:-m-6 lg:-m-8">
-            <main className="flex-1 overflow-y-auto bg-background-light p-6 dark:bg-background-dark md:p-10">
-                <div className="mx-auto max-w-4xl">
+            <section className="flex-1 overflow-y-auto bg-background-light px-4 py-6 dark:bg-background-dark sm:px-6 md:py-10 lg:px-8">
+                <div className="w-full">
                     <div className="mb-8 flex flex-col justify-between gap-4 md:flex-row md:items-center">
                         <div>
                             <h1 className="text-3xl font-bold tracking-tight text-slate-900 dark:text-slate-50">
@@ -310,7 +310,7 @@ export default function SettingsPage() {
                         </button>
                     </div>
                 </div>
-            </main>
+            </section>
         </div>
     );
 }
