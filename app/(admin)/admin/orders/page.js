@@ -153,7 +153,6 @@ export default function OrdersPage() {
                             key={card.key}
                             className="group !relative !overflow-hidden !rounded-3xl !border !border-primary/10 !bg-white !p-6 !shadow-sm"
                         >
-                            <div className={`absolute -right-6 -top-6 size-24 rounded-full ${card.glowClassName} transition-transform duration-300 group-hover:scale-110`} />
                             <div className="relative flex items-start justify-between gap-4">
                                 <div>
                                     <p className="text-sm font-medium text-text-muted">{card.title}</p>
