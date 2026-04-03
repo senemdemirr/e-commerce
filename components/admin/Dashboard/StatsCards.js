@@ -9,7 +9,6 @@ import TrendingDownIcon from '@mui/icons-material/TrendingDown';
 
 const StatsCard = ({ title, value, trend, trendLabel, icon, iconBg, iconColor, bgCircleColor }) => (
     <div className="bg-white dark:bg-slate-900 p-6 rounded-xl border border-primary/10 shadow-sm relative overflow-hidden group">
-        <div className={`absolute right-[-10px] top-[-10px] size-24 ${bgCircleColor} rounded-full group-hover:scale-110 transition-transform`}></div>
         <div className="flex justify-between items-start">
             <div>
                 <p className="text-sm text-slate-500 font-medium font-body">{title}</p>
