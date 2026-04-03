@@ -6,17 +6,22 @@ import { useRouter } from 'next/navigation';
 import { Button, Chip, CircularProgress } from '@mui/material';
 import ArrowBackRoundedIcon from '@mui/icons-material/ArrowBackRounded';
 import AutoAwesomeRoundedIcon from '@mui/icons-material/AutoAwesomeRounded';
-import CategoryRoundedIcon from '@mui/icons-material/CategoryRounded';
 import CheckCircleRoundedIcon from '@mui/icons-material/CheckCircleRounded';
 import ColorLensRoundedIcon from '@mui/icons-material/ColorLensRounded';
 import Inventory2RoundedIcon from '@mui/icons-material/Inventory2Rounded';
 import LocalOfferRoundedIcon from '@mui/icons-material/LocalOfferRounded';
-import KeyboardArrowDownRoundedIcon from '@mui/icons-material/KeyboardArrowDownRounded';
 import PublishRoundedIcon from '@mui/icons-material/PublishRounded';
 import RestartAltRoundedIcon from '@mui/icons-material/RestartAltRounded';
 import StraightenRoundedIcon from '@mui/icons-material/StraightenRounded';
-import ViewInArRoundedIcon from '@mui/icons-material/ViewInArRounded';
 import { useSnackbar } from 'notistack';
+import ProductCategoryFlowSection from '@/components/admin/products/ProductCategoryFlowSection';
+import ProductContentSection from '@/components/admin/products/ProductContentSection';
+import {
+    SurfaceCard,
+} from '@/components/admin/products/ProductFormPrimitives';
+import ProductGeneralInfoSection from '@/components/admin/products/ProductGeneralInfoSection';
+import ProductImageField from '@/components/admin/products/ProductImageField';
+import ProductVariationsSection from '@/components/admin/products/ProductVariationsSection';
 import {
     formatCurrency,
     getCatalogScore,
@@ -82,84 +87,6 @@ function parseLineList(value = '') {
         .split('\n')
         .map((item) => item.trim())
         .filter(Boolean);
-}
-
-function SurfaceCard({ children, className = '' }) {
-    return (
-        <section className={`rounded-[32px] border border-primary/10 bg-white shadow-sm ${className}`}>
-            {children}
-        </section>
-    );
-}
-
-function SectionIntro({ eyebrow, title, description, icon }) {
-    return (
-        <div className="flex items-start gap-4">
-            <div className="flex size-12 shrink-0 items-center justify-center rounded-2xl bg-primary/10 text-primary-dark">
-                {icon}
-            </div>
-            <div>
-                <p className="text-[11px] font-black uppercase tracking-[0.24em] text-text-muted">
-                    {eyebrow}
-                </p>
-                <h2 className="mt-2 text-2xl font-black tracking-tight text-text-main">
-                    {title}
-                </h2>
-                <p className="mt-2 max-w-2xl text-sm leading-7 text-text-muted">
-                    {description}
-                </p>
-            </div>
-        </div>
-    );
-}
-
-function Field({ label, hint, error, children }) {
-    return (
-        <label className="block space-y-2">
-            <div className="flex items-center justify-between gap-4">
-                <span className="text-sm font-bold text-text-main">{label}</span>
-                {hint ? (
-                    <span className="text-xs font-medium text-text-muted">{hint}</span>
-                ) : null}
-            </div>
-            {children}
-            {error ? (
-                <p className="text-xs font-semibold text-red-500">{error}</p>
-            ) : null}
-        </label>
-    );
-}
-
-function Input({ className = '', ...props }) {
-    return (
-        <input
-            {...props}
-            className={`h-12 w-full rounded-2xl border border-primary/10 bg-background-light px-4 text-sm font-medium text-text-main outline-none transition focus:border-primary focus:bg-white focus:ring-4 focus:ring-primary/10 ${className}`}
-        />
-    );
-}
-
-function Textarea({ className = '', ...props }) {
-    return (
-        <textarea
-            {...props}
-            className={`w-full rounded-2xl border border-primary/10 bg-background-light px-4 py-3 text-sm font-medium text-text-main outline-none transition placeholder:text-text-muted focus:border-primary focus:bg-white focus:ring-4 focus:ring-primary/10 ${className}`}
-        />
-    );
-}
-
-function Select({ className = '', children, ...props }) {
-    return (
-        <div className="relative">
-            <select
-                {...props}
-                className={`h-12 w-full appearance-none rounded-2xl border border-primary/10 bg-background-light px-4 pr-11 text-sm font-medium text-text-main outline-none transition focus:border-primary focus:bg-white focus:ring-4 focus:ring-primary/10 disabled:cursor-not-allowed disabled:opacity-60 ${className}`}
-            >
-                {children}
-            </select>
-            <KeyboardArrowDownRoundedIcon className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-text-muted" />
-        </div>
-    );
 }
 
 export default function NewProductPage() {
@@ -392,6 +319,19 @@ export default function NewProductPage() {
         )));
     }
 
+    function handleRemoveColor(index) {
+        setColors((current) => (
+            current.length === 1
+                ? [createEmptyColor()]
+                : current.filter((_, colorIndex) => colorIndex !== index)
+        ));
+    }
+
+    function handleImageChange(nextFile) {
+        setImageFile(nextFile);
+        clearError('image');
+    }
+
     function handleReset() {
         const firstCategory = categories[0];
         const firstSubcategory = firstCategory?.subcategories?.[0];
@@ -518,298 +458,56 @@ export default function NewProductPage() {
 
             <div className="grid gap-8 xl:grid-cols-[minmax(0,1fr)_360px]">
                 <div className="space-y-6">
-                    <SurfaceCard className="p-6 sm:p-8">
-                        <SectionIntro
-                            eyebrow="Kimlik"
-                            title="Ürünün omurgasını kurun"
-                            description="Başlık, SKU, marka ve kısa ürün anlatımı bu sayfanın ana karar alanı. Sağ paneldeki kalite skoru bu bloktan beslenir."
-                            icon={<Inventory2RoundedIcon />}
-                        />
+                    <ProductGeneralInfoSection
+                        values={form}
+                        errors={errors}
+                        onTitleChange={handleTitleChange}
+                        onBrandChange={(event) => updateForm('brand', event.target.value)}
+                        onSkuChange={handleSkuChange}
+                        onPriceChange={(event) => updateForm('price', event.target.value)}
+                        onDescriptionChange={(event) => updateForm('description', event.target.value)}
+                    />
 
-                        <div className="mt-8 grid gap-5 md:grid-cols-2">
-                            <Field label="Ürün adı" error={errors.title}>
-                                <Input
-                                    value={form.title}
-                                    onChange={handleTitleChange}
-                                    placeholder="Örn. Oversize Sherpa Hoodie"
-                                />
-                            </Field>
+                    <ProductCategoryFlowSection
+                        loadError={loadError}
+                        categories={categories}
+                        selectedCategory={selectedCategory}
+                        selectedSubcategory={selectedSubcategory}
+                        availableSubcategories={availableSubcategories}
+                        errors={errors}
+                        categoryId={form.categoryId}
+                        subcategoryId={form.subcategoryId}
+                        onCategoryChange={(event) => handleCategorySelect(event.target.value)}
+                        onSubcategoryChange={(event) => handleSubcategorySelect(event.target.value)}
+                    />
 
-                            <Field label="Marka" error={errors.brand}>
-                                <Input
-                                    value={form.brand}
-                                    onChange={(event) => updateForm('brand', event.target.value)}
-                                    placeholder="Örn. North Loom"
-                                />
-                            </Field>
+                    <ProductVariationsSection
+                        colors={colors}
+                        sizesValue={form.sizes}
+                        normalizedSizes={normalizedSizes}
+                        onAddColor={() => setColors((current) => [...current, createEmptyColor()])}
+                        onColorChange={handleColorChange}
+                        onRemoveColor={handleRemoveColor}
+                        onSizesChange={(event) => updateForm('sizes', event.target.value)}
+                    />
 
-                            <Field label="SKU" hint="ASCII ve tekil" error={errors.sku}>
-                                <Input
-                                    value={form.sku}
-                                    onChange={handleSkuChange}
-                                    placeholder="Örn. HOODIE-CORE-01"
-                                />
-                            </Field>
-
-                            <Field label="Fiyat" hint="TL" error={errors.price}>
-                                <Input
-                                    type="number"
-                                    min="0"
-                                    step="0.01"
-                                    value={form.price}
-                                    onChange={(event) => updateForm('price', event.target.value)}
-                                    placeholder="1499.90"
-                                />
-                            </Field>
-                        </div>
-
-                        <div className="mt-5">
-                            <Field
-                                label="Kısa açıklama"
-                                hint={`${form.description.trim().length} karakter`}
-                                error={errors.description}
-                            >
-                                <Textarea
-                                    rows={4}
-                                    value={form.description}
-                                    onChange={(event) => updateForm('description', event.target.value)}
-                                    placeholder="Ürünün vitrinde ilk bakışta satacağı net faydayı kısa ve tok bir dille yazın."
-                                />
-                            </Field>
-                        </div>
-                    </SurfaceCard>
-
-                    <SurfaceCard className="p-6 sm:p-8">
-                        <SectionIntro
-                            eyebrow="Yerleşim"
-                            title="Kategori akışını seçin"
-                            description="Önce üst kategoriyi kilitleyin, sonra ürünü doğru alt kategoriye yerleştirin. Sağ panelde oluşturulan public path anında güncellenir."
-                            icon={<CategoryRoundedIcon />}
-                        />
-
-                        {loadError ? (
-                            <div className="mt-8 rounded-[28px] border border-red-100 bg-red-50 px-5 py-4 text-sm font-semibold text-red-600">
-                                {loadError}
-                            </div>
-                        ) : (
-                            <>
-                                <div className="mt-8 grid gap-5 md:grid-cols-2">
-                                    <Field
-                                        label="Kategori"
-                                        hint={`${categories.length} aktif kategori`}
-                                    >
-                                        <Select
-                                            value={form.categoryId}
-                                            onChange={(event) => handleCategorySelect(event.target.value)}
-                                            disabled={categories.length === 0}
-                                        >
-                                            <option value="">Aktif kategori seçin</option>
-                                            {categories.map((category) => (
-                                                <option key={category.id} value={String(category.id)}>
-                                                    {category.name}
-                                                </option>
-                                            ))}
-                                        </Select>
-                                    </Field>
-
-                                    <Field
-                                        label="Alt kategori"
-                                        hint={`${availableSubcategories.length} aktif alt kategori`}
-                                        error={errors.subcategoryId}
-                                    >
-                                        <Select
-                                            value={form.subcategoryId}
-                                            onChange={(event) => handleSubcategorySelect(event.target.value)}
-                                            disabled={!selectedCategory || availableSubcategories.length === 0}
-                                        >
-                                            <option value="">
-                                                {selectedCategory
-                                                    ? 'Aktif alt kategori seçin'
-                                                    : 'Önce kategori seçin'}
-                                            </option>
-                                            {availableSubcategories.map((subcategory) => (
-                                                <option key={subcategory.id} value={String(subcategory.id)}>
-                                                    {subcategory.name}
-                                                </option>
-                                            ))}
-                                        </Select>
-                                    </Field>
-                                </div>
-
-                                <div className="mt-6 rounded-[28px] border border-primary/10 bg-background-light p-5">
-                                    <p className="text-[11px] font-black uppercase tracking-[0.24em] text-text-muted">
-                                        Aktif Filtre
-                                    </p>
-                                    <div className="mt-3 flex flex-wrap items-center gap-3">
-                                        <Chip
-                                            label={selectedCategory?.name || 'Kategori seçilmedi'}
-                                            className="!rounded-full !bg-primary/10 !font-semibold !text-primary-dark"
-                                        />
-                                        <Chip
-                                            label={selectedSubcategory?.name || 'Alt kategori seçilmedi'}
-                                            className="!rounded-full !bg-white !font-semibold !text-text-main"
-                                        />
-                                    </div>
-                                    <p className="mt-4 text-sm leading-6 text-text-muted">
-                                        Dropdown listelerinde yalnızca `active` durumundaki kategori ve alt kategoriler gösterilir.
-                                    </p>
-                                </div>
-                            </>
+                    <ProductContentSection
+                        materialValue={form.material}
+                        careValue={form.care}
+                        bulletPointsValue={form.bulletPoints}
+                        descriptionLongValue={form.descriptionLong}
+                        onMaterialChange={(event) => updateForm('material', event.target.value)}
+                        onCareChange={(event) => updateForm('care', event.target.value)}
+                        onBulletPointsChange={(event) => updateForm('bulletPoints', event.target.value)}
+                        onDescriptionLongChange={(event) => updateForm('descriptionLong', event.target.value)}
+                        imageField={(
+                            <ProductImageField
+                                imageFile={imageFile}
+                                error={errors.image}
+                                onImageChange={handleImageChange}
+                            />
                         )}
-                    </SurfaceCard>
-
-                    <SurfaceCard className="p-6 sm:p-8">
-                        <SectionIntro
-                            eyebrow="Varyasyon"
-                            title="Renkleri ve bedenleri tanımlayın"
-                            description="Bu bölüm katalog kartının ritmini belirler. Renkleri ayrı satırlarda, bedenleri tek satırda virgülle ayırarak girin."
-                            icon={<ViewInArRoundedIcon />}
-                        />
-
-                        <div className="mt-8 grid gap-8 lg:grid-cols-[1.1fr_0.9fr]">
-                            <div>
-                                <div className="flex items-center justify-between gap-4">
-                                    <p className="text-sm font-black text-text-main">Renk paleti</p>
-                                    <Button
-                                        type="button"
-                                        onClick={() => setColors((current) => [...current, createEmptyColor()])}
-                                        className="!rounded-2xl !bg-primary/10 !px-4 !py-2 !text-xs !font-bold !normal-case !text-primary-dark hover:!bg-primary/20"
-                                    >
-                                        Renk Satırı Ekle
-                                    </Button>
-                                </div>
-
-                                <div className="mt-4 space-y-3">
-                                    {colors.map((color, index) => (
-                                        <div
-                                            key={`color-${index}`}
-                                            className="grid gap-3 rounded-[24px] border border-primary/10 bg-background-light p-4 md:grid-cols-[minmax(0,1fr)_120px_auto]"
-                                        >
-                                            <Input
-                                                value={color.name}
-                                                onChange={(event) => handleColorChange(index, 'name', event.target.value)}
-                                                placeholder="Örn. Kum Beji"
-                                            />
-                                            <div className="flex items-center gap-3 rounded-2xl border border-primary/10 bg-white px-3">
-                                                <input
-                                                    type="color"
-                                                    value={color.hex}
-                                                    onChange={(event) => handleColorChange(index, 'hex', event.target.value)}
-                                                    className="h-8 w-8 cursor-pointer border-0 bg-transparent p-0"
-                                                />
-                                                <span className="text-sm font-bold text-text-main">{color.hex.toUpperCase()}</span>
-                                            </div>
-                                            <Button
-                                                type="button"
-                                                onClick={() => setColors((current) => (
-                                                    current.length === 1
-                                                        ? [createEmptyColor()]
-                                                        : current.filter((_, colorIndex) => colorIndex !== index)
-                                                ))}
-                                                className="!rounded-2xl !border !border-primary/10 !px-4 !py-2 !text-xs !font-bold !normal-case !text-text-muted hover:!bg-white"
-                                            >
-                                                Kaldır
-                                            </Button>
-                                        </div>
-                                    ))}
-                                </div>
-                            </div>
-
-                            <div>
-                                <Field label="Beden seti" hint="Virgülle ayırın">
-                                    <Textarea
-                                        rows={5}
-                                        value={form.sizes}
-                                        onChange={(event) => updateForm('sizes', event.target.value)}
-                                        placeholder="XS, S, M, L, XL"
-                                    />
-                                </Field>
-
-                                <div className="mt-4 flex flex-wrap gap-2">
-                                    {normalizedSizes.length > 0 ? normalizedSizes.map((size) => (
-                                        <Chip
-                                            key={size}
-                                            label={size}
-                                            className="!rounded-full !bg-secondary/20 !font-semibold !text-text-main"
-                                        />
-                                    )) : (
-                                        <p className="text-sm font-medium text-text-muted">
-                                            Henüz beden etiketi eklenmedi.
-                                        </p>
-                                    )}
-                                </div>
-                            </div>
-                        </div>
-                    </SurfaceCard>
-
-                    <SurfaceCard className="p-6 sm:p-8">
-                        <SectionIntro
-                            eyebrow="İçerik"
-                            title="Detay katmanını zenginleştirin"
-                            description="Uzun açıklama, materyal, bakım notları ve satışta öne çıkacak bullet point’ler ürünün ikna gücünü yükseltir."
-                            icon={<AutoAwesomeRoundedIcon />}
-                        />
-
-                        <div className="mt-8 grid gap-5 md:grid-cols-2">
-                            <Field label="Materyal">
-                                <Input
-                                    value={form.material}
-                                    onChange={(event) => updateForm('material', event.target.value)}
-                                    placeholder="%80 cotton, %20 polyester"
-                                />
-                            </Field>
-
-                            <Field label="Kapak görseli" hint="Maks. 3MB" error={errors.image}>
-                                <label className="flex h-12 cursor-pointer items-center justify-between rounded-2xl border border-dashed border-primary/30 bg-primary/5 px-4 text-sm font-semibold text-text-main transition hover:border-primary hover:bg-primary/10">
-                                    <span className="truncate">
-                                        {imageFile?.name || 'PNG veya JPG dosyası seçin'}
-                                    </span>
-                                    <span className="rounded-full bg-white px-3 py-1 text-xs font-black uppercase tracking-[0.16em] text-text-muted">
-                                        Seç
-                                    </span>
-                                    <input
-                                        type="file"
-                                        accept="image/png,image/jpeg,image/webp"
-                                        className="hidden"
-                                        onChange={(event) => {
-                                            const nextFile = event.target.files?.[0] || null;
-                                            setImageFile(nextFile);
-                                            clearError('image');
-                                        }}
-                                    />
-                                </label>
-                            </Field>
-
-                            <Field label="Bakım notları" hint="Her satır ayrı kural">
-                                <Textarea
-                                    rows={5}
-                                    value={form.care}
-                                    onChange={(event) => updateForm('care', event.target.value)}
-                                    placeholder={'30 derecede yikayin\nDusuk isiyle utuleyin\nKurutucu kullanmayin'}
-                                />
-                            </Field>
-
-                            <Field label="Öne çıkan maddeler" hint="Her satır ayrı madde">
-                                <Textarea
-                                    rows={5}
-                                    value={form.bulletPoints}
-                                    onChange={(event) => updateForm('bulletPoints', event.target.value)}
-                                    placeholder={'Soft touch doku\nRelaxed fit kalip\nSezonlar arasi kullanima uygun'}
-                                />
-                            </Field>
-                        </div>
-
-                        <div className="mt-5">
-                            <Field label="Uzun açıklama" hint="PDP hikayesi">
-                                <Textarea
-                                    rows={6}
-                                    value={form.descriptionLong}
-                                    onChange={(event) => updateForm('descriptionLong', event.target.value)}
-                                    placeholder="Kumaş hissi, kullanım bağlamı ve ürünün stil avantajını daha editoryal bir tonda detaylandırın."
-                                />
-                            </Field>
-                        </div>
-                    </SurfaceCard>
+                    />
                 </div>
 
                 <aside className="space-y-6 xl:sticky xl:top-6 xl:self-start">
@@ -989,7 +687,15 @@ export default function NewProductPage() {
                     </SurfaceCard>
 
                     <SurfaceCard className="p-6">
-                        <p className="text-[11px] font-black uppercase tracking-[0.24em] text-text-muted">
+                        <Link
+                            href="/admin/products"
+                            className="inline-flex items-center gap-2 text-sm font-bold text-text-muted transition hover:text-primary-dark"
+                        >
+                            <ArrowBackRoundedIcon className="!text-base" />
+                            Ürün listesine dön
+                        </Link>
+
+                        <p className="mt-6 text-[11px] font-black uppercase tracking-[0.24em] text-text-muted">
                             Merch Notları
                         </p>
                         <div className="mt-4 space-y-3">
