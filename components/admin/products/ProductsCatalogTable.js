@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { Chip, IconButton, Tooltip } from '@mui/material';
+import { IconButton, Tooltip } from '@mui/material';
 import DeleteRoundedIcon from '@mui/icons-material/DeleteRounded';
 import EditRoundedIcon from '@mui/icons-material/EditRounded';
 import Inventory2RoundedIcon from '@mui/icons-material/Inventory2Rounded';
@@ -114,10 +114,6 @@ export default function ProductsCatalogTable({ visibleProducts, onDeleteProduct 
                                     <p className="text-sm font-black text-text-main">
                                         {formatCurrency(product.price)}
                                     </p>
-                                    <Chip
-                                        label={product.priceBand.label}
-                                        className={`!rounded-full !text-xs !font-bold ${product.priceBand.chipClassName}`}
-                                    />
                                 </div>
                             </td>
 
