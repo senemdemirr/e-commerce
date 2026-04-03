@@ -23,8 +23,9 @@ function notFoundResponse() {
     return Response.json({ error: 'Product not found' }, { status: 404 });
 }
 
-function normalizeId(params) {
-    const value = Number(params?.id);
+async function normalizeId(params) {
+    const resolvedParams = await params;
+    const value = Number(resolvedParams?.id);
     return Number.isInteger(value) && value > 0 ? value : null;
 }
 
@@ -33,7 +34,7 @@ export async function GET(req, { params }) {
         return forbiddenResponse();
     }
 
-    const id = normalizeId(params);
+    const id = await normalizeId(params);
 
     if (!id) {
         return invalidFieldResponse('Invalid product id');
@@ -92,7 +93,7 @@ export async function PUT(req, { params }) {
         return forbiddenResponse();
     }
 
-    const id = normalizeId(params);
+    const id = await normalizeId(params);
 
     if (!id) {
         return invalidFieldResponse('Invalid product id');
@@ -217,7 +218,7 @@ export async function DELETE(req, { params }) {
         return forbiddenResponse();
     }
 
-    const id = normalizeId(params);
+    const id = await normalizeId(params);
 
     if (!id) {
         return invalidFieldResponse('Invalid product id');
