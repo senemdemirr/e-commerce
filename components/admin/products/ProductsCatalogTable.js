@@ -1,10 +1,11 @@
+import Link from 'next/link';
 import { Chip, IconButton, Tooltip } from '@mui/material';
-import ContentCopyRoundedIcon from '@mui/icons-material/ContentCopyRounded';
+import DeleteRoundedIcon from '@mui/icons-material/DeleteRounded';
+import EditRoundedIcon from '@mui/icons-material/EditRounded';
 import Inventory2RoundedIcon from '@mui/icons-material/Inventory2Rounded';
-import OpenInNewRoundedIcon from '@mui/icons-material/OpenInNewRounded';
 import { formatCurrency, formatDate } from './productsPageHelpers';
 
-export default function ProductsCatalogTable({ visibleProducts, onCopySku }) {
+export default function ProductsCatalogTable({ visibleProducts, onDeleteProduct }) {
     return (
         <div className="hidden overflow-x-auto lg:block">
             <table className="w-full border-collapse text-left">
@@ -146,29 +147,25 @@ export default function ProductsCatalogTable({ visibleProducts, onCopySku }) {
 
                             <td className="px-6 py-5">
                                 <div className="flex justify-end gap-2">
-                                    <Tooltip title="Önizle">
+                                    <Tooltip title="Düzenle">
                                         <span>
                                             <IconButton
-                                                component="a"
-                                                href={product.publicHref || undefined}
-                                                target="_blank"
-                                                rel="noreferrer"
-                                                disabled={!product.publicHref}
+                                                component={Link}
+                                                href={`/admin/products/${product.id}`}
                                                 className="!rounded-xl !border !border-primary/10 !text-text-muted hover:!bg-primary/10 hover:!text-primary-dark"
                                             >
-                                                <OpenInNewRoundedIcon className="!text-lg" />
+                                                <EditRoundedIcon className="!text-lg" />
                                             </IconButton>
                                         </span>
                                     </Tooltip>
 
-                                    <Tooltip title="SKU kopyala">
+                                    <Tooltip title="Sil">
                                         <span>
                                             <IconButton
-                                                onClick={() => onCopySku(product.sku)}
-                                                disabled={!product.sku}
-                                                className="!rounded-xl !border !border-primary/10 !text-text-muted hover:!bg-background-light hover:!text-text-main"
+                                                onClick={() => onDeleteProduct(product)}
+                                                className="!rounded-xl !border !border-red-100 !text-red-400 hover:!bg-red-50 hover:!text-red-500"
                                             >
-                                                <ContentCopyRoundedIcon className="!text-lg" />
+                                                <DeleteRoundedIcon className="!text-lg" />
                                             </IconButton>
                                         </span>
                                     </Tooltip>

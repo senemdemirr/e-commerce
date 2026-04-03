@@ -226,21 +226,6 @@ export default function ProductsPage() {
     const selectedPriceLabel = PRICE_OPTIONS.find((option) => option.value === priceFilter)?.label || 'Tüm Fiyatlar';
     const selectedSortLabel = SORT_OPTIONS.find((option) => option.value === sortBy)?.label || 'En Yeni';
 
-
-    async function handleCopySku(sku) {
-        if (!sku) {
-            enqueueSnackbar('Bu ürün için SKU tanımlı değil.', { variant: 'warning' });
-            return;
-        }
-
-        try {
-            await navigator.clipboard.writeText(sku);
-            enqueueSnackbar('SKU panoya kopyalandı.', { variant: 'success' });
-        } catch {
-            enqueueSnackbar('SKU kopyalanamadı.', { variant: 'error' });
-        }
-    }
-
     function handleExportCsv() {
         if (sortedProducts.length === 0) {
             enqueueSnackbar('Dışa aktarılacak ürün bulunamadı.', { variant: 'info' });
@@ -260,6 +245,13 @@ export default function ProductsPage() {
 
     function closeMenu() {
         setMenuState({ key: '', anchorEl: null });
+    }
+
+    function handleDeleteProduct(product) {
+        enqueueSnackbar(
+            `${product?.title || 'Ürün'} için silme akışı henüz bağlı değil.`,
+            { variant: 'info' }
+        );
     }
 
     return (
@@ -342,7 +334,7 @@ export default function ProductsPage() {
                     paginationItems={paginationItems}
                     onPageChange={setPage}
                     onRetry={() => setRefreshKey((current) => current + 1)}
-                    onCopySku={handleCopySku}
+                    onDeleteProduct={handleDeleteProduct}
                 />
             </div>
         </div>

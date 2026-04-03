@@ -1,3 +1,4 @@
+import Link from 'next/link';
 import {
     Button,
     Chip,
@@ -5,11 +6,11 @@ import {
     IconButton,
 } from '@mui/material';
 import CollectionsRoundedIcon from '@mui/icons-material/CollectionsRounded';
-import ContentCopyRoundedIcon from '@mui/icons-material/ContentCopyRounded';
+import DeleteRoundedIcon from '@mui/icons-material/DeleteRounded';
+import EditRoundedIcon from '@mui/icons-material/EditRounded';
 import Inventory2RoundedIcon from '@mui/icons-material/Inventory2Rounded';
 import KeyboardArrowLeftRoundedIcon from '@mui/icons-material/KeyboardArrowLeftRounded';
 import KeyboardArrowRightRoundedIcon from '@mui/icons-material/KeyboardArrowRightRounded';
-import OpenInNewRoundedIcon from '@mui/icons-material/OpenInNewRounded';
 import RefreshRoundedIcon from '@mui/icons-material/RefreshRounded';
 import WarningAmberRoundedIcon from '@mui/icons-material/WarningAmberRounded';
 import ProductsCatalogTable from './ProductsCatalogTable';
@@ -31,7 +32,7 @@ export default function ProductsCatalogContent({
     paginationItems,
     onPageChange,
     onRetry,
-    onCopySku,
+    onDeleteProduct,
 }) {
     if (loading) {
         return (
@@ -82,7 +83,7 @@ export default function ProductsCatalogContent({
         <>
             <ProductsCatalogTable
                 visibleProducts={visibleProducts}
-                onCopySku={onCopySku}
+                onDeleteProduct={onDeleteProduct}
             />
 
             <div className="grid gap-4 p-4 sm:p-6 lg:hidden">
@@ -165,21 +166,17 @@ export default function ProductsCatalogContent({
 
                             <div className="flex gap-2">
                                 <IconButton
-                                    component="a"
-                                    href={product.publicHref || undefined}
-                                    target="_blank"
-                                    rel="noreferrer"
-                                    disabled={!product.publicHref}
+                                    component={Link}
+                                    href={`/admin/products/${product.id}`}
                                     className="!rounded-xl !border !border-primary/10 !text-text-muted hover:!bg-primary/10 hover:!text-primary-dark"
                                 >
-                                    <OpenInNewRoundedIcon className="!text-lg" />
+                                    <EditRoundedIcon className="!text-lg" />
                                 </IconButton>
                                 <IconButton
-                                    onClick={() => onCopySku(product.sku)}
-                                    disabled={!product.sku}
-                                    className="!rounded-xl !border !border-primary/10 !text-text-muted hover:!bg-background-light hover:!text-text-main"
+                                    onClick={() => onDeleteProduct(product)}
+                                    className="!rounded-xl !border !border-red-100 !text-red-400 hover:!bg-red-50 hover:!text-red-500"
                                 >
-                                    <ContentCopyRoundedIcon className="!text-lg" />
+                                    <DeleteRoundedIcon className="!text-lg" />
                                 </IconButton>
                             </div>
                         </div>
