@@ -1,10 +1,17 @@
 'use client';
 
+import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import SearchIcon from '@mui/icons-material/Search';
+import LogoutOutlinedIcon from '@mui/icons-material/LogoutOutlined';
+import { useSnackbar } from 'notistack';
 import { useAdminSession } from '@/context/AdminSessionContext';
 
 const Header = () => {
-    const { admin, loading } = useAdminSession();
+    const router = useRouter();
+    const { enqueueSnackbar } = useSnackbar();
+    const { admin, loading, refreshAdmin } = useAdminSession();
+    const [isLoggingOut, setIsLoggingOut] = useState(false);
 
     // İsmin baş harflerini al (avatar fallback için)
     const getInitials = (name) => {
@@ -15,6 +22,33 @@ const Header = () => {
             .join('')
             .toUpperCase()
             .slice(0, 2);
+    };
+
+    const handleLogout = async () => {
+        if (isLoggingOut) {
+            return;
+        }
+
+        try {
+            setIsLoggingOut(true);
+
+            const response = await fetch('/api/admin/logout', {
+                method: 'POST',
+            });
+
+            if (!response.ok) {
+                enqueueSnackbar('Çıkış işlemi tamamlanamadı.', { variant: 'error' });
+                return;
+            }
+
+            await refreshAdmin();
+            router.replace('/admin/login');
+            router.refresh();
+        } catch {
+            enqueueSnackbar('Çıkış sırasında bağlantı hatası oluştu.', { variant: 'error' });
+        } finally {
+            setIsLoggingOut(false);
+        }
     };
 
     return (
@@ -30,6 +64,15 @@ const Header = () => {
                 </div>
             </div>
             <div className="flex items-center gap-6">
+                <button
+                    type="button"
+                    onClick={handleLogout}
+                    disabled={loading || isLoggingOut || !admin}
+                    className="inline-flex items-center gap-2 rounded-xl border border-primary/15 px-4 py-2 text-sm font-semibold text-slate-700 transition-colors hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-60 dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-800"
+                >
+                    <LogoutOutlinedIcon sx={{ fontSize: 18 }} />
+                    <span>{isLoggingOut ? 'Çıkış Yapılıyor...' : 'Çıkış Yap'}</span>
+                </button>
                 <div className="flex items-center gap-3 pl-6 border-l border-primary/10">
                     <div className="text-right">
                         <p className="text-sm font-bold">
