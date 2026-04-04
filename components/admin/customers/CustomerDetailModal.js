@@ -47,6 +47,7 @@ export default function CustomerDetailModal({
     open,
     customer,
     updating = false,
+    canMutate = true,
     onClose,
     onSave,
 }) {
@@ -152,7 +153,7 @@ export default function CustomerDetailModal({
                                 type="checkbox"
                                 checked={draftActive}
                                 onChange={(event) => setDraftActive(event.target.checked)}
-                                disabled={updating}
+                                disabled={updating || !canMutate}
                                 className="peer sr-only"
                             />
                             <div className="relative h-7 w-14 rounded-full border border-primary/10 bg-white transition-all after:absolute after:left-1 after:top-1 after:h-5 after:w-5 after:rounded-full after:bg-text-main after:shadow-sm after:transition-transform peer-checked:border-primary/20 peer-checked:bg-primary/25 peer-checked:after:translate-x-7 peer-checked:after:bg-primary-dark" />
@@ -176,11 +177,11 @@ export default function CustomerDetailModal({
                     </Button>
                     <Button
                         onClick={handleSaveClick}
-                        disabled={updating}
+                        disabled={updating || !canMutate}
                         startIcon={<SaveRoundedIcon />}
                         className="!flex-[2] !rounded-xl !bg-primary !px-6 !py-3.5 !font-bold !normal-case !text-text-main hover:!bg-primary-dark hover:!text-white disabled:!bg-primary/20 disabled:!text-text-muted"
                     >
-                        {updating ? 'Saving...' : 'Save'}
+                        {canMutate ? (updating ? 'Saving...' : 'Save') : 'Superadmin Required'}
                     </Button>
                 </div>
             </DialogActions>

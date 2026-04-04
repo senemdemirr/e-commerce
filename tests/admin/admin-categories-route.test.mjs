@@ -45,9 +45,15 @@ describe('Admin Categories Route', () => {
         expect(response.status).toBe(403);
     });
 
+    test('POST /api/admin/categories - admin rolü yazma işlemi yapamaz ve 403 alır', async () => {
+        const req = { headers: { get: () => 'admin' } };
+        const response = await POST(req);
+        expect(response.status).toBe(403);
+    });
+
     test('POST /api/admin/categories - name alanı eksikse 400 döner', async () => {
         const req = { 
-            headers: { get: () => 'admin' },
+            headers: { get: () => 'superadmin' },
             json: async () => ({ slug: 'test-kategori' }) // name eksik
         };
         const response = await POST(req);
@@ -56,7 +62,7 @@ describe('Admin Categories Route', () => {
 
     test('POST /api/admin/categories - slug alanı eksikse 400 döner', async () => {
         const req = { 
-            headers: { get: () => 'admin' },
+            headers: { get: () => 'superadmin' },
             json: async () => ({ name: 'Test Kategori' }) // slug eksik
         };
         const response = await POST(req);
@@ -65,7 +71,7 @@ describe('Admin Categories Route', () => {
 
     test('POST /api/admin/categories - slug alanı Türkçe karakter içeremez (400 döner)', async () => {
         const req = { 
-            headers: { get: () => 'admin' },
+            headers: { get: () => 'superadmin' },
             json: async () => ({ name: 'Elektronik', slug: 'elektronik-ürünler' }) // 'ü' ve 'ü' geçersiz
         };
         const response = await POST(req);
@@ -74,7 +80,7 @@ describe('Admin Categories Route', () => {
 
     test('POST /api/admin/categories - activate alanını da kaydederek 201 döner', async () => {
         const req = { 
-            headers: { get: () => 'admin' },
+            headers: { get: () => 'superadmin' },
             json: async () => ({ name: 'Elektronik', slug: 'elektronik', activate: 0 })
         };
         const response = await POST(req);

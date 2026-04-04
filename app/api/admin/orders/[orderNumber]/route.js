@@ -4,30 +4,19 @@ import {
     ORDER_STATUS_JOIN_CONDITION,
     ORDER_STATUS_TITLE_EXPR,
 } from '@/lib/admin/order-status';
-
-async function getAdminFromRequest(req) {
-    const adminToken = req.cookies?.get?.('admin_token');
-
-    if (!adminToken?.value || !adminToken.value.startsWith('admin-session-token:')) {
-        return null;
-    }
-
-    const base64Email = adminToken.value.split(':')[1];
-    const email = Buffer.from(base64Email, 'base64').toString('utf-8');
-    const adminResult = await pool.query(
-        'SELECT id, email, name, surname, role FROM users WHERE email = $1 AND role = $2 LIMIT 1',
-        [email, 'admin']
-    );
-
-    if (adminResult.rowCount === 0) {
-        return null;
-    }
-
-    return adminResult.rows[0];
-}
+import {
+    canManageAdmin,
+    getAdminUserFromCookie,
+    requireAdminReadAccess,
+} from '@/lib/admin/auth';
 
 export async function GET(req, { params }) {
     try {
+        const denied = await requireAdminReadAccess(req);
+        if (denied) {
+            return denied;
+        }
+
         const { orderNumber } = await params;
         const result = await pool.query(
             `
@@ -82,14 +71,8 @@ export async function GET(req, { params }) {
 
 export async function PATCH(req, { params }) {
     try {
-        const role = req.headers.get('role');
-        if (role !== 'admin') {
-            return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
-        }
-
         const { orderNumber } = await params;
         const body = await req.json();
-        const admin = await getAdminFromRequest(req);
 
         // Check if other fields are present
         const allowedFields = ['status', 'statusUpdateNote'];
@@ -108,8 +91,13 @@ export async function PATCH(req, { params }) {
              return NextResponse.json({ error: 'Status is required' }, { status: 400 });
         }
 
+        const admin = await getAdminUserFromCookie(req);
         if (!admin) {
             return NextResponse.json({ error: 'Admin session not found' }, { status: 401 });
+        }
+
+        if (!canManageAdmin(admin)) {
+            return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
         }
 
         const statusResult = await pool.query(

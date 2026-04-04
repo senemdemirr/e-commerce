@@ -4,10 +4,12 @@ import { useEffect, useState } from 'react';
 import { useSnackbar } from 'notistack';
 
 import ConfirmDialog from '@/components/admin/ConfirmDialog';
+import ReadOnlyNotice from '@/components/admin/ReadOnlyNotice';
 import SubcategoryForm from '@/components/admin/SubcategoryForm';
 import SubcategoriesHeader from '@/components/admin/subcategories/SubcategoriesHeader';
 import SubcategoriesStatsCards from '@/components/admin/subcategories/SubcategoriesStatsCards';
 import SubcategoriesTable from '@/components/admin/subcategories/SubcategoriesTable';
+import { useAdminSession } from '@/context/AdminSessionContext';
 
 const PAGE_SIZE = 5;
 
@@ -68,6 +70,7 @@ function getSubcategoryStatus(subcategory) {
 }
 export default function SubcategoriesPage() {
    const { enqueueSnackbar } = useSnackbar();
+       const { canMutate, loading: adminLoading } = useAdminSession();
        const [categories, setCategories] = useState([]);
        const [subcategories, setSubcategories] = useState([]);
        const [loading, setLoading] = useState(true);
@@ -181,6 +184,13 @@ export default function SubcategoriesPage() {
        }, [filter]);
    
        const openCreateModal = () => {
+           if (!canMutate) {
+               enqueueSnackbar('Only superadmin can create sub-categories.', {
+                   variant: 'warning',
+               });
+               return;
+           }
+
            if (activeCategories.length === 0) {
                enqueueSnackbar('Create an active category first before adding a sub-category', {
                    variant: 'warning',
@@ -194,6 +204,13 @@ export default function SubcategoriesPage() {
        };
    
        const openEditModal = (subcategory) => {
+           if (!canMutate) {
+               enqueueSnackbar('Only superadmin can edit sub-categories.', {
+                   variant: 'warning',
+               });
+               return;
+           }
+
            setFormMode('edit');
            setSelectedSubcategory(subcategory);
            setFormOpen(true);
@@ -209,6 +226,13 @@ export default function SubcategoriesPage() {
        };
    
        const handleSubmitSubcategory = async (payload) => {
+           if (!canMutate) {
+               enqueueSnackbar('Only superadmin can save sub-category changes.', {
+                   variant: 'warning',
+               });
+               return;
+           }
+
            const isEditMode = formMode === 'edit' && selectedSubcategory?.id;
            const endpoint = isEditMode
                ? `/api/admin/subcategories/${selectedSubcategory.id}`
@@ -264,6 +288,13 @@ export default function SubcategoriesPage() {
            if (!deleteTarget?.id) {
                return;
            }
+
+           if (!canMutate) {
+               enqueueSnackbar('Only superadmin can delete sub-categories.', {
+                   variant: 'warning',
+               });
+               return;
+           }
    
            try {
                setDeleteLoading(true);
@@ -303,12 +334,17 @@ export default function SubcategoriesPage() {
                <div className="-m-4 flex min-h-[calc(100vh-4rem)] flex-col overflow-hidden sm:-m-6 lg:-m-8">
                    <section className="flex-1 overflow-y-auto bg-background-light p-4 dark:bg-background-dark sm:p-6 lg:p-8">
                        <div className="w-full">
+                           {!adminLoading && !canMutate ? (
+                               <ReadOnlyNotice className="mb-6" description="This account can review sub-category data but creation, editing, and deletion are limited to superadmin." />
+                           ) : null}
+
                            <SubcategoriesHeader
                                totalProducts={totalProducts}
                                categoriesCount={categories.length}
                                loading={loading}
                                hasCategories={activeCategories.length > 0}
                                onCreate={openCreateModal}
+                               canMutate={canMutate}
                            />
    
                            <SubcategoriesStatsCards
@@ -332,6 +368,7 @@ export default function SubcategoriesPage() {
                                onPageChange={setPage}
                                onEdit={openEditModal}
                                onDelete={setDeleteTarget}
+                               canMutate={canMutate}
                            />
                        </div>
                    </section>

@@ -1,5 +1,9 @@
 import { NextResponse } from 'next/server';
 import { pool } from '@/lib/db';
+import {
+    requireAdminReadAccess,
+    requireAdminWriteAccess,
+} from '@/lib/admin/auth';
 
 const USER_ACTIVATE_EXPR = `
     CASE
@@ -38,9 +42,9 @@ function normalizeCustomerActivate(value) {
 
 export async function GET(req, { params }) {
     try {
-        const role = req.headers.get('role');
-        if (role !== 'admin') {
-            return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+        const denied = await requireAdminReadAccess(req);
+        if (denied) {
+            return denied;
         }
 
         const { id } = await params;
@@ -69,9 +73,9 @@ export async function GET(req, { params }) {
 
 export async function PATCH(req, { params }) {
     try {
-        const role = req.headers.get('role');
-        if (role !== 'admin') {
-            return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+        const denied = await requireAdminWriteAccess(req);
+        if (denied) {
+            return denied;
         }
 
         const { id } = await params;
@@ -125,9 +129,9 @@ export async function PATCH(req, { params }) {
 
 export async function DELETE(req, { params }) {
     try {
-        const role = req.headers.get('role');
-        if (role !== 'admin') {
-            return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+        const denied = await requireAdminWriteAccess(req);
+        if (denied) {
+            return denied;
         }
 
         const { id } = await params;

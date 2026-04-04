@@ -16,6 +16,7 @@ export default function ProductCategoryFlowSection({
     errors,
     categoryId,
     subcategoryId,
+    disabled = false,
     onCategoryChange,
     onSubcategoryChange,
 }) {
@@ -42,7 +43,7 @@ export default function ProductCategoryFlowSection({
                             <Select
                                 value={categoryId}
                                 onChange={onCategoryChange}
-                                disabled={categories.length === 0}
+                                disabled={disabled || categories.length === 0}
                             >
                                 <option value="">Aktif kategori seçin</option>
                                 {categories.map((category) => (
@@ -61,7 +62,7 @@ export default function ProductCategoryFlowSection({
                             <Select
                                 value={subcategoryId}
                                 onChange={onSubcategoryChange}
-                                disabled={!selectedCategory || availableSubcategories.length === 0}
+                                disabled={disabled || !selectedCategory || availableSubcategories.length === 0}
                             >
                                 <option value="">
                                     {selectedCategory

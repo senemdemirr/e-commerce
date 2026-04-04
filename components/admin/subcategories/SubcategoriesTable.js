@@ -26,6 +26,7 @@ export default function SubcategoriesTable({
     onPageChange,
     onEdit,
     onDelete,
+    canMutate,
 }) {
     return (
         <div className="overflow-hidden rounded-2xl border border-primary/10 bg-white shadow-sm dark:bg-slate-900">
@@ -154,21 +155,29 @@ export default function SubcategoriesTable({
 
                                         <td className="px-6 py-5 text-right">
                                             <div className="flex justify-end gap-2">
-                                                <IconButton
-                                                    onClick={() => onEdit(subcategory)}
-                                                    title="Edit"
-                                                    className="!rounded-lg !p-2 !text-slate-400 transition-colors hover:!bg-primary/10 hover:!text-primary"
-                                                >
-                                                    <EditRoundedIcon className="!text-lg" />
-                                                </IconButton>
+                                                {canMutate ? (
+                                                    <>
+                                                        <IconButton
+                                                            onClick={() => onEdit(subcategory)}
+                                                            title="Edit"
+                                                            className="!rounded-lg !p-2 !text-slate-400 transition-colors hover:!bg-primary/10 hover:!text-primary"
+                                                        >
+                                                            <EditRoundedIcon className="!text-lg" />
+                                                        </IconButton>
 
-                                                <IconButton
-                                                    onClick={() => onDelete(subcategory)}
-                                                    title="Delete"
-                                                    className="!rounded-lg !p-2 !text-slate-400 transition-colors hover:!bg-red-50 hover:!text-red-500"
-                                                >
-                                                    <DeleteRoundedIcon className="!text-lg" />
-                                                </IconButton>
+                                                        <IconButton
+                                                            onClick={() => onDelete(subcategory)}
+                                                            title="Delete"
+                                                            className="!rounded-lg !p-2 !text-slate-400 transition-colors hover:!bg-red-50 hover:!text-red-500"
+                                                        >
+                                                            <DeleteRoundedIcon className="!text-lg" />
+                                                        </IconButton>
+                                                    </>
+                                                ) : (
+                                                    <span className="text-xs font-bold uppercase tracking-wider text-slate-400">
+                                                        Read only
+                                                    </span>
+                                                )}
                                             </div>
                                         </td>
                                     </tr>

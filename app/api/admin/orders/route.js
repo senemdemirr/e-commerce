@@ -4,9 +4,15 @@ import {
     ORDER_STATUS_JOIN_CONDITION,
     ORDER_STATUS_TITLE_EXPR,
 } from '@/lib/admin/order-status';
+import { requireAdminReadAccess } from '@/lib/admin/auth';
 
 export async function GET(req) {
     try {
+        const denied = await requireAdminReadAccess(req);
+        if (denied) {
+            return denied;
+        }
+
         let url;
         try {
             url = new URL(req.url);

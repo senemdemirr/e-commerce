@@ -31,9 +31,15 @@ describe('Admin Subcategories Route', () => {
         expect(response.status).toBe(403);
     });
 
+    test('POST /api/admin/subcategories - admin rolü yazma işlemi yapamaz ve 403 alır', async () => {
+        const req = { headers: { get: () => 'admin' } };
+        const response = await POST(req);
+        expect(response.status).toBe(403);
+    });
+
     test('POST /api/admin/subcategories - name alanı eksikse 400 döner', async () => {
         const req = {
-            headers: { get: () => 'admin' },
+            headers: { get: () => 'superadmin' },
             json: async () => ({ category_id: 1, slug: 'test-alt' }) // name eksik
         };
         const response = await POST(req);
@@ -41,7 +47,7 @@ describe('Admin Subcategories Route', () => {
     });
     test('POST /api/admin/subcategories - category_id eksikse 400 döner (kategoriye bağlı olmalı)', async () => {
         const req = {
-            headers: { get: () => 'admin' },
+            headers: { get: () => 'superadmin' },
             json: async () => ({ name: 'Test Alt', slug: 'test-alt' }) // category_id eksik
         };
         const response = await POST(req);
@@ -49,7 +55,7 @@ describe('Admin Subcategories Route', () => {
     });
     test('POST /api/admin/subcategories - slug alanı eksikse 400 döner', async () => {
         const req = {
-            headers: { get: () => 'admin' },
+            headers: { get: () => 'superadmin' },
             json: async () => ({ name: 'Test Alt', category_id: 1 }) // slug eksik
         };
         const response = await POST(req);
@@ -58,7 +64,7 @@ describe('Admin Subcategories Route', () => {
 
     test('POST /api/admin/subcategories - slug alanı Türkçe karakter içeremez (400 döner)', async () => {
         const req = {
-            headers: { get: () => 'admin' },
+            headers: { get: () => 'superadmin' },
             json: async () => ({
                 name: 'Moda',
                 slug: 'çocuk-modası', // 'ç' ve 'ı' geçersiz
@@ -71,7 +77,7 @@ describe('Admin Subcategories Route', () => {
 
     test('POST /api/admin/subcategories - geçerli verilerle 201 döner', async () => {
         const req = { 
-            headers: { get: () => 'admin' },
+            headers: { get: () => 'superadmin' },
             json: async () => ({ 
                 name: 'Test Alt Kategori', 
                 slug: 'test-alt', 

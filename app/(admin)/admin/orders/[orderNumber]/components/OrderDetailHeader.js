@@ -14,6 +14,7 @@ export default function OrderDetailHeader({
     saving,
     cancelledStatus,
     isStatusLocked,
+    canMutate,
     onCancelOrder,
 }) {
     return (
@@ -57,11 +58,11 @@ export default function OrderDetailHeader({
                         <OrderPdfDownloadButton order={order} currentStatusTitle={currentStatusTitle} />
                         <Button
                             onClick={onCancelOrder}
-                            disabled={saving || !cancelledStatus || isStatusLocked}
+                            disabled={saving || !cancelledStatus || isStatusLocked || !canMutate}
                             startIcon={<CancelOutlinedIcon />}
                             className="!rounded-2xl !border !border-accent/20 !bg-red-500 !px-4 !py-2.5 !font-bold !text-white hover:!bg-red-600/5"
                         >
-                            Cancel Order
+                            {canMutate ? 'Cancel Order' : 'Read Only'}
                         </Button>
                     </div>
                 </div>

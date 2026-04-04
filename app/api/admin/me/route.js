@@ -1,29 +1,18 @@
 import { NextResponse } from 'next/server';
-import { pool } from '@/lib/db';
+import { getAdminUserFromCookie } from '@/lib/admin/auth';
 
 export async function GET(req) {
     try {
-        // Token'dan admin email'ini çöz
         const adminToken = req.cookies.get('admin_token');
 
         if (!adminToken || !adminToken.value.startsWith('admin-session-token:')) {
             return NextResponse.json({ error: 'Unauthorized access' }, { status: 401 });
         }
+        const admin = await getAdminUserFromCookie(req);
 
-        // Token formatı: 'admin-session-token:BASE64_EMAIL'
-        const base64Email = adminToken.value.split(':')[1];
-        const email = Buffer.from(base64Email, 'base64').toString('utf-8');
-
-        const result = await pool.query(
-            'SELECT id, email, name, role FROM users WHERE email = $1 AND role = $2',
-            [email, 'admin']
-        );
-
-        if (result.rowCount === 0) {
+        if (!admin) {
             return NextResponse.json({ error: 'Admin not found' }, { status: 404 });
         }
-
-        const admin = result.rows[0];
 
         return NextResponse.json({
             id: admin.id,

@@ -16,6 +16,7 @@ import SaveRoundedIcon from '@mui/icons-material/SaveRounded';
 import StraightenRoundedIcon from '@mui/icons-material/StraightenRounded';
 import WarningAmberRoundedIcon from '@mui/icons-material/WarningAmberRounded';
 import { useSnackbar } from 'notistack';
+import ReadOnlyNotice from '@/components/admin/ReadOnlyNotice';
 import ProductCategoryFlowSection from '@/components/admin/products/ProductCategoryFlowSection';
 import ProductContentSection from '@/components/admin/products/ProductContentSection';
 import ProductDeleteDialog from '@/components/admin/products/ProductDeleteDialog';
@@ -29,6 +30,7 @@ import {
     getCatalogScore,
     getReadinessMeta,
 } from '@/components/admin/products/productsPageHelpers';
+import { useAdminSession } from '@/context/AdminSessionContext';
 
 const INITIAL_FORM = {
     title: '',
@@ -186,6 +188,7 @@ export default function ProductDetailPage() {
     const params = useParams();
     const router = useRouter();
     const { enqueueSnackbar } = useSnackbar();
+    const { canMutate, loading: adminLoading } = useAdminSession();
     const productId = Array.isArray(params?.id) ? params.id[0] : params?.id;
 
     const [categories, setCategories] = useState([]);
@@ -438,7 +441,7 @@ export default function ProductDetailPage() {
     }
 
     function handleReset() {
-        if (!initialDraft) {
+        if (!canMutate || !initialDraft) {
             return;
         }
 
@@ -491,6 +494,11 @@ export default function ProductDetailPage() {
 
     async function handleSubmit(event) {
         event.preventDefault();
+
+        if (!canMutate) {
+            enqueueSnackbar('Only superadmin can update products.', { variant: 'warning' });
+            return;
+        }
 
         if (!validateForm()) {
             enqueueSnackbar('Eksik alanları tamamlayın.', { variant: 'warning' });
@@ -560,7 +568,7 @@ export default function ProductDetailPage() {
     }
 
     function openDeleteDialog() {
-        if (deleting) {
+        if (!canMutate || deleting) {
             return;
         }
 
@@ -576,7 +584,10 @@ export default function ProductDetailPage() {
     }
 
     async function confirmDelete() {
-        if (!productId || deleting) {
+        if (!canMutate || !productId || deleting) {
+            if (!canMutate) {
+                enqueueSnackbar('Only superadmin can delete products.', { variant: 'warning' });
+            }
             return;
         }
 
@@ -606,7 +617,7 @@ export default function ProductDetailPage() {
         }
     }
 
-    if (loading) {
+    if (loading || adminLoading) {
         return (
             <div className="flex min-h-[65vh] items-center justify-center">
                 <CircularProgress className="!text-primary" />
@@ -642,6 +653,10 @@ export default function ProductDetailPage() {
 
     return (
         <form onSubmit={handleSubmit} className="space-y-8 pb-10">
+            {!canMutate ? (
+                <ReadOnlyNotice description="This account can review product details but only superadmin can update or delete products." />
+            ) : null}
+
             <SurfaceCard className="!relative overflow-hidden">
                 <div className="absolute -left-10 top-0 h-40 w-40 rounded-full bg-primary/15 blur-3xl" />
                 <div className="absolute right-0 top-0 h-56 w-56 rounded-full bg-accent/20 blur-3xl" />
@@ -679,7 +694,7 @@ export default function ProductDetailPage() {
                         <Button
                             type="button"
                             onClick={handleReset}
-                            disabled={submitting || deleting || !initialDraft}
+                            disabled={!canMutate || submitting || deleting || !initialDraft}
                             startIcon={<RestartAltRoundedIcon />}
                             className="!rounded-2xl !border !border-primary/10 !bg-white !px-5 !py-3 !font-semibold !normal-case !text-text-main hover:!bg-background-light"
                         >
@@ -688,19 +703,19 @@ export default function ProductDetailPage() {
                         <Button
                             type="button"
                             onClick={openDeleteDialog}
-                            disabled={submitting || deleting}
+                            disabled={!canMutate || submitting || deleting}
                             startIcon={<DeleteRoundedIcon />}
                             className="!rounded-2xl !border !border-red-100 !bg-white !px-5 !py-3 !font-semibold !normal-case !text-red-500 hover:!bg-red-50"
                         >
-                            {deleting ? 'Siliniyor...' : 'Ürünü Sil'}
+                            {canMutate ? (deleting ? 'Siliniyor...' : 'Ürünü Sil') : 'Read Only'}
                         </Button>
                         <Button
                             type="submit"
-                            disabled={submitting || deleting || !selectedSubcategory}
+                            disabled={!canMutate || submitting || deleting || !selectedSubcategory}
                             startIcon={<SaveRoundedIcon />}
                             className="!rounded-2xl !bg-primary !px-5 !py-3 !font-bold !normal-case !text-text-main hover:!bg-primary-dark hover:!text-white disabled:!bg-primary/40 disabled:!text-text-main/70"
                         >
-                            {submitting ? 'Kaydediliyor...' : 'Değişiklikleri Kaydet'}
+                            {canMutate ? (submitting ? 'Kaydediliyor...' : 'Değişiklikleri Kaydet') : 'Read Only'}
                         </Button>
                     </div>
                 </div>
@@ -711,6 +726,7 @@ export default function ProductDetailPage() {
                     <ProductGeneralInfoSection
                         values={form}
                         errors={errors}
+                        disabled={!canMutate}
                         onTitleChange={handleTitleChange}
                         onBrandChange={(event) => updateForm('brand', event.target.value)}
                         onSkuChange={handleSkuChange}
@@ -727,6 +743,7 @@ export default function ProductDetailPage() {
                         errors={errors}
                         categoryId={form.categoryId}
                         subcategoryId={form.subcategoryId}
+                        disabled={!canMutate}
                         onCategoryChange={(event) => handleCategorySelect(event.target.value)}
                         onSubcategoryChange={(event) => handleSubcategorySelect(event.target.value)}
                     />
@@ -735,6 +752,7 @@ export default function ProductDetailPage() {
                         colors={colors}
                         sizesValue={form.sizes}
                         normalizedSizes={normalizedSizes}
+                        disabled={!canMutate}
                         onAddColor={() => setColors((current) => [...current, createEmptyColor()])}
                         onColorChange={handleColorChange}
                         onRemoveColor={handleRemoveColor}
@@ -746,6 +764,7 @@ export default function ProductDetailPage() {
                         careValue={form.care}
                         bulletPointsValue={form.bulletPoints}
                         descriptionLongValue={form.descriptionLong}
+                        disabled={!canMutate}
                         onMaterialChange={(event) => updateForm('material', event.target.value)}
                         onCareChange={(event) => updateForm('care', event.target.value)}
                         onBulletPointsChange={(event) => updateForm('bulletPoints', event.target.value)}
@@ -754,6 +773,7 @@ export default function ProductDetailPage() {
                             <ProductImageField
                                 imageFile={imageFile || (imagePreview ? { name: 'Mevcut görsel kullanılıyor' } : null)}
                                 error={errors.image}
+                                disabled={!canMutate}
                                 onImageChange={handleImageChange}
                             />
                         )}

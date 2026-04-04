@@ -41,6 +41,7 @@ export default function CategoriesTable({
     onPageChange,
     onEdit,
     onDelete,
+    canMutate,
 }) {
     return (
         <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900">
@@ -128,21 +129,29 @@ export default function CategoriesTable({
 
                                             <td className="px-6 py-5 text-right">
                                                 <div className="flex justify-end gap-2">
-                                                    <IconButton
-                                                        onClick={() => onEdit(category)}
-                                                        title="Edit"
-                                                        className="!rounded-lg !p-2 !text-slate-400 transition-all hover:!bg-primary/5 hover:!text-primary"
-                                                    >
-                                                        <EditRoundedIcon className="!text-lg" />
-                                                    </IconButton>
+                                                    {canMutate ? (
+                                                        <>
+                                                            <IconButton
+                                                                onClick={() => onEdit(category)}
+                                                                title="Edit"
+                                                                className="!rounded-lg !p-2 !text-slate-400 transition-all hover:!bg-primary/5 hover:!text-primary"
+                                                            >
+                                                                <EditRoundedIcon className="!text-lg" />
+                                                            </IconButton>
 
-                                                    <IconButton
-                                                        onClick={() => onDelete(category)}
-                                                        title="Delete"
-                                                        className="!rounded-lg !p-2 !text-slate-400 transition-all hover:!bg-red-50 hover:!text-red-500"
-                                                    >
-                                                        <DeleteRoundedIcon className="!text-lg" />
-                                                    </IconButton>
+                                                            <IconButton
+                                                                onClick={() => onDelete(category)}
+                                                                title="Delete"
+                                                                className="!rounded-lg !p-2 !text-slate-400 transition-all hover:!bg-red-50 hover:!text-red-500"
+                                                            >
+                                                                <DeleteRoundedIcon className="!text-lg" />
+                                                            </IconButton>
+                                                        </>
+                                                    ) : (
+                                                        <span className="text-xs font-bold uppercase tracking-wider text-slate-400">
+                                                            Read only
+                                                        </span>
+                                                    )}
                                                 </div>
                                             </td>
                                         </tr>

@@ -14,6 +14,7 @@ export default function OrderStatusCard({
     saving,
     hasPendingChanges,
     isStatusLocked,
+    canMutate,
     onStatusChange,
     onUpdateStatus,
 }) {
@@ -41,7 +42,7 @@ export default function OrderStatusCard({
                     label="Update Status"
                     value={status}
                     onChange={(event) => onStatusChange(event.target.value)}
-                    disabled={isStatusLocked}
+                    disabled={isStatusLocked || !canMutate}
                     fullWidth
                     sx={{
                         '& .MuiOutlinedInput-root': {
@@ -49,7 +50,9 @@ export default function OrderStatusCard({
                             backgroundColor: '#f8f9fa',
                         },
                     }}
-                    helperText={`Current order status: ${currentStatusTitle}`}
+                    helperText={canMutate
+                        ? `Current order status: ${currentStatusTitle}`
+                        : 'This account can review orders but only superadmin can update status.'}
                 >
                     {statusOptions.map((option) => (
                         <MenuItem key={option.id} value={String(option.id)}>
@@ -60,11 +63,11 @@ export default function OrderStatusCard({
 
                 <Button
                     onClick={onUpdateStatus}
-                    disabled={saving || isStatusLocked || !hasPendingChanges}
+                    disabled={saving || isStatusLocked || !hasPendingChanges || !canMutate}
                     startIcon={<SaveRoundedIcon />}
                     className="!w-full !rounded-2xl !bg-primary !py-3 !font-bold !text-white hover:!bg-primary-dark disabled:!opacity-50"
                 >
-                    {saving ? 'Updating...' : 'Update Order'}
+                    {canMutate ? (saving ? 'Updating...' : 'Update Order') : 'Read Only'}
                 </Button>
 
                 {statusUpdatedByAdmin && statusUpdatedAt ? (

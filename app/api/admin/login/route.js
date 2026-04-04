@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { pool } from '@/lib/db';
 import bcrypt from 'bcryptjs';
+import { isPrivilegedRole } from '@/lib/admin/auth';
 
 export async function POST(req) {
     try {
@@ -31,7 +32,7 @@ export async function POST(req) {
         }
 
         // Rol kontrolü (sadece admin girebilir)
-        if (user.role !== 'admin') {
+        if (!isPrivilegedRole(user.role)) {
             return NextResponse.json({ error: 'User is not an admin' }, { status: 403 });
         }
 

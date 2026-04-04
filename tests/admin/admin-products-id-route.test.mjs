@@ -12,7 +12,7 @@ describe('Admin Product ID Route', () => {
         DELETE = module.DELETE;
     });
 
-    const createMockRequest = (overrides = {}, deleteKeys = []) => {
+    const createMockRequest = (overrides = {}, deleteKeys = [], role = 'admin') => {
         const data = new Map([
             ['title', 'Güncellenmiş Ürün'],
             ['description', 'Açıklama'],
@@ -45,7 +45,7 @@ describe('Admin Product ID Route', () => {
         }
 
         return {
-            headers: { get: () => 'admin' },
+            headers: { get: () => role },
             formData: async () => ({
                 get: (key) => {
                     const val = data.get(key);
@@ -82,14 +82,20 @@ describe('Admin Product ID Route', () => {
     });
 
     test('PUT /api/admin/products/[id] - geçerli verilerle ürünü günceller (FormData)', async () => {
-        const req = createMockRequest();
+        const req = createMockRequest({}, [], 'superadmin');
         const response = await PUT(req, { params: { id: '1' } });
         expect(response.status).toBe(200);
     });
 
+    test('PUT /api/admin/products/[id] - admin rolü ürünü güncelleyemez ve 403 alır', async () => {
+        const req = createMockRequest();
+        const response = await PUT(req, { params: { id: '1' } });
+        expect(response.status).toBe(403);
+    });
+
     test('PUT /api/admin/products/[id] - eğer üründe güncelleme yapılmadıysa (veri yoksa) database e istek gitmeden 200 döner (hata dönmez)', async () => {
         const req = { 
-            headers: { get: () => 'admin' },
+            headers: { get: () => 'superadmin' },
             formData: async () => ({
                 entries: () => [],
                 get: () => null,
@@ -105,7 +111,7 @@ describe('Admin Product ID Route', () => {
     });
 
     test('PUT /api/admin/products/[id] - title eksikse 400 döner', async () => {
-        const req = createMockRequest({}, ['title']);
+        const req = createMockRequest({}, ['title'], 'superadmin');
         const response = await PUT(req, { params: { id: '1' } });
         expect(response.status).toBe(400);
         const data = await response.json();
@@ -113,7 +119,7 @@ describe('Admin Product ID Route', () => {
     });
 
     test('PUT /api/admin/products/[id] - description eksikse 400 döner', async () => {
-        const req = createMockRequest({}, ['description']);
+        const req = createMockRequest({}, ['description'], 'superadmin');
         const response = await PUT(req, { params: { id: '1' } });
         expect(response.status).toBe(400);
         const data = await response.json();
@@ -121,7 +127,7 @@ describe('Admin Product ID Route', () => {
     });
 
     test('PUT /api/admin/products/[id] - sku eksikse 400 döner', async () => {
-        const req = createMockRequest({}, ['sku']);
+        const req = createMockRequest({}, ['sku'], 'superadmin');
         const response = await PUT(req, { params: { id: '1' } });
         expect(response.status).toBe(400);
         const data = await response.json();
@@ -129,7 +135,7 @@ describe('Admin Product ID Route', () => {
     });
 
     test('PUT /api/admin/products/[id] - sku Türkçe karakter içeriyorsa 400 döner', async () => {
-        const req = createMockRequest({ sku: 'TEST-ŞKÜ' });
+        const req = createMockRequest({ sku: 'TEST-ŞKÜ' }, [], 'superadmin');
         const response = await PUT(req, { params: { id: '1' } });
         expect(response.status).toBe(400);
         const data = await response.json();
@@ -137,7 +143,7 @@ describe('Admin Product ID Route', () => {
     });
 
     test('PUT /api/admin/products/[id] - price eksikse 400 döner', async () => {
-        const req = createMockRequest({}, ['price']);
+        const req = createMockRequest({}, ['price'], 'superadmin');
         const response = await PUT(req, { params: { id: '1' } });
         expect(response.status).toBe(400);
         const data = await response.json();
@@ -145,19 +151,19 @@ describe('Admin Product ID Route', () => {
     });
 
     test('PUT /api/admin/products/[id] - price formatı hatalıysa (virgüllü veya harf) 400 döner', async () => {
-        const reqInvalid1 = createMockRequest({ price: '250,00' });
+        const reqInvalid1 = createMockRequest({ price: '250,00' }, [], 'superadmin');
         const response1 = await PUT(reqInvalid1, { params: { id: '1' } });
         expect(response1.status).toBe(400);
         const data1 = await response1.json();
         expect(data1.error).toMatch(/price|fiyat|format/i);
         
-        const reqInvalid2 = createMockRequest({ price: 'abc' });
+        const reqInvalid2 = createMockRequest({ price: 'abc' }, [], 'superadmin');
         const response2 = await PUT(reqInvalid2, { params: { id: '1' } });
         expect(response2.status).toBe(400);
     });
 
     test('PUT /api/admin/products/[id] - alt kategori (subcategory_id) eksikse 400 döner', async () => {
-        const req = createMockRequest({}, ['subcategory_id']);
+        const req = createMockRequest({}, ['subcategory_id'], 'superadmin');
         const response = await PUT(req, { params: { id: '1' } });
         expect(response.status).toBe(400);
         const data = await response.json();
@@ -165,7 +171,7 @@ describe('Admin Product ID Route', () => {
     });
 
     test('PUT /api/admin/products/[id] - alt kategori (subcategory_id) birden fazla (dizi) olamaz, olursa 400 döner', async () => {
-        const req = createMockRequest({ subcategory_id: ['1', '2'] });
+        const req = createMockRequest({ subcategory_id: ['1', '2'] }, [], 'superadmin');
         const response = await PUT(req, { params: { id: '1' } });
         expect(response.status).toBe(400);
         const data = await response.json();
@@ -173,7 +179,7 @@ describe('Admin Product ID Route', () => {
     });
 
     test('PUT /api/admin/products/[id] - brand eksikse 400 döner', async () => {
-        const req = createMockRequest({}, ['brand']);
+        const req = createMockRequest({}, ['brand'], 'superadmin');
         const response = await PUT(req, { params: { id: '1' } });
         expect(response.status).toBe(400);
         const data = await response.json();
@@ -181,7 +187,7 @@ describe('Admin Product ID Route', () => {
     });
 
     test('PUT /api/admin/products/[id] - image eksikse 400 döner', async () => {
-        const req = createMockRequest({}, ['image']);
+        const req = createMockRequest({}, ['image'], 'superadmin');
         const response = await PUT(req, { params: { id: '1' } });
         expect(response.status).toBe(400);
         const data = await response.json();
@@ -191,7 +197,7 @@ describe('Admin Product ID Route', () => {
     test('PUT /api/admin/products/[id] - image boyutu 3MB dan büyükse 400 döner', async () => {
         const req = createMockRequest({ 
             image: { name: 'large.png', size: 4 * 1024 * 1024, type: 'image/png', arrayBuffer: async () => new ArrayBuffer(10) } 
-        }); // 4MB
+        }, [], 'superadmin'); // 4MB
         const response = await PUT(req, { params: { id: '1' } });
         expect(response.status).toBe(400);
         const data = await response.json();
@@ -199,7 +205,7 @@ describe('Admin Product ID Route', () => {
     });
 
     test('PUT /api/admin/products/[id] - colors alanı geçerli bir JSON formatında değilse 400 döner', async () => {
-        const req = createMockRequest({ colors: 'invalid-json' });
+        const req = createMockRequest({ colors: 'invalid-json' }, [], 'superadmin');
         const response = await PUT(req, { params: { id: '1' } });
         expect(response.status).toBe(400);
         const data = await response.json();
@@ -207,7 +213,7 @@ describe('Admin Product ID Route', () => {
     });
 
     test('PUT /api/admin/products/[id] - colors alanı JSON dizisi (array) değilse 400 döner', async () => {
-        const req = createMockRequest({ colors: '{"name": "Red"}' }); // Object instead of array
+        const req = createMockRequest({ colors: '{"name": "Red"}' }, [], 'superadmin'); // Object instead of array
         const response = await PUT(req, { params: { id: '1' } });
         expect(response.status).toBe(400);
         const data = await response.json();
@@ -215,7 +221,7 @@ describe('Admin Product ID Route', () => {
     });
 
     test('PUT /api/admin/products/[id] - sizes alanı geçerli bir JSON formatında değilse 400 döner', async () => {
-        const req = createMockRequest({ sizes: 'invalid-json' });
+        const req = createMockRequest({ sizes: 'invalid-json' }, [], 'superadmin');
         const response = await PUT(req, { params: { id: '1' } });
         expect(response.status).toBe(400);
         const data = await response.json();
@@ -223,7 +229,7 @@ describe('Admin Product ID Route', () => {
     });
 
     test('PUT /api/admin/products/[id] - sizes alanı JSON dizisi (array) değilse 400 döner', async () => {
-        const req = createMockRequest({ sizes: '{"size": "M"}' }); // Object instead of array
+        const req = createMockRequest({ sizes: '{"size": "M"}' }, [], 'superadmin'); // Object instead of array
         const response = await PUT(req, { params: { id: '1' } });
         expect(response.status).toBe(400);
         const data = await response.json();
@@ -231,7 +237,7 @@ describe('Admin Product ID Route', () => {
     });
 
     test('PUT /api/admin/products/[id] - details alanı geçerli bir JSON formatında değilse 400 döner', async () => {
-        const req = createMockRequest({ details: 'invalid-json' });
+        const req = createMockRequest({ details: 'invalid-json' }, [], 'superadmin');
         const response = await PUT(req, { params: { id: '1' } });
         expect(response.status).toBe(400);
         const data = await response.json();
@@ -239,7 +245,7 @@ describe('Admin Product ID Route', () => {
     });
 
     test('PUT /api/admin/products/[id] - details alanı JSON nesnesi (object) değilse 400 döner', async () => {
-        const req = createMockRequest({ details: '["detail1", "detail2"]' }); // Array instead of object
+        const req = createMockRequest({ details: '["detail1", "detail2"]' }, [], 'superadmin'); // Array instead of object
         const response = await PUT(req, { params: { id: '1' } });
         expect(response.status).toBe(400);
         const data = await response.json();
@@ -247,7 +253,7 @@ describe('Admin Product ID Route', () => {
     });
 
     test('PUT /api/admin/products/[id] - colors JSON dizisi içindeki öğeler name ve hex objesi değilse 400 döner', async () => {
-        const req = createMockRequest({ colors: JSON.stringify([{ name: 'Red' }]) }); // hex eksik
+        const req = createMockRequest({ colors: JSON.stringify([{ name: 'Red' }]) }, [], 'superadmin'); // hex eksik
         const response = await PUT(req, { params: { id: '1' } });
         expect(response.status).toBe(400);
         const data = await response.json();
@@ -255,7 +261,7 @@ describe('Admin Product ID Route', () => {
     });
 
     test('PUT /api/admin/products/[id] - sizes dizisi içindeki öğeler string değilse 400 döner', async () => {
-        const req = createMockRequest({ sizes: JSON.stringify([1, 2, 3]) }); // string yerine sayı
+        const req = createMockRequest({ sizes: JSON.stringify([1, 2, 3]) }, [], 'superadmin'); // string yerine sayı
         const response = await PUT(req, { params: { id: '1' } });
         expect(response.status).toBe(400);
         const data = await response.json();
@@ -270,7 +276,7 @@ describe('Admin Product ID Route', () => {
                 bullet_points: ["Point 1", "Point 2"], 
                 description_long: "Açıklama" 
             }) 
-        });
+        }, [], 'superadmin');
         const response = await PUT(req, { params: { id: '1' } });
         expect(response.status).toBe(400);
         const data = await response.json();
@@ -278,8 +284,14 @@ describe('Admin Product ID Route', () => {
     });
 
     test('DELETE /api/admin/products/[id] - ürünü siler ve 200 döner', async () => {
-        const req = { headers: { get: () => 'admin' } };
+        const req = { headers: { get: () => 'superadmin' } };
         const response = await DELETE(req, { params: { id: '1' } });
         expect(response.status).toBe(200);
+    });
+
+    test('DELETE /api/admin/products/[id] - admin rolü ürünü silemez ve 403 alır', async () => {
+        const req = { headers: { get: () => 'admin' } };
+        const response = await DELETE(req, { params: { id: '1' } });
+        expect(response.status).toBe(403);
     });
 });

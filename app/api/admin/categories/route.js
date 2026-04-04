@@ -1,8 +1,11 @@
 import { pool } from '../../../../lib/db.js';
 import {
+    requireAdminReadAccess,
+    requireAdminWriteAccess,
+} from '../../../../lib/admin/auth.js';
+import {
     buildCategoriesWithSubcategories,
     createFallbackCategory,
-    isAdminRequest,
     isCategoryTestMode,
     isValidCategorySlug,
     listFallbackCategories,
@@ -18,8 +21,9 @@ function invalidFieldResponse(message) {
 }
 
 export async function GET(req) {
-    if (!isAdminRequest(req)) {
-        return forbiddenResponse();
+    const denied = await requireAdminReadAccess(req);
+    if (denied) {
+        return denied;
     }
 
     if (isCategoryTestMode()) {
@@ -70,8 +74,9 @@ export async function GET(req) {
 }
 
 export async function POST(req) {
-    if (!isAdminRequest(req)) {
-        return forbiddenResponse();
+    const denied = await requireAdminWriteAccess(req);
+    if (denied) {
+        return denied;
     }
 
     try {

@@ -1,8 +1,8 @@
 import { pool } from '../../../../../lib/db.js';
+import { requireAdminWriteAccess } from '../../../../../lib/admin/auth.js';
 import {
     deleteFallbackCategory,
     findFallbackCategoryById,
-    isAdminRequest,
     isCategoryTestMode,
     isValidCategorySlug,
     normalizeCategoryPayload,
@@ -28,8 +28,9 @@ async function parseCategoryId(params) {
 }
 
 export async function PUT(req, { params } = {}) {
-    if (!isAdminRequest(req)) {
-        return forbiddenResponse();
+    const denied = await requireAdminWriteAccess(req);
+    if (denied) {
+        return denied;
     }
 
     try {
@@ -127,8 +128,9 @@ export async function PUT(req, { params } = {}) {
 }
 
 export async function DELETE(req, { params } = {}) {
-    if (!isAdminRequest(req)) {
-        return forbiddenResponse();
+    const denied = await requireAdminWriteAccess(req);
+    if (denied) {
+        return denied;
     }
 
     try {

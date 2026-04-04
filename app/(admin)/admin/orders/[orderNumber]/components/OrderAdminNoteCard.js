@@ -6,6 +6,7 @@ export default function OrderAdminNoteCard({
     value,
     disabled,
     hasSavedNote,
+    canMutate = true,
     onChange,
 }) {
     return (
@@ -27,7 +28,9 @@ export default function OrderAdminNoteCard({
                 className="!rounded-3xl"
                 helperText={disabled && hasSavedNote
                     ? 'This order is in a final state. The saved admin note is shown as read-only.'
-                    : 'The note is saved to the database during the status update.'}
+                    : canMutate
+                        ? 'The note is saved to the database during the status update.'
+                        : 'This account can read the note but only superadmin can update it.'}
                 sx={{
                     '& .MuiOutlinedInput-root': {
                         borderRadius: '1rem',

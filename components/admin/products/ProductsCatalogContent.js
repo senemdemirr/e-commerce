@@ -33,6 +33,7 @@ export default function ProductsCatalogContent({
     onPageChange,
     onRetry,
     onDeleteProduct,
+    canMutate,
 }) {
     if (loading) {
         return (
@@ -84,6 +85,7 @@ export default function ProductsCatalogContent({
             <ProductsCatalogTable
                 visibleProducts={visibleProducts}
                 onDeleteProduct={onDeleteProduct}
+                canMutate={canMutate}
             />
 
             <div className="grid gap-4 p-4 sm:p-6 lg:hidden">
@@ -172,12 +174,14 @@ export default function ProductsCatalogContent({
                                 >
                                     <EditRoundedIcon className="!text-lg" />
                                 </IconButton>
-                                <IconButton
-                                    onClick={() => onDeleteProduct(product)}
-                                    className="!rounded-xl !border !border-red-100 !text-red-400 hover:!bg-red-50 hover:!text-red-500"
-                                >
-                                    <DeleteRoundedIcon className="!text-lg" />
-                                </IconButton>
+                                {canMutate ? (
+                                    <IconButton
+                                        onClick={() => onDeleteProduct(product)}
+                                        className="!rounded-xl !border !border-red-100 !text-red-400 hover:!bg-red-50 hover:!text-red-500"
+                                    >
+                                        <DeleteRoundedIcon className="!text-lg" />
+                                    </IconButton>
+                                ) : null}
                             </div>
                         </div>
                     </div>

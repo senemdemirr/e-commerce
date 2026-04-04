@@ -5,7 +5,7 @@ import EditRoundedIcon from '@mui/icons-material/EditRounded';
 import Inventory2RoundedIcon from '@mui/icons-material/Inventory2Rounded';
 import { formatCurrency, formatDate } from './productsPageHelpers';
 
-export default function ProductsCatalogTable({ visibleProducts, onDeleteProduct }) {
+export default function ProductsCatalogTable({ visibleProducts, onDeleteProduct, canMutate }) {
     return (
         <div className="hidden overflow-x-auto lg:block">
             <table className="w-full border-collapse text-left">
@@ -143,7 +143,7 @@ export default function ProductsCatalogTable({ visibleProducts, onDeleteProduct 
 
                             <td className="px-6 py-5">
                                 <div className="flex justify-end gap-2">
-                                    <Tooltip title="Düzenle">
+                                    <Tooltip title={canMutate ? 'Düzenle' : 'Görüntüle'}>
                                         <span>
                                             <IconButton
                                                 component={Link}
@@ -155,16 +155,18 @@ export default function ProductsCatalogTable({ visibleProducts, onDeleteProduct 
                                         </span>
                                     </Tooltip>
 
-                                    <Tooltip title="Sil">
-                                        <span>
-                                            <IconButton
-                                                onClick={() => onDeleteProduct(product)}
-                                                className="!rounded-xl !border !border-red-100 !text-red-400 hover:!bg-red-50 hover:!text-red-500"
-                                            >
-                                                <DeleteRoundedIcon className="!text-lg" />
-                                            </IconButton>
-                                        </span>
-                                    </Tooltip>
+                                    {canMutate ? (
+                                        <Tooltip title="Sil">
+                                            <span>
+                                                <IconButton
+                                                    onClick={() => onDeleteProduct(product)}
+                                                    className="!rounded-xl !border !border-red-100 !text-red-400 hover:!bg-red-50 hover:!text-red-500"
+                                                >
+                                                    <DeleteRoundedIcon className="!text-lg" />
+                                                </IconButton>
+                                            </span>
+                                        </Tooltip>
+                                    ) : null}
                                 </div>
                             </td>
                         </tr>

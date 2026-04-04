@@ -4,6 +4,7 @@ import {
     ORDER_STATUS_JOIN_CONDITION,
     ORDER_STATUS_TITLE_EXPR,
 } from '@/lib/admin/order-status';
+import { requireAdminReadAccess } from '@/lib/admin/auth';
 
 function findStatusCount(statuses, codes) {
     return statuses.reduce((total, item) => {
@@ -13,8 +14,13 @@ function findStatusCount(statuses, codes) {
     }, 0);
 }
 
-export async function GET() {
+export async function GET(req) {
     try {
+        const denied = await requireAdminReadAccess(req);
+        if (denied) {
+            return denied;
+        }
+
         const statusesResult = await pool.query(`
             SELECT
                 os.id,

@@ -31,10 +31,19 @@ describe('Admin Customer ID Route', () => {
     // --- PATCH ---
     test('PATCH /api/admin/customers/[id] - müşteri bilgilerini günceller', async () => {
         const req = { 
-            headers: { get: () => 'admin' },
+            headers: { get: () => 'superadmin' },
             json: async () => ({ name: 'Güncellenmiş İsim' })
         };
         const response = await PATCH(req, { params: { id: '1' } });
         expect(response.status).toBe(200);
+    });
+
+    test('PATCH /api/admin/customers/[id] - admin rolü müşteri bilgisi güncelleyemez ve 403 alır', async () => {
+        const req = {
+            headers: { get: () => 'admin' },
+            json: async () => ({ name: 'Güncellenmiş İsim' })
+        };
+        const response = await PATCH(req, { params: { id: '1' } });
+        expect(response.status).toBe(403);
     });
 });

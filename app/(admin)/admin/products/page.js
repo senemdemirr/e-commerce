@@ -10,10 +10,13 @@ import ProductsCatalogContent from '@/components/admin/products/ProductsCatalogC
 import ProductDeleteDialog from '@/components/admin/products/ProductDeleteDialog';
 import ProductsFiltersPanel from '@/components/admin/products/ProductsFiltersPanel';
 import ProductsHeader from '@/components/admin/products/ProductsHeader';
+import ReadOnlyNotice from '@/components/admin/ReadOnlyNotice';
 import ProductsSummaryCard from '@/components/admin/products/ProductsSummaryCard';
 import { PAGE_SIZE, PRICE_OPTIONS, SORT_OPTIONS,buildCategoryLookup, buildPaginationItems, exportProductsToCsv, formatNumber, formatCurrency, formatSlugLabel, getCatalogScore, getFilledDetailCount, getPriceBand, getReadinessMeta, matchesPriceRange, normalizeDetails, normalizeList } from '@/components/admin/products/productsPageHelpers';
+import { useAdminSession } from '@/context/AdminSessionContext';
 
 export default function ProductsPage() {
+    const { canMutate, loading: adminLoading } = useAdminSession();
     const [products, setProducts] = useState([]);
     const [categories, setCategories] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -251,6 +254,11 @@ export default function ProductsPage() {
     }
 
     function handleDeleteProduct(product) {
+        if (!canMutate) {
+            enqueueSnackbar('Only superadmin can delete products.', { variant: 'warning' });
+            return;
+        }
+
         setDeleteTarget(product);
     }
 
@@ -264,6 +272,11 @@ export default function ProductsPage() {
 
     async function confirmDeleteProduct() {
         if (!deleteTarget?.id) {
+            return;
+        }
+
+        if (!canMutate) {
+            enqueueSnackbar('Only superadmin can delete products.', { variant: 'warning' });
             return;
         }
 
@@ -296,8 +309,13 @@ export default function ProductsPage() {
 
     return (
         <div className="space-y-8">
+            {!adminLoading && !canMutate ? (
+                <ReadOnlyNotice description="This account can review the product catalog but creating, updating, and deleting products is limited to superadmin." />
+            ) : null}
+
             <ProductsHeader
                 onExport={handleExportCsv}
+                canMutate={canMutate}
             />
 
             <div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-4">
@@ -375,6 +393,7 @@ export default function ProductsPage() {
                     onPageChange={setPage}
                     onRetry={() => setRefreshKey((current) => current + 1)}
                     onDeleteProduct={handleDeleteProduct}
+                    canMutate={canMutate}
                 />
             </div>
 

@@ -3,7 +3,7 @@ import { Button, Paper } from '@mui/material';
 import AddRoundedIcon from '@mui/icons-material/AddRounded';
 import FileDownloadOutlinedIcon from '@mui/icons-material/FileDownloadOutlined';
 
-export default function ProductsHeader({ onExport }) {
+export default function ProductsHeader({ onExport, canMutate }) {
     return (
         <Paper className="!relative !overflow-hidden !rounded-[36px] !border !border-primary/10 !bg-white !shadow-sm">
             <div className="absolute -left-10 top-0 h-40 w-40 rounded-full bg-primary/15 blur-3xl" />
@@ -22,15 +22,17 @@ export default function ProductsHeader({ onExport }) {
                 </div>
 
                 <div className="flex flex-wrap items-center justify-center gap-3">
-                    <Button
-                        component={Link}
-                        href="/admin/products/new"
-                        startIcon={<AddRoundedIcon />}
-                        size="small"
-                        className="!rounded-2xl !bg-primary !px-5 !py-3 !font-bold !normal-case !text-text-main hover:!bg-primary-dark hover:!text-white"
-                    >
-                        Yeni Ürün Ekle
-                    </Button>
+                    {canMutate ? (
+                        <Button
+                            component={Link}
+                            href="/admin/products/new"
+                            startIcon={<AddRoundedIcon />}
+                            size="small"
+                            className="!rounded-2xl !bg-primary !px-5 !py-3 !font-bold !normal-case !text-text-main hover:!bg-primary-dark hover:!text-white"
+                        >
+                            Yeni Ürün Ekle
+                        </Button>
+                    ) : null}
 
                     <Button
                         onClick={onExport}

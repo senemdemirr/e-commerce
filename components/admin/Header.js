@@ -1,26 +1,10 @@
 'use client';
 
-import { useState, useEffect } from 'react';
 import SearchIcon from '@mui/icons-material/Search';
-import NotificationsIcon from '@mui/icons-material/Notifications';
+import { useAdminSession } from '@/context/AdminSessionContext';
 
 const Header = () => {
-    const [admin, setAdmin] = useState(null);
-
-    useEffect(() => {
-        const fetchAdmin = async () => {
-            try {
-                const res = await fetch('/api/admin/me');
-                if (res.ok) {
-                    const data = await res.json();
-                    setAdmin(data);
-                }
-            } catch (error) {
-                console.error('Admin bilgisi alınamadı:', error);
-            }
-        };
-        fetchAdmin();
-    }, []);
+    const { admin, loading } = useAdminSession();
 
     // İsmin baş harflerini al (avatar fallback için)
     const getInitials = (name) => {
@@ -49,14 +33,20 @@ const Header = () => {
                 <div className="flex items-center gap-3 pl-6 border-l border-primary/10">
                     <div className="text-right">
                         <p className="text-sm font-bold">
-                            {admin ? admin.name : '...'}
+                            {admin ? admin.name : loading ? '...' : 'Unknown'}
                         </p>
                         <p className="text-[10px] text-slate-500">
-                            {admin ? admin.role === 'admin' ? 'Store Manager' : admin.role : '...'}
+                            {admin
+                                ? admin.role === 'superadmin'
+                                    ? 'Superadmin'
+                                    : 'Read-Only Admin'
+                                : loading
+                                    ? '...'
+                                    : 'No Session'}
                         </p>
                     </div>
                     <div className="size-10 rounded-full bg-primary/20 border-2 border-primary/20 flex items-center justify-center text-sm font-bold text-primary">
-                        {admin ? getInitials(admin.name) : '...'}
+                        {admin ? getInitials(admin.name) : loading ? '...' : '?'}
                     </div>
                 </div>
             </div>

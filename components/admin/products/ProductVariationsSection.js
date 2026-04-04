@@ -12,6 +12,7 @@ export default function ProductVariationsSection({
     colors,
     sizesValue,
     normalizedSizes,
+    disabled = false,
     onAddColor,
     onColorChange,
     onRemoveColor,
@@ -33,6 +34,7 @@ export default function ProductVariationsSection({
                         <Button
                             type="button"
                             onClick={onAddColor}
+                            disabled={disabled}
                             className="!rounded-2xl !bg-primary/10 !px-4 !py-2 !text-xs !font-bold !normal-case !text-primary-dark hover:!bg-primary/20"
                         >
                             Renk Satırı Ekle
@@ -48,6 +50,7 @@ export default function ProductVariationsSection({
                                 <Input
                                     value={color.name}
                                     onChange={(event) => onColorChange(index, 'name', event.target.value)}
+                                    disabled={disabled}
                                     placeholder="Örn. Kum Beji"
                                 />
                                 <div className="flex items-center gap-3 rounded-2xl border border-primary/10 bg-white px-3">
@@ -55,13 +58,15 @@ export default function ProductVariationsSection({
                                         type="color"
                                         value={color.hex}
                                         onChange={(event) => onColorChange(index, 'hex', event.target.value)}
-                                        className="h-8 w-8 cursor-pointer border-0 bg-transparent p-0"
+                                        disabled={disabled}
+                                        className="h-8 w-8 cursor-pointer border-0 bg-transparent p-0 disabled:cursor-not-allowed"
                                     />
                                     <span className="text-sm font-bold text-text-main">{color.hex.toUpperCase()}</span>
                                 </div>
                                 <Button
                                     type="button"
                                     onClick={() => onRemoveColor(index)}
+                                    disabled={disabled}
                                     className="!rounded-2xl !border !border-primary/10 !px-4 !py-2 !text-xs !font-bold !normal-case !text-text-muted hover:!bg-white"
                                 >
                                     Kaldır
@@ -77,6 +82,7 @@ export default function ProductVariationsSection({
                             rows={5}
                             value={sizesValue}
                             onChange={onSizesChange}
+                            disabled={disabled}
                             placeholder="XS, S, M, L, XL"
                         />
                     </Field>

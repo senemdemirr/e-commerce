@@ -1,5 +1,8 @@
 import { pool } from '../../../../../lib/db.js';
-import { isAdminRequest } from '../../../../../lib/admin/categories.js';
+import {
+    requireAdminReadAccess,
+    requireAdminWriteAccess,
+} from '../../../../../lib/admin/auth.js';
 import {
     convertImageToStorageValue,
     deleteFallbackProduct,
@@ -30,8 +33,9 @@ async function normalizeId(params) {
 }
 
 export async function GET(req, { params }) {
-    if (!isAdminRequest(req)) {
-        return forbiddenResponse();
+    const denied = await requireAdminReadAccess(req);
+    if (denied) {
+        return denied;
     }
 
     const id = await normalizeId(params);
@@ -89,8 +93,9 @@ export async function GET(req, { params }) {
 }
 
 export async function PUT(req, { params }) {
-    if (!isAdminRequest(req)) {
-        return forbiddenResponse();
+    const denied = await requireAdminWriteAccess(req);
+    if (denied) {
+        return denied;
     }
 
     const id = await normalizeId(params);
@@ -214,8 +219,9 @@ export async function PUT(req, { params }) {
 }
 
 export async function DELETE(req, { params }) {
-    if (!isAdminRequest(req)) {
-        return forbiddenResponse();
+    const denied = await requireAdminWriteAccess(req);
+    if (denied) {
+        return denied;
     }
 
     const id = await normalizeId(params);

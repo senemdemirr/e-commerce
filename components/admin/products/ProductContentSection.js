@@ -12,6 +12,7 @@ export default function ProductContentSection({
     careValue,
     bulletPointsValue,
     descriptionLongValue,
+    disabled = false,
     onMaterialChange,
     onCareChange,
     onBulletPointsChange,
@@ -32,6 +33,7 @@ export default function ProductContentSection({
                     <Input
                         value={materialValue}
                         onChange={onMaterialChange}
+                        disabled={disabled}
                         placeholder="%80 cotton, %20 polyester"
                     />
                 </Field>
@@ -43,6 +45,7 @@ export default function ProductContentSection({
                         rows={5}
                         value={careValue}
                         onChange={onCareChange}
+                        disabled={disabled}
                         placeholder={'30 derecede yikayin\nDusuk isiyle utuleyin\nKurutucu kullanmayin'}
                     />
                 </Field>
@@ -52,6 +55,7 @@ export default function ProductContentSection({
                         rows={5}
                         value={bulletPointsValue}
                         onChange={onBulletPointsChange}
+                        disabled={disabled}
                         placeholder={'Soft touch doku\nRelaxed fit kalip\nSezonlar arasi kullanima uygun'}
                     />
                 </Field>
@@ -63,6 +67,7 @@ export default function ProductContentSection({
                         rows={6}
                         value={descriptionLongValue}
                         onChange={onDescriptionLongChange}
+                        disabled={disabled}
                         placeholder="Kumaş hissi, kullanım bağlamı ve ürünün stil avantajını daha editoryal bir tonda detaylandırın."
                     />
                 </Field>

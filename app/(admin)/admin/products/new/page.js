@@ -14,6 +14,7 @@ import PublishRoundedIcon from '@mui/icons-material/PublishRounded';
 import RestartAltRoundedIcon from '@mui/icons-material/RestartAltRounded';
 import StraightenRoundedIcon from '@mui/icons-material/StraightenRounded';
 import { useSnackbar } from 'notistack';
+import ReadOnlyNotice from '@/components/admin/ReadOnlyNotice';
 import ProductCategoryFlowSection from '@/components/admin/products/ProductCategoryFlowSection';
 import ProductContentSection from '@/components/admin/products/ProductContentSection';
 import {
@@ -27,6 +28,7 @@ import {
     getCatalogScore,
     getReadinessMeta,
 } from '@/components/admin/products/productsPageHelpers';
+import { useAdminSession } from '@/context/AdminSessionContext';
 
 const INITIAL_FORM = {
     title: '',
@@ -92,6 +94,7 @@ function parseLineList(value = '') {
 export default function NewProductPage() {
     const router = useRouter();
     const { enqueueSnackbar } = useSnackbar();
+    const { canMutate, loading: adminLoading } = useAdminSession();
     const [categories, setCategories] = useState([]);
     const [loading, setLoading] = useState(true);
     const [loadError, setLoadError] = useState('');
@@ -365,6 +368,11 @@ export default function NewProductPage() {
     async function handleSubmit(event) {
         event.preventDefault();
 
+        if (!canMutate) {
+            enqueueSnackbar('Only superadmin can create products.', { variant: 'warning' });
+            return;
+        }
+
         if (!validateForm()) {
             enqueueSnackbar('Eksik alanları tamamlayın.', { variant: 'warning' });
             return;
@@ -408,10 +416,34 @@ export default function NewProductPage() {
         }
     }
 
-    if (loading) {
+    if (loading || adminLoading) {
         return (
             <div className="flex min-h-[65vh] items-center justify-center">
                 <CircularProgress className="!text-primary" />
+            </div>
+        );
+    }
+
+    if (!canMutate) {
+        return (
+            <div className="space-y-6 pb-10">
+                <ReadOnlyNotice description="This account can review the catalog but only superadmin can create new products." />
+                <SurfaceCard className="p-8">
+                    <h1 className="text-3xl font-black tracking-tight text-text-main">
+                        Product creation is limited to superadmin
+                    </h1>
+                    <p className="mt-3 max-w-2xl text-sm leading-7 text-text-muted">
+                        You can continue reviewing the existing product catalog from the list page.
+                    </p>
+                    <Button
+                        component={Link}
+                        href="/admin/products"
+                        startIcon={<ArrowBackRoundedIcon />}
+                        className="!mt-6 !rounded-2xl !bg-primary !px-5 !py-3 !font-bold !normal-case !text-text-main hover:!bg-primary-dark hover:!text-white"
+                    >
+                        Ürün listesine dön
+                    </Button>
+                </SurfaceCard>
             </div>
         );
     }

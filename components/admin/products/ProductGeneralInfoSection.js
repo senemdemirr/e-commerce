@@ -10,6 +10,7 @@ import {
 export default function ProductGeneralInfoSection({
     values,
     errors,
+    disabled = false,
     onTitleChange,
     onBrandChange,
     onSkuChange,
@@ -30,6 +31,7 @@ export default function ProductGeneralInfoSection({
                     <Input
                         value={values.title}
                         onChange={onTitleChange}
+                        disabled={disabled}
                         placeholder="Örn. Oversize Sherpa Hoodie"
                     />
                 </Field>
@@ -38,6 +40,7 @@ export default function ProductGeneralInfoSection({
                     <Input
                         value={values.brand}
                         onChange={onBrandChange}
+                        disabled={disabled}
                         placeholder="Örn. North Loom"
                     />
                 </Field>
@@ -46,6 +49,7 @@ export default function ProductGeneralInfoSection({
                     <Input
                         value={values.sku}
                         onChange={onSkuChange}
+                        disabled={disabled}
                         placeholder="Örn. HOODIE-CORE-01"
                     />
                 </Field>
@@ -57,6 +61,7 @@ export default function ProductGeneralInfoSection({
                         step="0.01"
                         value={values.price}
                         onChange={onPriceChange}
+                        disabled={disabled}
                         placeholder="1499.90"
                     />
                 </Field>
@@ -72,6 +77,7 @@ export default function ProductGeneralInfoSection({
                         rows={4}
                         value={values.description}
                         onChange={onDescriptionChange}
+                        disabled={disabled}
                         placeholder="Ürünün vitrinde ilk bakışta satacağı net faydayı kısa ve tok bir dille yazın."
                     />
                 </Field>

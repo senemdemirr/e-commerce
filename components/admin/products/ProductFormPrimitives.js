@@ -50,7 +50,7 @@ export function Input({ className = '', ...props }) {
     return (
         <input
             {...props}
-            className={`h-12 w-full rounded-2xl border border-primary/10 bg-background-light px-4 text-sm font-medium text-text-main outline-none transition focus:border-primary focus:bg-white focus:ring-4 focus:ring-primary/10 ${className}`}
+            className={`h-12 w-full rounded-2xl border border-primary/10 bg-background-light px-4 text-sm font-medium text-text-main outline-none transition focus:border-primary focus:bg-white focus:ring-4 focus:ring-primary/10 disabled:cursor-not-allowed disabled:opacity-70 ${className}`}
         />
     );
 }
@@ -59,7 +59,7 @@ export function Textarea({ className = '', ...props }) {
     return (
         <textarea
             {...props}
-            className={`w-full rounded-2xl border border-primary/10 bg-background-light px-4 py-3 text-sm font-medium text-text-main outline-none transition placeholder:text-text-muted focus:border-primary focus:bg-white focus:ring-4 focus:ring-primary/10 ${className}`}
+            className={`w-full rounded-2xl border border-primary/10 bg-background-light px-4 py-3 text-sm font-medium text-text-main outline-none transition placeholder:text-text-muted focus:border-primary focus:bg-white focus:ring-4 focus:ring-primary/10 disabled:cursor-not-allowed disabled:opacity-70 ${className}`}
         />
     );
 }

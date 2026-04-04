@@ -43,7 +43,7 @@ describe('Admin Order ID Route', () => {
         const queryMock = jest.fn()
             .mockResolvedValueOnce({
                 rowCount: 1,
-                rows: [{ id: 24, email: 'admin@example.com', name: 'Admin', surname: null, role: 'admin' }],
+                rows: [{ id: 24, email: 'superadmin@example.com', name: 'Super', surname: 'Admin', role: 'superadmin' }],
             })
             .mockResolvedValueOnce({
                 rowCount: 1,
@@ -55,9 +55,9 @@ describe('Admin Order ID Route', () => {
             });
         ({ PATCH } = await loadRouteWithMock(queryMock));
         const req = {
-            headers: { get: () => 'admin' },
+            headers: { get: () => 'superadmin' },
             cookies: {
-                get: () => ({ value: `admin-session-token:${Buffer.from('admin@example.com').toString('base64')}` }),
+                get: () => ({ value: `admin-session-token:${Buffer.from('superadmin@example.com').toString('base64')}` }),
             },
             json: async () => ({ status: '3', statusUpdateNote: 'Kargoya verildi' })
         };
@@ -75,6 +75,25 @@ describe('Admin Order ID Route', () => {
             RETURNING *`,
             [3, 24, 'Kargoya verildi', 'ORD123']
         );
+    });
+
+    test('PATCH /api/admin/orders/[orderNumber] - admin rolü sipariş güncelleyemez ve 403 alır', async () => {
+        const queryMock = jest.fn().mockResolvedValue({
+            rowCount: 1,
+            rows: [{ id: 12, email: 'admin@example.com', name: 'Admin', surname: null, role: 'admin' }],
+        });
+        ({ PATCH } = await loadRouteWithMock(queryMock));
+        const req = {
+            headers: { get: () => 'admin' },
+            cookies: {
+                get: () => ({ value: `admin-session-token:${Buffer.from('admin@example.com').toString('base64')}` }),
+            },
+            json: async () => ({ status: '3' }),
+        };
+
+        const response = await PATCH(req, { params: Promise.resolve({ orderNumber: 'ORD123' }) });
+        expect(response.status).toBe(403);
+        expect(queryMock).toHaveBeenCalledTimes(1);
     });
 
     test('PATCH /api/admin/orders/[orderNumber] - sadece status ve statusUpdateNote alanlari guncellenebilir', async () => {

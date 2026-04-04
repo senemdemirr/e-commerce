@@ -11,7 +11,7 @@ describe('Admin Products Route', () => {
         POST = module.POST;
     });
 
-    const createMockRequest = (overrides = {}, deleteKeys = []) => {
+    const createMockRequest = (overrides = {}, deleteKeys = [], role = 'admin') => {
         const data = new Map([
             ['title', 'Test Ürün'],
             ['description', 'Açıklama'],
@@ -44,7 +44,7 @@ describe('Admin Products Route', () => {
         }
 
         return {
-            headers: { get: () => 'admin' },
+            headers: { get: () => role },
             formData: async () => ({
                 get: (key) => {
                     const val = data.get(key);
@@ -89,13 +89,19 @@ describe('Admin Products Route', () => {
     });
 
     test('POST /api/admin/products - geçerli verilerle (FormData) ürün oluşturur ve 201 döner', async () => {
-        const req = createMockRequest();
+        const req = createMockRequest({}, [], 'superadmin');
         const response = await POST(req);
         expect(response.status).toBe(201);
     });
 
+    test('POST /api/admin/products - admin rolü ürün oluşturamaz ve 403 alır', async () => {
+        const req = createMockRequest();
+        const response = await POST(req);
+        expect(response.status).toBe(403);
+    });
+
     test('POST /api/admin/products - title eksikse 400 döner', async () => {
-        const req = createMockRequest({}, ['title']);
+        const req = createMockRequest({}, ['title'], 'superadmin');
         const response = await POST(req);
         expect(response.status).toBe(400);
         const data = await response.json();
@@ -103,7 +109,7 @@ describe('Admin Products Route', () => {
     });
 
     test('POST /api/admin/products - description eksikse 400 döner', async () => {
-        const req = createMockRequest({}, ['description']);
+        const req = createMockRequest({}, ['description'], 'superadmin');
         const response = await POST(req);
         expect(response.status).toBe(400);
         const data = await response.json();
@@ -111,7 +117,7 @@ describe('Admin Products Route', () => {
     });
 
     test('POST /api/admin/products - sku eksikse 400 döner', async () => {
-        const req = createMockRequest({}, ['sku']);
+        const req = createMockRequest({}, ['sku'], 'superadmin');
         const response = await POST(req);
         expect(response.status).toBe(400);
         const data = await response.json();
@@ -119,7 +125,7 @@ describe('Admin Products Route', () => {
     });
 
     test('POST /api/admin/products - sku Türkçe karakter içeriyorsa 400 döner', async () => {
-        const req = createMockRequest({ sku: 'TEST-ŞKÜ' });
+        const req = createMockRequest({ sku: 'TEST-ŞKÜ' }, [], 'superadmin');
         const response = await POST(req);
         expect(response.status).toBe(400);
         const data = await response.json();
@@ -127,7 +133,7 @@ describe('Admin Products Route', () => {
     });
 
     test('POST /api/admin/products - price eksikse 400 döner', async () => {
-        const req = createMockRequest({}, ['price']);
+        const req = createMockRequest({}, ['price'], 'superadmin');
         const response = await POST(req);
         expect(response.status).toBe(400);
         const data = await response.json();
@@ -135,19 +141,19 @@ describe('Admin Products Route', () => {
     });
 
     test('POST /api/admin/products - price formatı hatalıysa (virgüllü veya harf) 400 döner', async () => {
-        const reqInvalid1 = createMockRequest({ price: '200,90' });
+        const reqInvalid1 = createMockRequest({ price: '200,90' }, [], 'superadmin');
         const response1 = await POST(reqInvalid1);
         expect(response1.status).toBe(400);
         const data1 = await response1.json();
         expect(data1.error).toMatch(/price|fiyat|format/i);
         
-        const reqInvalid2 = createMockRequest({ price: 'abc' });
+        const reqInvalid2 = createMockRequest({ price: 'abc' }, [], 'superadmin');
         const response2 = await POST(reqInvalid2);
         expect(response2.status).toBe(400);
     });
 
     test('POST /api/admin/products - alt kategori (subcategory_id) eksikse 400 döner', async () => {
-        const req = createMockRequest({}, ['subcategory_id']);
+        const req = createMockRequest({}, ['subcategory_id'], 'superadmin');
         const response = await POST(req);
         expect(response.status).toBe(400);
         const data = await response.json();
@@ -155,7 +161,7 @@ describe('Admin Products Route', () => {
     });
 
     test('POST /api/admin/products - alt kategori (subcategory_id) birden fazla (dizi) olamaz, olursa 400 döner', async () => {
-        const req = createMockRequest({ subcategory_id: ['1', '2'] });
+        const req = createMockRequest({ subcategory_id: ['1', '2'] }, [], 'superadmin');
         const response = await POST(req);
         expect(response.status).toBe(400);
         const data = await response.json();
@@ -163,7 +169,7 @@ describe('Admin Products Route', () => {
     });
 
     test('POST /api/admin/products - brand eksikse 400 döner', async () => {
-        const req = createMockRequest({}, ['brand']);
+        const req = createMockRequest({}, ['brand'], 'superadmin');
         const response = await POST(req);
         expect(response.status).toBe(400);
         const data = await response.json();
@@ -171,7 +177,7 @@ describe('Admin Products Route', () => {
     });
 
     test('POST /api/admin/products - image eksikse 400 döner', async () => {
-        const req = createMockRequest({}, ['image']);
+        const req = createMockRequest({}, ['image'], 'superadmin');
         const response = await POST(req);
         expect(response.status).toBe(400);
         const data = await response.json();
@@ -181,7 +187,7 @@ describe('Admin Products Route', () => {
     test('POST /api/admin/products - image boyutu 3MB dan büyükse 400 döner', async () => {
         const req = createMockRequest({ 
             image: { name: 'large.png', size: 4 * 1024 * 1024, type: 'image/png', arrayBuffer: async () => new ArrayBuffer(10) } 
-        }); // 4MB
+        }, [], 'superadmin'); // 4MB
         const response = await POST(req);
         expect(response.status).toBe(400);
         const data = await response.json();
@@ -189,7 +195,7 @@ describe('Admin Products Route', () => {
     });
 
     test('POST /api/admin/products - colors alanı geçerli bir JSON formatında değilse 400 döner', async () => {
-        const req = createMockRequest({ colors: 'invalid-json' });
+        const req = createMockRequest({ colors: 'invalid-json' }, [], 'superadmin');
         const response = await POST(req);
         expect(response.status).toBe(400);
         const data = await response.json();
@@ -197,7 +203,7 @@ describe('Admin Products Route', () => {
     });
 
     test('POST /api/admin/products - colors alanı JSON dizisi (array) değilse 400 döner', async () => {
-        const req = createMockRequest({ colors: '{"name": "Red"}' }); // Object instead of array
+        const req = createMockRequest({ colors: '{"name": "Red"}' }, [], 'superadmin'); // Object instead of array
         const response = await POST(req);
         expect(response.status).toBe(400);
         const data = await response.json();
@@ -205,7 +211,7 @@ describe('Admin Products Route', () => {
     });
 
     test('POST /api/admin/products - sizes alanı geçerli bir JSON formatında değilse 400 döner', async () => {
-        const req = createMockRequest({ sizes: 'invalid-json' });
+        const req = createMockRequest({ sizes: 'invalid-json' }, [], 'superadmin');
         const response = await POST(req);
         expect(response.status).toBe(400);
         const data = await response.json();
@@ -213,7 +219,7 @@ describe('Admin Products Route', () => {
     });
 
     test('POST /api/admin/products - sizes alanı JSON dizisi (array) değilse 400 döner', async () => {
-        const req = createMockRequest({ sizes: '{"size": "M"}' }); // Object instead of array
+        const req = createMockRequest({ sizes: '{"size": "M"}' }, [], 'superadmin'); // Object instead of array
         const response = await POST(req);
         expect(response.status).toBe(400);
         const data = await response.json();
@@ -221,7 +227,7 @@ describe('Admin Products Route', () => {
     });
 
     test('POST /api/admin/products - details alanı geçerli bir JSON formatında değilse 400 döner', async () => {
-        const req = createMockRequest({ details: 'invalid-json' });
+        const req = createMockRequest({ details: 'invalid-json' }, [], 'superadmin');
         const response = await POST(req);
         expect(response.status).toBe(400);
         const data = await response.json();
@@ -229,7 +235,7 @@ describe('Admin Products Route', () => {
     });
 
     test('POST /api/admin/products - details alanı JSON nesnesi (object) değilse 400 döner', async () => {
-        const req = createMockRequest({ details: '["detail1", "detail2"]' }); // Array instead of object
+        const req = createMockRequest({ details: '["detail1", "detail2"]' }, [], 'superadmin'); // Array instead of object
         const response = await POST(req);
         expect(response.status).toBe(400);
         const data = await response.json();
@@ -237,7 +243,7 @@ describe('Admin Products Route', () => {
     });
 
     test('POST /api/admin/products - colors JSON dizisi içindeki öğeler name ve hex objesi değilse 400 döner', async () => {
-        const req = createMockRequest({ colors: JSON.stringify([{ name: 'Red' }]) }); // hex eksik
+        const req = createMockRequest({ colors: JSON.stringify([{ name: 'Red' }]) }, [], 'superadmin'); // hex eksik
         const response = await POST(req);
         expect(response.status).toBe(400);
         const data = await response.json();
@@ -245,7 +251,7 @@ describe('Admin Products Route', () => {
     });
 
     test('POST /api/admin/products - sizes dizisi içindeki öğeler string değilse 400 döner', async () => {
-        const req = createMockRequest({ sizes: JSON.stringify([1, 2, 3]) }); // string yerine sayı
+        const req = createMockRequest({ sizes: JSON.stringify([1, 2, 3]) }, [], 'superadmin'); // string yerine sayı
         const response = await POST(req);
         expect(response.status).toBe(400);
         const data = await response.json();
@@ -260,7 +266,7 @@ describe('Admin Products Route', () => {
                 bullet_points: ["Point 1", "Point 2"], 
                 description_long: "Açıklama" 
             }) 
-        });
+        }, [], 'superadmin');
         const response = await POST(req);
         expect(response.status).toBe(400);
         const data = await response.json();

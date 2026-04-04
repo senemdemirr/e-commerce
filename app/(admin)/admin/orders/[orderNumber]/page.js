@@ -4,6 +4,8 @@ import { useEffect, useState } from 'react';
 import { useSnackbar } from 'notistack';
 import { useParams, useRouter } from 'next/navigation';
 import { CircularProgress } from '@mui/material';
+import ReadOnlyNotice from '@/components/admin/ReadOnlyNotice';
+import { useAdminSession } from '@/context/AdminSessionContext';
 import CustomerInfoCard from './components/CustomerInfoCard';
 import OrderAdminNoteCard from './components/OrderAdminNoteCard';
 import OrderDetailHeader from './components/OrderDetailHeader';
@@ -22,6 +24,7 @@ export default function OrderDetailPage() {
     const { orderNumber } = useParams();
     const router = useRouter();
     const { enqueueSnackbar } = useSnackbar();
+    const { canMutate, loading: adminLoading } = useAdminSession();
 
     const [order, setOrder] = useState(null);
     const [status, setStatus] = useState('');
@@ -103,6 +106,11 @@ export default function OrderDetailPage() {
     const statusUpdatedByAdmin = order?.status_updated_by_admin_name || order?.status_updated_by_admin_email;
 
     const updateStatus = async ({ nextStatus = status, nextNote = adminNote, closeAfterUpdate = false } = {}) => {
+        if (!canMutate) {
+            enqueueSnackbar('Only superadmin can update orders.', { variant: 'warning' });
+            return;
+        }
+
         if (!nextStatus) {
             enqueueSnackbar('Please select a valid status', { variant: 'warning' });
             return;
@@ -163,6 +171,11 @@ export default function OrderDetailPage() {
     };
 
     const handleCancelOrder = async () => {
+        if (!canMutate) {
+            enqueueSnackbar('Only superadmin can cancel orders.', { variant: 'warning' });
+            return;
+        }
+
         if (!cancelledStatus) {
             enqueueSnackbar('Cancelled status was not found', { variant: 'error' });
             return;
@@ -184,7 +197,7 @@ export default function OrderDetailPage() {
         updateStatus({ closeAfterUpdate: true });
     };
 
-    if (loading) {
+    if (loading || adminLoading) {
         return (
             <div className="flex min-h-[70vh] items-center justify-center">
                 <CircularProgress className="!text-primary" />
@@ -199,6 +212,10 @@ export default function OrderDetailPage() {
     return (
         <div className="relative flex min-h-screen w-full flex-col overflow-x-hidden">
             <div className="flex w-full flex-col gap-6">
+                {!canMutate ? (
+                    <ReadOnlyNotice description="This account can review order details but status changes, cancel actions, and admin notes are limited to superadmin." />
+                ) : null}
+
                 <OrderDetailHeader
                     order={order}
                     currentStatusTitle={currentStatusTitle}
@@ -206,6 +223,7 @@ export default function OrderDetailPage() {
                     saving={saving}
                     cancelledStatus={cancelledStatus}
                     isStatusLocked={isStatusLocked}
+                    canMutate={canMutate}
                     onCancelOrder={handleCancelOrder}
                 />
 
@@ -214,8 +232,9 @@ export default function OrderDetailPage() {
                         <OrderItemsCard items={order.items} />
                         <OrderAdminNoteCard
                             value={adminNote}
-                            disabled={isStatusLocked}
+                            disabled={isStatusLocked || !canMutate}
                             hasSavedNote={Boolean(savedAdminNote.trim())}
+                            canMutate={canMutate}
                             onChange={setAdminNote}
                         />
                     </div>
@@ -231,6 +250,7 @@ export default function OrderDetailPage() {
                             saving={saving}
                             hasPendingChanges={hasPendingChanges}
                             isStatusLocked={isStatusLocked}
+                            canMutate={canMutate}
                             onStatusChange={setStatus}
                             onUpdateStatus={() => updateStatus()}
                         />
@@ -247,6 +267,7 @@ export default function OrderDetailPage() {
                 <OrderPageActions
                     saving={saving}
                     isStatusLocked={isStatusLocked}
+                    canMutate={canMutate}
                     onBack={handleBack}
                     onSaveAndClose={handleSaveAndClose}
                 />

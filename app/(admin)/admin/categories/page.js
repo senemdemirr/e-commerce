@@ -4,9 +4,11 @@ import { useEffect, useState } from 'react';
 import { useSnackbar } from 'notistack';
 import CategoryForm from '@/components/admin/CategoryForm';
 import ConfirmDialog from '@/components/admin/ConfirmDialog';
+import ReadOnlyNotice from '@/components/admin/ReadOnlyNotice';
 import CategoriesHeader from '@/components/admin/categories/CategoriesHeader';
 import CategoriesStatsCards from '@/components/admin/categories/CategoriesStatsCards';
 import CategoriesTable from '@/components/admin/categories/CategoriesTable';
+import { useAdminSession } from '@/context/AdminSessionContext';
 
 const PAGE_SIZE = 4;
 
@@ -30,6 +32,7 @@ function buildPageNumbers(page, totalPages) {
 
 export default function CategoriesPage() {
     const { enqueueSnackbar } = useSnackbar();
+    const { canMutate, loading: adminLoading } = useAdminSession();
     const [categories, setCategories] = useState([]);
     const [loading, setLoading] = useState(true);
     const [page, setPage] = useState(1);
@@ -95,12 +98,22 @@ export default function CategoriesPage() {
     }, [page, safePage]);
 
     const openCreateModal = () => {
+        if (!canMutate) {
+            enqueueSnackbar('Only superadmin can create categories.', { variant: 'warning' });
+            return;
+        }
+
         setFormMode('create');
         setSelectedCategory(null);
         setFormOpen(true);
     };
 
     const openEditModal = (category) => {
+        if (!canMutate) {
+            enqueueSnackbar('Only superadmin can edit categories.', { variant: 'warning' });
+            return;
+        }
+
         setFormMode('edit');
         setSelectedCategory(category);
         setFormOpen(true);
@@ -116,6 +129,11 @@ export default function CategoriesPage() {
     };
 
     const handleSubmitCategory = async (payload) => {
+        if (!canMutate) {
+            enqueueSnackbar('Only superadmin can save category changes.', { variant: 'warning' });
+            return;
+        }
+
         const isEditMode = formMode === 'edit' && selectedCategory?.id;
         const endpoint = isEditMode
             ? `/api/admin/categories/${selectedCategory.id}`
@@ -171,6 +189,11 @@ export default function CategoriesPage() {
             return;
         }
 
+        if (!canMutate) {
+            enqueueSnackbar('Only superadmin can delete categories.', { variant: 'warning' });
+            return;
+        }
+
         try {
             setDeleteLoading(true);
 
@@ -199,7 +222,11 @@ export default function CategoriesPage() {
             <div className="-m-4 flex min-h-[calc(100vh-4rem)] flex-col overflow-hidden sm:-m-6 lg:-m-8">
                 <div className="flex-1 overflow-y-auto bg-slate-50/50 p-4 dark:bg-background-dark/50 sm:p-6 lg:p-8">
                     <div className="w-full">
-                        <CategoriesHeader onCreate={openCreateModal} />
+                        {!adminLoading && !canMutate ? (
+                            <ReadOnlyNotice className="mb-6" description="This account can review category data but category creation, editing, and deletion are limited to superadmin." />
+                        ) : null}
+
+                        <CategoriesHeader onCreate={openCreateModal} canMutate={canMutate} />
 
                         <CategoriesStatsCards
                             totalCategories={totalCategories}
@@ -219,6 +246,7 @@ export default function CategoriesPage() {
                             onPageChange={setPage}
                             onEdit={openEditModal}
                             onDelete={setDeleteTarget}
+                            canMutate={canMutate}
                         />
                     </div>
                 </div>

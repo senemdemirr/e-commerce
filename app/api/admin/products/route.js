@@ -1,5 +1,8 @@
 import { pool } from '../../../../lib/db.js';
-import { isAdminRequest } from '../../../../lib/admin/categories.js';
+import {
+    requireAdminReadAccess,
+    requireAdminWriteAccess,
+} from '../../../../lib/admin/auth.js';
 import {
     convertImageToStorageValue,
     createFallbackProduct,
@@ -48,8 +51,9 @@ function buildPaginatedResponse(products, page, limit) {
 }
 
 export async function GET(req) {
-    if (!isAdminRequest(req)) {
-        return forbiddenResponse();
+    const denied = await requireAdminReadAccess(req);
+    if (denied) {
+        return denied;
     }
 
     const searchParams = getSearchParams(req);
@@ -117,8 +121,9 @@ export async function GET(req) {
 }
 
 export async function POST(req) {
-    if (!isAdminRequest(req)) {
-        return forbiddenResponse();
+    const denied = await requireAdminWriteAccess(req);
+    if (denied) {
+        return denied;
     }
 
     try {

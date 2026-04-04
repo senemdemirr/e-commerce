@@ -45,6 +45,19 @@ describe('Admin Orders Route', () => {
         expect(data).toHaveProperty('orders');
     });
 
+    test('GET /api/admin/orders - admin olmayan kullanıcı 403 alır', async () => {
+        const queryMock = jest.fn();
+        GET = await loadRouteWithMock(queryMock);
+        const req = {
+            headers: { get: () => 'customer' },
+            nextUrl: { searchParams: new URLSearchParams({ page: '1' }) }
+        };
+
+        const response = await GET(req);
+        expect(response.status).toBe(403);
+        expect(queryMock).not.toHaveBeenCalled();
+    });
+
     test('GET /api/admin/orders - durum filtresi ile filtreleme yapar', async () => {
         const queryMock = jest.fn()
             .mockResolvedValueOnce({ rows: [] })

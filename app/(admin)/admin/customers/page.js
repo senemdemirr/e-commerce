@@ -5,9 +5,11 @@ import { useSnackbar } from 'notistack';
 import { Button, InputBase, Paper } from '@mui/material';
 import FileDownloadOutlinedIcon from '@mui/icons-material/FileDownloadOutlined';
 import SearchRoundedIcon from '@mui/icons-material/SearchRounded';
+import ReadOnlyNotice from '@/components/admin/ReadOnlyNotice';
 import CustomersStatsCards from '@/components/admin/customers/CustomersStatsCards';
 import CustomerDetailModal from '@/components/admin/customers/CustomerDetailModal';
 import CustomersTable from '@/components/admin/customers/CustomersTable';
+import { useAdminSession } from '@/context/AdminSessionContext';
 
 function formatDate(value, options = {}) {
     if (!value) return 'Not specified';
@@ -62,6 +64,7 @@ function exportCustomersToCsv(customers) {
 }
 
 export default function CustomersPage() {
+    const { canMutate, loading: adminLoading } = useAdminSession();
     const [customers, setCustomers] = useState([]);
     const [summary, setSummary] = useState({
         total: 0,
@@ -137,6 +140,11 @@ export default function CustomersPage() {
             return;
         }
 
+        if (!canMutate) {
+            enqueueSnackbar('Only superadmin can update customer status.', { variant: 'warning' });
+            return;
+        }
+
         try {
             setDetailUpdating(true);
 
@@ -174,10 +182,14 @@ export default function CustomersPage() {
         } finally {
             setDetailUpdating(false);
         }
-    }, [activeSegment, debouncedSearch, enqueueSnackbar, fetchCustomers, pagination.page, selectedCustomer]);
+    }, [activeSegment, canMutate, debouncedSearch, enqueueSnackbar, fetchCustomers, pagination.page, selectedCustomer]);
 
     return (
         <div className="space-y-8">
+            {!adminLoading && !canMutate ? (
+                <ReadOnlyNotice description="This account can review customer records but activation changes are limited to superadmin." />
+            ) : null}
+
             <Paper className="!relative !overflow-hidden !rounded-[32px] !border !border-primary/10 !bg-white !shadow-sm">
                 <div className="absolute -left-12 top-0 h-40 w-40 rounded-full bg-primary/15 blur-3xl" />
                 <div className="absolute right-0 top-0 h-48 w-48 rounded-full bg-accent/20 blur-3xl" />
@@ -238,6 +250,7 @@ export default function CustomersPage() {
                 open={Boolean(selectedCustomer)}
                 customer={selectedCustomer}
                 updating={detailUpdating}
+                canMutate={canMutate}
                 onClose={handleCloseCustomerDetail}
                 onSave={handleCustomerActiveChange}
             />

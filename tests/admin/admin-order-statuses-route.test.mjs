@@ -29,7 +29,7 @@ describe('Admin Order Statuses Route', () => {
         });
 
         GET = await loadRouteWithMock(queryMock);
-        const response = await GET();
+        const response = await GET({ headers: { get: () => 'admin' } });
         expect(response.status).toBe(200);
 
         const data = await response.json();
@@ -48,5 +48,14 @@ describe('Admin Order Statuses Route', () => {
         });
         expect(data.totalOrders).toBe(15);
         expect(queryMock).toHaveBeenCalledTimes(1);
+    });
+
+    test('GET /api/admin/order-statuses - admin olmayan kullanıcı 403 alır', async () => {
+        const queryMock = jest.fn();
+        GET = await loadRouteWithMock(queryMock);
+
+        const response = await GET({ headers: { get: () => 'customer' } });
+        expect(response.status).toBe(403);
+        expect(queryMock).not.toHaveBeenCalled();
     });
 });

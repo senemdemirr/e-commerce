@@ -3,7 +3,7 @@
 import { Button } from '@mui/material';
 import AddCircleRoundedIcon from '@mui/icons-material/AddCircleRounded';
 
-export default function CategoriesHeader({ onCreate }) {
+export default function CategoriesHeader({ onCreate, canMutate }) {
     return (
         <div className="mb-8 flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
             <div>
@@ -15,16 +15,18 @@ export default function CategoriesHeader({ onCreate }) {
                 </p>
             </div>
 
-            <Button
-                variant="contained"
-                disableElevation
-                startIcon={<AddCircleRoundedIcon className="!text-xl" />}
-                onClick={onCreate}
-                sx={{ textTransform: 'none' }}
-                className="!rounded-xl !bg-primary !px-6 !py-3 !font-extrabold !text-slate-900 !shadow-lg !shadow-primary/20 transition-all hover:!-translate-y-0.5 hover:!bg-primary-dark active:!translate-y-0"
-            >
-                New Category
-            </Button>
+            {canMutate ? (
+                <Button
+                    variant="contained"
+                    disableElevation
+                    startIcon={<AddCircleRoundedIcon className="!text-xl" />}
+                    onClick={onCreate}
+                    sx={{ textTransform: 'none' }}
+                    className="!rounded-xl !bg-primary !px-6 !py-3 !font-extrabold !text-slate-900 !shadow-lg !shadow-primary/20 transition-all hover:!-translate-y-0.5 hover:!bg-primary-dark active:!translate-y-0"
+                >
+                    New Category
+                </Button>
+            ) : null}
         </div>
     );
 }

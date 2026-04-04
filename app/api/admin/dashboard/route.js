@@ -1,14 +1,22 @@
 import { NextResponse } from 'next/server';
 import { pool } from '@/lib/db';
+import { requireAdminReadAccess } from '@/lib/admin/auth';
 
 export async function GET(req) {
     try {
-        const role = req.headers.get('role');
-        if (role !== 'admin') {
-            return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+        const denied = await requireAdminReadAccess(req);
+        if (denied) {
+            return denied;
         }
 
-        const { searchParams } = new URL(req.url);
+        let url;
+        try {
+            url = new URL(req.url);
+        } catch {
+            url = req.nextUrl || { searchParams: new URLSearchParams() };
+        }
+
+        const { searchParams } = url;
         const filter = searchParams.get('filter') || '7days';
 
         const data = {};
