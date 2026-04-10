@@ -155,18 +155,19 @@ export default function ProductsCatalogTable({ visibleProducts, onDeleteProduct,
                                         </span>
                                     </Tooltip>
 
-                                    {canMutate ? (
-                                        <Tooltip title="Sil">
-                                            <span>
-                                                <IconButton
-                                                    onClick={() => onDeleteProduct(product)}
-                                                    className="!rounded-xl !border !border-red-100 !text-red-400 hover:!bg-red-50 hover:!text-red-500"
-                                                >
-                                                    <DeleteRoundedIcon className="!text-lg" />
-                                                </IconButton>
-                                            </span>
-                                        </Tooltip>
-                                    ) : null}
+                                    <Tooltip title={canMutate ? 'Sil' : 'Silme yetkisi gerekli'}>
+                                        <span>
+                                            <IconButton
+                                                onClick={canMutate ? () => onDeleteProduct(product) : undefined}
+                                                disabled={!canMutate}
+                                                className={canMutate
+                                                    ? '!rounded-xl !border !border-red-100 !text-red-400 hover:!bg-red-50 hover:!text-red-500'
+                                                    : '!rounded-xl !border !border-primary/10 !text-text-muted'}
+                                            >
+                                                <DeleteRoundedIcon className="!text-lg" />
+                                            </IconButton>
+                                        </span>
+                                    </Tooltip>
                                 </div>
                             </td>
                         </tr>

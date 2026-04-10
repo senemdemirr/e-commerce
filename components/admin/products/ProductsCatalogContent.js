@@ -4,6 +4,7 @@ import {
     Chip,
     CircularProgress,
     IconButton,
+    Tooltip,
 } from '@mui/material';
 import CollectionsRoundedIcon from '@mui/icons-material/CollectionsRounded';
 import DeleteRoundedIcon from '@mui/icons-material/DeleteRounded';
@@ -174,14 +175,19 @@ export default function ProductsCatalogContent({
                                 >
                                     <EditRoundedIcon className="!text-lg" />
                                 </IconButton>
-                                {canMutate ? (
-                                    <IconButton
-                                        onClick={() => onDeleteProduct(product)}
-                                        className="!rounded-xl !border !border-red-100 !text-red-400 hover:!bg-red-50 hover:!text-red-500"
-                                    >
-                                        <DeleteRoundedIcon className="!text-lg" />
-                                    </IconButton>
-                                ) : null}
+                                <Tooltip title={canMutate ? 'Sil' : 'Silme yetkisi gerekli'}>
+                                    <span>
+                                        <IconButton
+                                            onClick={canMutate ? () => onDeleteProduct(product) : undefined}
+                                            disabled={!canMutate}
+                                            className={canMutate
+                                                ? '!rounded-xl !border !border-red-100 !text-red-400 hover:!bg-red-50 hover:!text-red-500'
+                                                : '!rounded-xl !border !border-primary/10 !text-text-muted'}
+                                        >
+                                            <DeleteRoundedIcon className="!text-lg" />
+                                        </IconButton>
+                                    </span>
+                                </Tooltip>
                             </div>
                         </div>
                     </div>
