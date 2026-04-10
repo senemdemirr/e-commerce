@@ -1,0 +1,400 @@
+'use client';
+
+import { useEffect, useState } from 'react';
+import { useSnackbar } from 'notistack';
+
+import ConfirmDialog from '@/components/admin/ConfirmDialog';
+import ReadOnlyNotice from '@/components/admin/ReadOnlyNotice';
+import SubcategoryForm from '@/components/admin/SubcategoryForm';
+import SubcategoriesHeader from '@/components/admin/subcategories/SubcategoriesHeader';
+import SubcategoriesStatsCards from '@/components/admin/subcategories/SubcategoriesStatsCards';
+import SubcategoriesTable from '@/components/admin/subcategories/SubcategoriesTable';
+import { useAdminSession } from '@/context/AdminSessionContext';
+
+const PAGE_SIZE = 5;
+
+function normalizeCategory(category) {
+    return {
+        id: Number(category?.id),
+        name: category?.name || 'Untitled Category',
+        slug: category?.slug || '',
+        activate: Number(category?.activate ?? 1) === 1 ? 1 : 0,
+    };
+}
+
+function normalizeSubcategory(subcategory) {
+    return {
+        id: Number(subcategory?.id),
+        category_id: Number(subcategory?.category_id),
+        name: subcategory?.name || 'Untitled Sub-Category',
+        slug: subcategory?.slug || '',
+        activate: Number(subcategory?.activate ?? 1) === 1 ? 1 : 0,
+        category_name: subcategory?.category_name || 'Unknown Category',
+        category_slug: subcategory?.category_slug || '',
+        product_count: Number(subcategory?.product_count || 0),
+        created_at: subcategory?.created_at || null,
+    };
+}
+
+function formatNumber(value) {
+    return Number(value || 0).toLocaleString('en-US');
+}
+
+function buildPageNumbers(page, totalPages) {
+    if (totalPages <= 3) {
+        return Array.from({ length: totalPages }, (_, index) => index + 1);
+    }
+
+    const start = Math.max(1, Math.min(page - 1, totalPages - 2));
+    return [start, start + 1, start + 2];
+}
+
+function getSubcategoryStatus(subcategory) {
+    const isActive = Number(subcategory?.activate ?? 1) === 1;
+
+    if (isActive) {
+        return {
+            label: 'Active',
+            chipClassName: 'bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-300',
+            dotClassName: 'bg-green-500',
+            filterValue: 'active',
+        };
+    }
+
+    return {
+        label: 'Inactive',
+        chipClassName: 'bg-slate-100 text-slate-500 dark:bg-slate-800 dark:text-slate-400',
+        dotClassName: 'bg-slate-400',
+        filterValue: 'inactive',
+    };
+}
+export default function SubcategoriesPage() {
+   const { enqueueSnackbar } = useSnackbar();
+       const { canMutate, loading: adminLoading } = useAdminSession();
+       const [categories, setCategories] = useState([]);
+       const [subcategories, setSubcategories] = useState([]);
+       const [loading, setLoading] = useState(true);
+       const [page, setPage] = useState(1);
+       const [filter, setFilter] = useState('all');
+       const [formOpen, setFormOpen] = useState(false);
+       const [formMode, setFormMode] = useState('create');
+       const [selectedSubcategory, setSelectedSubcategory] = useState(null);
+       const [submitting, setSubmitting] = useState(false);
+       const [deleteTarget, setDeleteTarget] = useState(null);
+       const [deleteLoading, setDeleteLoading] = useState(false);
+   
+       useEffect(() => {
+           let active = true;
+   
+           const fetchPageData = async () => {
+               try {
+                   setLoading(true);
+   
+                   const [subcategoriesResponse, categoriesResponse] = await Promise.all([
+                       fetch('/api/admin/subcategories', {
+                           headers: { role: 'admin' },
+                       }),
+                       fetch('/api/admin/categories', {
+                           headers: { role: 'admin' },
+                       }),
+                   ]);
+   
+                   const [subcategoriesData, categoriesData] = await Promise.all([
+                       subcategoriesResponse.json().catch(() => []),
+                       categoriesResponse.json().catch(() => []),
+                   ]);
+   
+                   if (!subcategoriesResponse.ok) {
+                       throw new Error(subcategoriesData?.error || 'Sub-categories could not be loaded');
+                   }
+   
+                   if (!categoriesResponse.ok) {
+                       throw new Error(categoriesData?.error || 'Categories could not be loaded');
+                   }
+   
+                   if (!active) {
+                       return;
+                   }
+   
+                   setSubcategories(
+                       Array.isArray(subcategoriesData)
+                           ? subcategoriesData.map(normalizeSubcategory)
+                           : []
+                   );
+                   setCategories(
+                       Array.isArray(categoriesData)
+                           ? categoriesData.map(normalizeCategory)
+                           : []
+                   );
+               } catch (error) {
+                   if (active) {
+                       enqueueSnackbar(error.message || 'Sub-categories could not be loaded', {
+                           variant: 'error',
+                       });
+                   }
+               } finally {
+                   if (active) {
+                       setLoading(false);
+                   }
+               }
+           };
+   
+           fetchPageData();
+   
+           return () => {
+               active = false;
+           };
+       }, [enqueueSnackbar]);
+   
+       const totalSubcategories = subcategories.length;
+       const activeCategories = categories.filter((category) => Number(category.activate) === 1);
+       const activeSubcategories = subcategories.filter(
+           (subcategory) => getSubcategoryStatus(subcategory).filterValue === 'active'
+       ).length;
+       const inactiveSubcategories = totalSubcategories - activeSubcategories;
+       const totalProducts = subcategories.reduce(
+           (sum, subcategory) => sum + Number(subcategory.product_count || 0),
+           0
+       );
+   
+       const filteredSubcategories = subcategories.filter((subcategory) => {
+           const status = getSubcategoryStatus(subcategory);
+           return filter === 'all' ? true : status.filterValue === filter;
+       });
+   
+       const totalPages = Math.max(1, Math.ceil(filteredSubcategories.length / PAGE_SIZE));
+       const safePage = Math.min(page, totalPages);
+       const startIndex = (safePage - 1) * PAGE_SIZE;
+       const visibleSubcategories = filteredSubcategories
+           .slice(startIndex, startIndex + PAGE_SIZE)
+           .map((subcategory) => ({
+               ...subcategory,
+               status: getSubcategoryStatus(subcategory),
+           }));
+       const pageNumbers = buildPageNumbers(safePage, totalPages);
+   
+       useEffect(() => {
+           if (page !== safePage) {
+               setPage(safePage);
+           }
+       }, [page, safePage]);
+   
+       useEffect(() => {
+           setPage(1);
+       }, [filter]);
+   
+       const openCreateModal = () => {
+           if (!canMutate) {
+               enqueueSnackbar('Only superadmin can create sub-categories.', {
+                   variant: 'warning',
+               });
+               return;
+           }
+
+           if (activeCategories.length === 0) {
+               enqueueSnackbar('Create an active category first before adding a sub-category', {
+                   variant: 'warning',
+               });
+               return;
+           }
+   
+           setFormMode('create');
+           setSelectedSubcategory(null);
+           setFormOpen(true);
+       };
+   
+       const openEditModal = (subcategory) => {
+           if (!canMutate) {
+               enqueueSnackbar('Only superadmin can edit sub-categories.', {
+                   variant: 'warning',
+               });
+               return;
+           }
+
+           setFormMode('edit');
+           setSelectedSubcategory(subcategory);
+           setFormOpen(true);
+       };
+   
+       const closeFormModal = () => {
+           if (submitting) {
+               return;
+           }
+   
+           setFormOpen(false);
+           setSelectedSubcategory(null);
+       };
+   
+       const handleSubmitSubcategory = async (payload) => {
+           if (!canMutate) {
+               enqueueSnackbar('Only superadmin can save sub-category changes.', {
+                   variant: 'warning',
+               });
+               return;
+           }
+
+           const isEditMode = formMode === 'edit' && selectedSubcategory?.id;
+           const endpoint = isEditMode
+               ? `/api/admin/subcategories/${selectedSubcategory.id}`
+               : '/api/admin/subcategories';
+   
+           try {
+               setSubmitting(true);
+   
+               const response = await fetch(endpoint, {
+                   method: isEditMode ? 'PUT' : 'POST',
+                   headers: {
+                       'Content-Type': 'application/json',
+                       role: 'admin',
+                   },
+                   body: JSON.stringify(payload),
+               });
+   
+               const data = await response.json().catch(() => null);
+   
+               if (!response.ok) {
+                   throw new Error(data?.error || 'Sub-category could not be saved');
+               }
+   
+               const normalizedSubcategory = normalizeSubcategory(data);
+   
+           if (isEditMode) {
+               setSubcategories((current) => current.map((subcategory) => (
+                   subcategory.id === selectedSubcategory.id
+                       ? {
+                           ...subcategory,
+                           ...normalizedSubcategory,
+                        }
+                        : subcategory
+               )));
+                   enqueueSnackbar('Sub-category updated', { variant: 'success' });
+               } else {
+                   setSubcategories((current) => [normalizedSubcategory, ...current]);
+                   enqueueSnackbar('Sub-category created', { variant: 'success' });
+               }
+   
+               setFormOpen(false);
+               setSelectedSubcategory(null);
+           } catch (error) {
+               enqueueSnackbar(error.message || 'Sub-category could not be saved', {
+                   variant: 'error',
+               });
+           } finally {
+               setSubmitting(false);
+           }
+       };
+   
+       const handleDeleteSubcategory = async () => {
+           if (!deleteTarget?.id) {
+               return;
+           }
+
+           if (!canMutate) {
+               enqueueSnackbar('Only superadmin can delete sub-categories.', {
+                   variant: 'warning',
+               });
+               return;
+           }
+   
+           try {
+               setDeleteLoading(true);
+   
+               const response = await fetch(`/api/admin/subcategories/${deleteTarget.id}`, {
+                   method: 'DELETE',
+                   headers: { role: 'admin' },
+               });
+               const data = await response.json().catch(() => null);
+   
+               if (!response.ok) {
+                   throw new Error(data?.error || 'Sub-category could not be deleted');
+               }
+   
+               setSubcategories((current) => current.filter(
+                   (subcategory) => subcategory.id !== deleteTarget.id
+               ));
+               enqueueSnackbar('Sub-category deleted', { variant: 'success' });
+               setDeleteTarget(null);
+           } catch (error) {
+               enqueueSnackbar(error.message || 'Sub-category could not be deleted', {
+                   variant: 'error',
+               });
+           } finally {
+               setDeleteLoading(false);
+           }
+       };
+   
+       const filters = [
+           { value: 'all', label: 'All', count: totalSubcategories },
+           { value: 'active', label: 'Active', count: activeSubcategories },
+           { value: 'inactive', label: 'Inactive', count: inactiveSubcategories },
+       ];
+   
+       return (
+           <>
+               <div className="-m-4 flex min-h-[calc(100vh-4rem)] flex-col overflow-hidden sm:-m-6 lg:-m-8">
+                   <section className="flex-1 overflow-y-auto bg-background-light p-4 dark:bg-background-dark sm:p-6 lg:p-8">
+                       <div className="w-full">
+                           {!adminLoading && !canMutate ? (
+                               <ReadOnlyNotice className="mb-6" description="This account can review sub-category data but creation, editing, and deletion are limited to superadmin." />
+                           ) : null}
+
+                           <SubcategoriesHeader
+                               totalProducts={totalProducts}
+                               categoriesCount={categories.length}
+                               loading={loading}
+                               hasCategories={activeCategories.length > 0}
+                               onCreate={openCreateModal}
+                               canMutate={canMutate}
+                           />
+   
+                           <SubcategoriesStatsCards
+                               totalSubcategories={totalSubcategories}
+                               activeSubcategories={activeSubcategories}
+                               inactiveSubcategories={inactiveSubcategories}
+                           />
+   
+                           <SubcategoriesTable
+                               loading={loading}
+                               filters={filters}
+                               activeFilter={filter}
+                               onFilterChange={setFilter}
+                               filteredCount={filteredSubcategories.length}
+                               visibleSubcategories={visibleSubcategories}
+                               startIndex={startIndex}
+                               pageSize={PAGE_SIZE}
+                               pageNumbers={pageNumbers}
+                               safePage={safePage}
+                               totalPages={totalPages}
+                               onPageChange={setPage}
+                               onEdit={openEditModal}
+                               onDelete={setDeleteTarget}
+                               canMutate={canMutate}
+                           />
+                       </div>
+                   </section>
+               </div>
+   
+               <SubcategoryForm
+                   open={formOpen}
+                   mode={formMode}
+                   categories={categories}
+                   initialValues={selectedSubcategory}
+                   submitting={submitting}
+                   onClose={closeFormModal}
+                   onSubmit={handleSubmitSubcategory}
+               />
+   
+               <ConfirmDialog
+                   open={Boolean(deleteTarget)}
+                   title={deleteTarget ? `Delete ${deleteTarget.name}?` : 'Delete sub-category?'}
+                   description={deleteTarget
+                       ? 'This action will permanently remove the sub-category and unlink its product hierarchy.'
+                       : 'This action cannot be undone.'}
+                   confirmText="Delete"
+                   loading={deleteLoading}
+                   onClose={() => setDeleteTarget(null)}
+                   onConfirm={handleDeleteSubcategory}
+               />
+           </>
+       );
+}

@@ -1,0 +1,216 @@
+import { NextResponse } from 'next/server';
+import { pool } from '@/lib/db';
+import { requireAdminReadAccess } from '@/lib/admin/auth';
+import { paginate } from '@/lib/admin/helpers';
+import {
+    getFallbackCustomerSummary,
+    isAdminTestMode,
+    listFallbackCustomers,
+} from '@/lib/admin/test-data';
+
+function matchesCurrentMonth(dateValue) {
+    const date = new Date(dateValue);
+    const now = new Date();
+
+    return date.getUTCFullYear() === now.getUTCFullYear()
+        && date.getUTCMonth() === now.getUTCMonth();
+}
+
+export async function GET(req) {
+    try {
+        const denied = await requireAdminReadAccess(req);
+        if (denied) {
+            return denied;
+        }
+
+        let url;
+        try {
+            url = new URL(req.url);
+        } catch {
+            url = req.nextUrl || { searchParams: new URLSearchParams() };
+        }
+
+        const searchParams = url.searchParams;
+        const page = Math.max(1, parseInt(searchParams.get('page')) || 1);
+        const limit = Math.min(50, Math.max(1, parseInt(searchParams.get('limit')) || 10));
+        const search = searchParams.get('search')?.trim();
+        const segment = searchParams.get('segment')?.trim() || 'all';
+        const { offset } = paginate(page, limit);
+
+        if (isAdminTestMode()) {
+            const normalizedSearch = search?.toLocaleLowerCase('tr-TR') || '';
+            const allCustomers = listFallbackCustomers();
+            const filteredCustomers = allCustomers.filter((customer) => {
+                const matchesSearch = !normalizedSearch || [
+                    customer.email,
+                    customer.name,
+                    customer.surname,
+                    customer.phone,
+                    `${customer.name || ''} ${customer.surname || ''}`.trim(),
+                ]
+                    .filter(Boolean)
+                    .some((value) => value.toLocaleLowerCase('tr-TR').includes(normalizedSearch));
+
+                if (!matchesSearch) {
+                    return false;
+                }
+
+                if (segment === 'active') {
+                    return Number(customer.activate ?? 1) === 1;
+                }
+
+                if (segment === 'prospect') {
+                    return Number(customer.activate ?? 1) === 0;
+                }
+
+                if (segment === 'verified') {
+                    return customer.email_verified === true;
+                }
+
+                if (segment === 'new') {
+                    return matchesCurrentMonth(customer.created_at);
+                }
+
+                return true;
+            });
+            const total = filteredCustomers.length;
+
+            return NextResponse.json({
+                customers: filteredCustomers.slice(offset, offset + limit),
+                summary: getFallbackCustomerSummary(),
+                pagination: {
+                    page,
+                    limit,
+                    total,
+                    totalPages: Math.max(1, Math.ceil(total / limit)),
+                },
+            });
+        }
+
+        const customerOrdersCte = `
+            WITH customer_orders AS (
+                SELECT
+                    o.user_id,
+                    COUNT(*)::int AS order_count,
+                    COALESCE(SUM(o.total_amount), 0)::numeric AS total_spent,
+                    MAX(o.created_at) AS last_order_date
+                FROM orders o
+                GROUP BY o.user_id
+            )
+        `;
+        const baseQuery = `
+            FROM users u
+            LEFT JOIN customer_orders co ON co.user_id = u.id
+        `;
+        const userActivateExpr = `
+            CASE
+                WHEN LOWER(TRIM(COALESCE(u.activate::text, '1'))) IN ('1', 'true', 't') THEN 1
+                ELSE 0
+            END
+        `;
+        const filters = ["LOWER(COALESCE(u.role, '')) = 'customer'"];
+        const values = [];
+
+        if (search) {
+            values.push(`%${search}%`);
+            const searchIndex = values.length;
+            filters.push(`(
+                COALESCE(u.email, '') ILIKE $${searchIndex}
+                OR COALESCE(u.name, '') ILIKE $${searchIndex}
+                OR COALESCE(u.surname, '') ILIKE $${searchIndex}
+                OR COALESCE(u.phone, '') ILIKE $${searchIndex}
+                OR CONCAT_WS(' ', COALESCE(u.name, ''), COALESCE(u.surname, '')) ILIKE $${searchIndex}
+            )`);
+        }
+
+        const segmentFilters = {
+            active: `${userActivateExpr} = 1`,
+            prospect: `${userActivateExpr} = 0`,
+            verified: 'u.email_verified = TRUE',
+            new: "u.created_at >= date_trunc('month', CURRENT_DATE)",
+        };
+
+        if (segment !== 'all' && segmentFilters[segment]) {
+            filters.push(segmentFilters[segment]);
+        }
+
+        const whereClause = filters.length > 0 ? `WHERE ${filters.join(' AND ')}` : '';
+        const customerQuery = `
+            ${customerOrdersCte}
+            SELECT
+                u.id,
+                u.auth0_sub,
+                u.email,
+                u.name,
+                u.surname,
+                u.phone,
+                u.role,
+                ${userActivateExpr} AS activate,
+                u.email_verified,
+                u.created_at,
+                COALESCE(co.order_count, 0)::int AS order_count,
+                COALESCE(co.total_spent, 0)::numeric AS total_spent,
+                co.last_order_date
+            ${baseQuery}
+            ${whereClause}
+            ORDER BY u.created_at DESC
+            LIMIT $${values.length + 1}
+            OFFSET $${values.length + 2}
+        `;
+        const countQuery = `
+            ${customerOrdersCte}
+            SELECT COUNT(*)::int AS count
+            ${baseQuery}
+            ${whereClause}
+        `;
+        const summaryQuery = `
+            ${customerOrdersCte}
+            SELECT
+                COUNT(*)::int AS total,
+                COUNT(*) FILTER (WHERE u.created_at >= date_trunc('month', CURRENT_DATE))::int AS new_this_month,
+                COUNT(*) FILTER (WHERE ${userActivateExpr} = 1)::int AS active,
+                COUNT(*) FILTER (WHERE ${userActivateExpr} = 0)::int AS prospect,
+                COUNT(*) FILTER (WHERE u.email_verified IS TRUE)::int AS verified
+            ${baseQuery}
+            WHERE LOWER(COALESCE(u.role, '')) = 'customer'
+        `;
+        const countValues = [...values];
+        values.push(limit, offset);
+
+        const [customerResult, countResult, summaryResult] = await Promise.all([
+            pool.query(customerQuery, values),
+            pool.query(countQuery, countValues),
+            pool.query(summaryQuery),
+        ]);
+
+        const total = Number(countResult.rows[0]?.count || 0);
+        const totalPages = Math.max(1, Math.ceil(total / limit));
+        const summaryRow = summaryResult.rows[0] || {};
+        const customers = customerResult.rows.map((customer) => ({
+            ...customer,
+            activate: Number(customer.activate ?? 1) === 1 ? 1 : 0,
+            order_count: Number(customer.order_count || 0),
+            total_spent: Number(customer.total_spent || 0),
+        }));
+
+        return NextResponse.json({
+            customers,
+            summary: {
+                total: Number(summaryRow.total || 0),
+                newThisMonth: Number(summaryRow.new_this_month || 0),
+                active: Number(summaryRow.active || 0),
+                prospect: Number(summaryRow.prospect || 0),
+                verified: Number(summaryRow.verified || 0),
+            },
+            pagination: {
+                page,
+                limit,
+                total,
+                totalPages,
+            },
+        });
+    } catch (error) {
+        console.error('Customer list API error:', error);
+        return NextResponse.json({ error: 'Server error' }, { status: 500 });
+    }
+}

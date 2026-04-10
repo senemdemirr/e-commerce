@@ -45,6 +45,18 @@ button {
   font-family: inherit !important;
 }
 
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none !important;
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  width: 0 !important;
+  height: 0 !important;
+  display: none !important;
+  background: transparent !important;
+}
+
 /* Custom Checkbox: Transparent background, primary icon */
 .checkbox-transparent-primary {
   appearance: none;

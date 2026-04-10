@@ -2,6 +2,7 @@ CREATE TABLE categories(
     id SERIAL PRIMARY KEY,
     name VARCHAR(200) NOT NULL,
     slug VARCHAR(200) UNIQUE NOT NULL,
+    activate SMALLINT NOT NULL DEFAULT 1,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 CREATE TABLE users(
@@ -17,6 +18,7 @@ CREATE TABLE sub_categories(
     category_id INT NOT NULL,
     name VARCHAR(200) NOT NULL,
     slug VARCHAR(200) NOT NULL,
+    activate SMALLINT NOT NULL DEFAULT 1,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT fk_subcategory_category 
         FOREIGN KEY(category_id) 
@@ -59,3 +61,4 @@ CREATE TABLE FAVORITES(
 
 -- ON DELETE CASCADES = This sql was added so that if a category is deleted, all subcategories attached to it will be deleted.
 -- CONSTRAINT FOREIGN KEY REFERENCES = This sql shows that id is an existing id in another table. This means it is not a separate number and an irrelevant value cannot be entered.
+ALTER TABLE sub_categories ADD COLUMN IF NOT EXISTS activate SMALLINT NOT NULL DEFAULT 1;
