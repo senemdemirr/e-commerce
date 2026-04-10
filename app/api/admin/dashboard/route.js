@@ -1,6 +1,97 @@
 import { NextResponse } from 'next/server';
 import { pool } from '@/lib/db';
 import { requireAdminReadAccess } from '@/lib/admin/auth';
+import { listFallbackProducts } from '@/lib/admin/products';
+import {
+    isAdminTestMode,
+    listFallbackCustomers,
+    listFallbackOrders,
+} from '@/lib/admin/test-data';
+
+function buildFallbackSalesChart(orders, filter) {
+    const now = new Date();
+
+    if (filter === 'thisyear') {
+        return Array.from({ length: 12 }, (_, index) => {
+            const current = new Date(Date.UTC(now.getUTCFullYear(), index, 1));
+            const amount = orders
+                .filter((order) => {
+                    const orderDate = new Date(order.created_at);
+                    return orderDate.getUTCFullYear() === current.getUTCFullYear()
+                        && orderDate.getUTCMonth() === current.getUTCMonth()
+                        && !['cancelled', 'pending'].includes(String(order.status || '').toLowerCase());
+                })
+                .reduce((sum, order) => sum + Number(order.total_amount || 0), 0);
+
+            return {
+                day: current.toLocaleString('en-US', { month: 'short', timeZone: 'UTC' }),
+                amount,
+            };
+        });
+    }
+
+    return Array.from({ length: 7 }, (_, reverseIndex) => {
+        const current = new Date(now);
+        current.setUTCDate(now.getUTCDate() - (6 - reverseIndex));
+        const amount = orders
+            .filter((order) => {
+                const orderDate = new Date(order.created_at);
+                return orderDate.getUTCFullYear() === current.getUTCFullYear()
+                    && orderDate.getUTCMonth() === current.getUTCMonth()
+                    && orderDate.getUTCDate() === current.getUTCDate()
+                    && !['cancelled', 'pending'].includes(String(order.status || '').toLowerCase());
+            })
+            .reduce((sum, order) => sum + Number(order.total_amount || 0), 0);
+
+        return {
+            day: current.toLocaleString('en-US', { weekday: 'short', timeZone: 'UTC' }),
+            amount,
+        };
+    });
+}
+
+function buildFallbackDashboard(filter) {
+    const orders = listFallbackOrders();
+    const customers = listFallbackCustomers();
+    const products = listFallbackProducts();
+    const completedOrders = orders.filter(
+        (order) => !['cancelled', 'pending'].includes(String(order.status || '').toLowerCase())
+    );
+    const totalSales = completedOrders.reduce(
+        (sum, order) => sum + Number(order.total_amount || 0),
+        0
+    );
+    const categoryMap = new Map();
+
+    products.forEach((product) => {
+        const key = product.category_name || product.categorySlug || 'Uncategorized';
+        categoryMap.set(key, (categoryMap.get(key) || 0) + 1);
+    });
+
+    const topCategories = Array.from(categoryMap.entries())
+        .sort((left, right) => right[1] - left[1])
+        .slice(0, 3)
+        .map(([name, count]) => ({
+            name,
+            amount: String(count * 100),
+            percentage: Math.round((count / Math.max(products.length, 1)) * 100),
+        }));
+
+    return {
+        totalSales,
+        totalSalesTrend: 0,
+        newOrders: orders.filter((order) => String(order.status || '').toLowerCase() === 'pending').length,
+        newOrdersTrend: 0,
+        totalCustomers: customers.length,
+        totalCustomersTrend: 0,
+        dailyVisitors: 3482,
+        dailyVisitorsTrend: -2,
+        totalProducts: products.length,
+        recentOrders: orders.slice(0, 5),
+        topCategories,
+        salesChart: buildFallbackSalesChart(orders, filter),
+    };
+}
 
 export async function GET(req) {
     try {
@@ -18,6 +109,10 @@ export async function GET(req) {
 
         const { searchParams } = url;
         const filter = searchParams.get('filter') || '7days';
+
+        if (isAdminTestMode()) {
+            return NextResponse.json(buildFallbackDashboard(filter));
+        }
 
         const data = {};
 

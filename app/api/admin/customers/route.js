@@ -1,6 +1,20 @@
 import { NextResponse } from 'next/server';
 import { pool } from '@/lib/db';
 import { requireAdminReadAccess } from '@/lib/admin/auth';
+import { paginate } from '@/lib/admin/helpers';
+import {
+    getFallbackCustomerSummary,
+    isAdminTestMode,
+    listFallbackCustomers,
+} from '@/lib/admin/test-data';
+
+function matchesCurrentMonth(dateValue) {
+    const date = new Date(dateValue);
+    const now = new Date();
+
+    return date.getUTCFullYear() === now.getUTCFullYear()
+        && date.getUTCMonth() === now.getUTCMonth();
+}
 
 export async function GET(req) {
     try {
@@ -21,7 +35,57 @@ export async function GET(req) {
         const limit = Math.min(50, Math.max(1, parseInt(searchParams.get('limit')) || 10));
         const search = searchParams.get('search')?.trim();
         const segment = searchParams.get('segment')?.trim() || 'all';
-        const offset = (page - 1) * limit;
+        const { offset } = paginate(page, limit);
+
+        if (isAdminTestMode()) {
+            const normalizedSearch = search?.toLocaleLowerCase('tr-TR') || '';
+            const allCustomers = listFallbackCustomers();
+            const filteredCustomers = allCustomers.filter((customer) => {
+                const matchesSearch = !normalizedSearch || [
+                    customer.email,
+                    customer.name,
+                    customer.surname,
+                    customer.phone,
+                    `${customer.name || ''} ${customer.surname || ''}`.trim(),
+                ]
+                    .filter(Boolean)
+                    .some((value) => value.toLocaleLowerCase('tr-TR').includes(normalizedSearch));
+
+                if (!matchesSearch) {
+                    return false;
+                }
+
+                if (segment === 'active') {
+                    return Number(customer.activate ?? 1) === 1;
+                }
+
+                if (segment === 'prospect') {
+                    return Number(customer.activate ?? 1) === 0;
+                }
+
+                if (segment === 'verified') {
+                    return customer.email_verified === true;
+                }
+
+                if (segment === 'new') {
+                    return matchesCurrentMonth(customer.created_at);
+                }
+
+                return true;
+            });
+            const total = filteredCustomers.length;
+
+            return NextResponse.json({
+                customers: filteredCustomers.slice(offset, offset + limit),
+                summary: getFallbackCustomerSummary(),
+                pagination: {
+                    page,
+                    limit,
+                    total,
+                    totalPages: Math.max(1, Math.ceil(total / limit)),
+                },
+            });
+        }
 
         const customerOrdersCte = `
             WITH customer_orders AS (

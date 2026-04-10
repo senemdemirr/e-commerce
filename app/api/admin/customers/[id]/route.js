@@ -4,6 +4,12 @@ import {
     requireAdminReadAccess,
     requireAdminWriteAccess,
 } from '@/lib/admin/auth';
+import {
+    findFallbackCustomerById,
+    isAdminTestMode,
+    listFallbackOrdersForCustomer,
+    updateFallbackCustomer,
+} from '@/lib/admin/test-data';
 
 const USER_ACTIVATE_EXPR = `
     CASE
@@ -48,6 +54,19 @@ export async function GET(req, { params }) {
         }
 
         const { id } = await params;
+
+        if (isAdminTestMode()) {
+            const customer = findFallbackCustomerById(id);
+
+            if (!customer) {
+                return NextResponse.json({ error: 'Customer not found' }, { status: 404 });
+            }
+
+            return NextResponse.json({
+                ...customer,
+                orders: listFallbackOrdersForCustomer(id),
+            });
+        }
 
         // Get customer info
         const userResult = await pool.query(
@@ -112,6 +131,16 @@ export async function PATCH(req, { params }) {
             return NextResponse.json({ error: 'No fields to update' }, { status: 400 });
         }
 
+        if (isAdminTestMode()) {
+            const updatedCustomer = updateFallbackCustomer(id, body);
+
+            if (!updatedCustomer) {
+                return NextResponse.json({ error: 'Customer not found' }, { status: 404 });
+            }
+
+            return NextResponse.json(updatedCustomer);
+        }
+
         values.push(id);
         const query = `UPDATE users SET ${updates.join(', ')} WHERE id = $${index} AND LOWER(COALESCE(role, '')) = 'customer' RETURNING id, email, name, surname, phone, role, ${USER_ACTIVATE_EXPR} AS activate, email_verified, created_at`;
 
@@ -135,6 +164,24 @@ export async function DELETE(req, { params }) {
         }
 
         const { id } = await params;
+
+        if (isAdminTestMode()) {
+            const customer = findFallbackCustomerById(id);
+
+            if (!customer) {
+                return NextResponse.json({ error: 'Customer not found' }, { status: 404 });
+            }
+
+            if (listFallbackOrdersForCustomer(id).length > 0) {
+                return NextResponse.json(
+                    { error: 'Customer with order history cannot be deleted' },
+                    { status: 409 }
+                );
+            }
+
+            return NextResponse.json(customer);
+        }
+
         const orderCountResult = await pool.query(
             'SELECT COUNT(*)::int AS count FROM orders WHERE user_id = $1',
             [id]

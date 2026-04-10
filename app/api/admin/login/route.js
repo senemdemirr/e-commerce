@@ -2,6 +2,10 @@ import { NextResponse } from 'next/server';
 import { pool } from '@/lib/db';
 import bcrypt from 'bcryptjs';
 import { isPrivilegedRole } from '@/lib/admin/auth';
+import {
+    findFallbackUserByEmail,
+    isAdminTestMode,
+} from '@/lib/admin/test-data';
 
 export async function POST(req) {
     try {
@@ -13,6 +17,34 @@ export async function POST(req) {
         }
         if (!password) {
             return NextResponse.json({ error: 'Password is required' }, { status: 400 });
+        }
+
+        if (isAdminTestMode()) {
+            const user = findFallbackUserByEmail(email);
+
+            if (user === null) {
+                return NextResponse.json({ error: 'Invalid email' }, { status: 401 });
+            }
+
+            if (password !== user.password) {
+                return NextResponse.json({ error: 'Invalid password' }, { status: 401 });
+            }
+
+            if (!isPrivilegedRole(user.role)) {
+                return NextResponse.json({ error: 'User is not an admin' }, { status: 403 });
+            }
+
+            const response = NextResponse.json({ success: true, message: 'Login successful' }, { status: 200 });
+            const tokenValue = 'admin-session-token:' + Buffer.from(user.email).toString('base64');
+            response.cookies.set('admin_token', tokenValue, {
+                httpOnly: true,
+                secure: false,
+                sameSite: 'lax',
+                path: '/',
+                maxAge: 60 * 60 * 24,
+            });
+
+            return response;
         }
 
         // Veritabanından kullanıcıyı bul
