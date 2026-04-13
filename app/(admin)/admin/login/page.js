@@ -92,9 +92,6 @@ export default function AdminLoginPage() {
                                     <label className="text-sm font-semibold text-slate-700 dark:text-slate-300">
                                         Password
                                     </label>
-                                    <Link className="text-xs font-bold !text-primary hover:!text-primary/80 transition-colors" href="#">
-                                        Forgot Password
-                                    </Link>
                                 </div>
                                 <div className="relative flex items-center">
                                     <div className="absolute left-4 text-slate-400 flex items-center justify-center">
@@ -116,17 +113,6 @@ export default function AdminLoginPage() {
                                         {showPassword ? <VisibilityOffOutlinedIcon /> : <VisibilityOutlinedIcon />}
                                     </button>
                                 </div>
-                            </div>
-                            {/* Remember Me */}
-                            <div className="flex items-center gap-2 px-1">
-                                <input
-                                    className="w-4 h-4 text-primary bg-slate-100 border-slate-300 rounded focus:ring-primary focus:ring-2 cursor-pointer"
-                                    id="remember"
-                                    type="checkbox"
-                                />
-                                <label className="text-sm text-slate-600 dark:text-slate-400 cursor-pointer" htmlFor="remember">
-                                    Remember Me
-                                </label>
                             </div>
                             {/* Submit Button */}
                             <button
