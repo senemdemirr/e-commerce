@@ -143,7 +143,7 @@ export default function UserInfo() {
                 <FormHelperText>{errors.phone?.message}</FormHelperText>
             </FormControl>
 
-            <Button type="submit" className="cursor-pointer !mt-4 self-end w-auto px-8 h-10 rounded-lg font-bold flex items-center justify-center gap-2 !bg-primary !text-white hover:!bg-primary-dark max-w-[200px]">Save</Button>
+            <Button type="submit" className="cursor-pointer !mt-4 self-end w-auto px-8 h-10 rounded-lg font-bold flex items-center justify-center gap-2 !bg-primary !text-white hover:!bg-primary-dark !min-w-[100px]">Save</Button>
         </form>
     );
 }
