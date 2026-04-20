@@ -2,7 +2,6 @@ import Image from "next/image";
 import Link from "next/link";
 import SearchInput from "@/components/SearchInput";
 import Navbar from "@/components/Navbar";
-import { Button } from "@mui/material";
 import FavoriteBorderOutlinedIcon from "@mui/icons-material/FavoriteBorderOutlined";
 import AuthMenu from "@/components/AuthMenu";
 import { getOrCreateUserFromSession } from "@/lib/users";
@@ -53,14 +52,13 @@ export default async function Header() {
                 <div className="hidden lg:flex flex-row justify-center items-center gap-2">
                     <AuthMenu />
                     {/* Favorites */}
-                    <a href={favoritesHref}>
-                        <Button
-                            className="!text-gray-600 px-4 py-2 rounded hover:!bg-transparent"
-                            startIcon={<FavoriteBorderOutlinedIcon />}
-                        >
-                            My Favorites
-                        </Button>
-                    </a>
+                    <Link
+                        href={favoritesHref}
+                        className="inline-flex items-center gap-2 rounded px-4 py-2 text-gray-600 transition-colors hover:bg-transparent"
+                    >
+                        <FavoriteBorderOutlinedIcon />
+                        My Favorites
+                    </Link>
                     <BasketButton />
                 </div>
             </div>
