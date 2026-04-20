@@ -16,6 +16,10 @@ import VisibilityOffIcon from "@mui/icons-material/VisibilityOff";
 
 export default function PaymentCard({
     savedCards = [],
+    selectedSavedCardId,
+    setSelectedSavedCardId,
+    paymentMethod,
+    setPaymentMethod,
     cardHolderName,
     setCardHolderName,
     cardNumber,
@@ -32,10 +36,7 @@ export default function PaymentCard({
     const user = useUser();
     const [showCvv, setShowCvv] = useState(false);
     const [showDatePicker, setShowDatePicker] = useState(false);
-    const [isManualFormOpen, setIsManualFormOpen] = useState(savedCards.length === 0);
-    const [selectedSavedCardId, setSelectedSavedCardId] = useState(
-        savedCards.find((card) => card.is_default)?.id ?? savedCards[0]?.id ?? null
-    );
+    const isManualFormOpen = paymentMethod === "manual";
 
     useEffect(() => {
         const handleClickOutside = (event) => {
@@ -47,16 +48,6 @@ export default function PaymentCard({
         document.addEventListener("mousedown", handleClickOutside);
         return () => document.removeEventListener("mousedown", handleClickOutside);
     }, [showDatePicker]);
-
-    useEffect(() => {
-        setSelectedSavedCardId(
-            savedCards.find((card) => card.is_default)?.id ?? savedCards[0]?.id ?? null
-        );
-
-        if (savedCards.length === 0) {
-            setIsManualFormOpen(true);
-        }
-    }, [savedCards]);
 
     const formatCardNumber = (value) => {
         const cleaned = value.replace(/\s/g, "");
@@ -126,6 +117,32 @@ export default function PaymentCard({
     };
 
     const { months, years } = generateMonthsAndYears();
+    const selectedSavedCard = savedCards.find((card) => card.id === selectedSavedCardId) ?? null;
+
+    const handleSavedCardSelect = (savedCardId) => {
+        const savedCard = savedCards.find((card) => card.id === savedCardId);
+
+        setSelectedSavedCardId(savedCardId);
+        setShowDatePicker(false);
+
+        if (!savedCard) {
+            return;
+        }
+
+        setCardHolderName((savedCard.card_holder_name || userFullName || "").toUpperCase());
+        setPaymentMethod("saved");
+    };
+
+    const toggleManualForm = () => {
+        if (isManualFormOpen) {
+            if (selectedSavedCardId) {
+                setPaymentMethod("saved");
+            }
+            return;
+        }
+
+        setPaymentMethod("manual");
+    };
 
     return (
         <div className="rounded-xl border border-gray-100 bg-white p-4 shadow-sm dark:border-gray-800 dark:bg-gray-900 sm:p-6">
@@ -170,7 +187,7 @@ export default function PaymentCard({
                                     <button
                                         type="button"
                                         key={savedCard.id}
-                                        onClick={() => setSelectedSavedCardId(savedCard.id)}
+                                        onClick={() => handleSavedCardSelect(savedCard.id)}
                                         className={`group relative w-[280px] shrink-0 rounded-xl p-5 text-left transition-all ${
                                             isSelected
                                                 ? "border-2 border-primary bg-white shadow-sm shadow-primary/10 dark:bg-surface-dark"
@@ -219,7 +236,7 @@ export default function PaymentCard({
 
                             <button
                                 type="button"
-                                onClick={() => setIsManualFormOpen(true)}
+                                onClick={() => setPaymentMethod("manual")}
                                 className="group flex h-[170px] w-[140px] shrink-0 flex-col items-center justify-center rounded-xl border border-dashed border-gray-300 p-4 transition-colors hover:bg-white dark:border-gray-700 dark:hover:bg-gray-800/50"
                             >
                                 <AddCircleOutlineIcon className="mb-2 text-gray-400 transition-colors group-hover:text-primary" />
@@ -232,10 +249,53 @@ export default function PaymentCard({
                 </div>
             </div>
 
+            {selectedSavedCard && !isManualFormOpen && (
+                <div className="mb-6 rounded-2xl border border-primary/20 bg-primary/5 p-4">
+                    <div className="mb-3 flex items-center gap-2 text-sm font-bold text-primary">
+                        <CheckCircleIcon fontSize="small" />
+                        Selected saved card will be used for payment automatically.
+                    </div>
+                    <div className="grid gap-3 sm:grid-cols-2">
+                        <div className="rounded-xl border border-white/70 bg-white/80 p-3 dark:border-gray-800 dark:bg-gray-900/60">
+                            <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-gray-400">
+                                Name on Card
+                            </p>
+                            <p className="mt-1 font-semibold text-text-dark dark:text-white">
+                                {selectedSavedCard.card_holder_name || userFullName || "Saved Card"}
+                            </p>
+                        </div>
+                        <div className="rounded-xl border border-white/70 bg-white/80 p-3 dark:border-gray-800 dark:bg-gray-900/60">
+                            <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-gray-400">
+                                Card Number
+                            </p>
+                            <p className="mt-1 font-mono font-semibold tracking-[0.2em] text-text-dark dark:text-white">
+                                {getMaskedCardNumber(selectedSavedCard)}
+                            </p>
+                        </div>
+                        <div className="rounded-xl border border-white/70 bg-white/80 p-3 dark:border-gray-800 dark:bg-gray-900/60">
+                            <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-gray-400">
+                                Bank
+                            </p>
+                            <p className="mt-1 font-semibold text-text-dark dark:text-white">
+                                {selectedSavedCard.card_bank_name || "Bank Name"}
+                            </p>
+                        </div>
+                        <div className="rounded-xl border border-white/70 bg-white/80 p-3 dark:border-gray-800 dark:bg-gray-900/60">
+                            <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-gray-400">
+                                Card Brand
+                            </p>
+                            <p className="mt-1 font-semibold text-text-dark dark:text-white">
+                                {getCardBrandLabel(selectedSavedCard)}
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            )}
+
             <div className="border-t border-gray-100 pt-6 dark:border-gray-800">
                 <button
                     type="button"
-                    onClick={() => setIsManualFormOpen((current) => !current)}
+                    onClick={toggleManualForm}
                     className="flex w-full items-center justify-between text-sm font-bold text-gray-500 transition-colors hover:text-primary"
                 >
                     <span className="flex items-center gap-2">

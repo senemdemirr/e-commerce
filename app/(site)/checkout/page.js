@@ -24,6 +24,8 @@ export default function CheckoutPage() {
 
     // Form states
     const [selectedAddressId, setSelectedAddressId] = useState(null);
+    const [selectedSavedCardId, setSelectedSavedCardId] = useState(null);
+    const [paymentMethod, setPaymentMethod] = useState(null);
     const [cardHolderName, setCardHolderName] = useState("");
     const [cardNumber, setCardNumber] = useState("");
     const [expireMonth, setExpireMonth] = useState("");
@@ -84,18 +86,45 @@ export default function CheckoutPage() {
         fetchData();
     }, [fetchData]);
 
+    useEffect(() => {
+        const usableSavedCards = savedCards.filter((card) => card.can_charge);
+        const defaultSavedCardId = usableSavedCards.find((card) => card.is_default)?.id
+            ?? savedCards.find((card) => card.is_default)?.id
+            ?? usableSavedCards[0]?.id
+            ?? savedCards[0]?.id
+            ?? null;
+
+        setSelectedSavedCardId((current) => (
+            savedCards.some((card) => card.id === current) ? current : defaultSavedCardId
+        ));
+
+        setPaymentMethod((current) => {
+            if (savedCards.length === 0) {
+                return "manual";
+            }
+
+            if (current === "saved" && usableSavedCards.length === 0) {
+                return "manual";
+            }
+
+            return current ?? (usableSavedCards.length > 0 ? "saved" : "manual");
+        });
+    }, [savedCards]);
+
     const handleAddressSuccess = () => {
         setOpenAddressDialog(false);
         fetchData(); // Refresh addresses
     };
 
     const handleSubmitOrder = async () => {
+        const isUsingSavedCard = paymentMethod === "saved" && Boolean(selectedSavedCardId);
+
         // Validation
         if (!selectedAddressId) {
             enqueueSnackbar("Please select a delivery address.", { variant: "warning" });
             return;
         }
-        if (!cardHolderName || !cardNumber || !expireMonth || !expireYear || !cvc) {
+        if (!isUsingSavedCard && (!cardHolderName || !cardNumber || !expireMonth || !expireYear || !cvc)) {
             enqueueSnackbar("Please fill in all payment details.", { variant: "warning" });
             return;
         }
@@ -109,12 +138,18 @@ export default function CheckoutPage() {
 
             const checkoutData = {
                 shipping_address_id: selectedAddressId,
-                card_holder_name: cardHolderName,
-                card_number: cardNumber.replace(/\s/g, ''),
-                expire_month: expireMonth,
-                expire_year: expireYear,
-                cvc: cvc,
-                save_card: saveCard,
+                ...(isUsingSavedCard
+                    ? {
+                        payment_card_id: selectedSavedCardId,
+                    }
+                    : {
+                        card_holder_name: cardHolderName,
+                        card_number: cardNumber.replace(/\s/g, ''),
+                        expire_month: expireMonth,
+                        expire_year: expireYear,
+                        cvc: cvc,
+                        save_card: saveCard,
+                    }),
             };
 
             const res = await apiFetch("/api/checkout", {
@@ -172,6 +207,10 @@ export default function CheckoutPage() {
                     />
                     <PaymentCard
                         savedCards={savedCards}
+                        selectedSavedCardId={selectedSavedCardId}
+                        setSelectedSavedCardId={setSelectedSavedCardId}
+                        paymentMethod={paymentMethod}
+                        setPaymentMethod={setPaymentMethod}
                         cardHolderName={cardHolderName}
                         setCardHolderName={setCardHolderName}
                         cardNumber={cardNumber}

@@ -1,5 +1,6 @@
 export const runtime = "nodejs";
 import { pool } from "@/lib/db";
+import { ensurePaymentCardSchema } from "@/lib/paymentCards";
 import { getOrCreateUserFromSession } from "@/lib/users";
 import { NextResponse } from "next/server";
 import iyzipay from "@/lib/iyzipay";
@@ -50,6 +51,7 @@ export async function POST(request) {
         const body = await request.json();
         const {
             shipping_address_id,
+            payment_card_id,
             card_holder_name,
             card_number,
             expire_month,
@@ -58,8 +60,17 @@ export async function POST(request) {
             save_card = false
         } = body;
 
+        const useSavedCard = Boolean(payment_card_id);
+
         // Validate required fields
-        if (!shipping_address_id || !card_holder_name || !card_number || !expire_month || !expire_year || !cvc) {
+        if (!shipping_address_id) {
+            return NextResponse.json(
+                { message: "Missing required payment or address information" },
+                { status: 400 }
+            );
+        }
+
+        if (!useSavedCard && (!card_holder_name || !card_number || !expire_month || !expire_year || !cvc)) {
             return NextResponse.json(
                 { message: "Missing required payment or address information" },
                 { status: 400 }
@@ -138,17 +149,76 @@ export async function POST(request) {
 
         // Generate unique order number
         const orderNumber = `ORD-${Date.now()}-${user.id}`;
-        const sanitizedCardNumber = card_number.replace(/\s/g, '');
+        const shouldSaveCard = !useSavedCard && Boolean(save_card);
+        let sanitizedCardNumber = null;
+        let paymentCard;
 
-        // Prepare Iyzico payment request
-        const paymentCard = {
-            cardHolderName: card_holder_name,
-            cardNumber: sanitizedCardNumber,
-            expireMonth: expire_month,
-            expireYear: expire_year,
-            cvc: cvc,
-            registerCard: save_card ? '1' : '0'
-        };
+        if (useSavedCard) {
+            await ensurePaymentCardSchema();
+
+            const savedCardResult = await pool.query(
+                `SELECT id,
+                        card_holder_name,
+                        card_token,
+                        card_user_key,
+                        COALESCE(
+                            card_user_key,
+                            (
+                                SELECT fallback_cards.card_user_key
+                                FROM payment_cards fallback_cards
+                                WHERE fallback_cards.user_id = payment_cards.user_id
+                                  AND fallback_cards.card_user_key IS NOT NULL
+                                ORDER BY fallback_cards.is_default DESC, fallback_cards.id DESC
+                                LIMIT 1
+                            )
+                        ) AS resolved_card_user_key
+                 FROM payment_cards
+                 WHERE id = $1 AND user_id = $2
+                 LIMIT 1`,
+                [payment_card_id, user.id]
+            );
+
+            if (savedCardResult.rows.length === 0) {
+                return NextResponse.json(
+                    { message: "Invalid saved payment card" },
+                    { status: 400 }
+                );
+            }
+
+            const savedCard = savedCardResult.rows[0];
+
+            if (!savedCard.card_token || !savedCard.resolved_card_user_key) {
+                return NextResponse.json(
+                    { message: "This saved card needs to be re-saved before it can be used for one-click checkout." },
+                    { status: 400 }
+                );
+            }
+
+            if (!savedCard.card_user_key) {
+                await pool.query(
+                    `UPDATE payment_cards
+                     SET card_user_key = $1
+                     WHERE id = $2 AND user_id = $3`,
+                    [savedCard.resolved_card_user_key, savedCard.id, user.id]
+                );
+            }
+
+            paymentCard = {
+                cardToken: savedCard.card_token,
+                cardUserKey: savedCard.resolved_card_user_key
+            };
+        } else {
+            sanitizedCardNumber = card_number.replace(/\s/g, '');
+
+            paymentCard = {
+                cardHolderName: card_holder_name,
+                cardNumber: sanitizedCardNumber,
+                expireMonth: expire_month,
+                expireYear: expire_year,
+                cvc: cvc,
+                registerCard: shouldSaveCard ? '1' : '0'
+            };
+        }
 
         const buyer = {
             id: user.id.toString(),
@@ -239,7 +309,7 @@ export async function POST(request) {
                 try {
                     const resolvedCardBankName = result.cardBankName
                         || await retrieveBankNameFromBin(
-                            result.binNumber || sanitizedCardNumber.slice(0, 6),
+                            result.binNumber || sanitizedCardNumber?.slice(0, 6),
                             result.conversationId || orderNumber
                         )
                         || "Unknown";
@@ -303,19 +373,32 @@ export async function POST(request) {
                     }
 
                     // Save card token if requested
-                    if (save_card && result.cardToken) {
+                    if (shouldSaveCard && result.cardToken) {
+                        await ensurePaymentCardSchema();
+
+                        if (result.cardUserKey) {
+                            await pool.query(
+                                `UPDATE payment_cards
+                                 SET card_user_key = $1
+                                 WHERE user_id = $2
+                                   AND (card_user_key IS NULL OR card_user_key = '')`,
+                                [result.cardUserKey, user.id]
+                            );
+                        }
+
                         const cardMask = result.binNumber && result.lastFourDigits
                             ? `${result.binNumber} **** ${result.lastFourDigits}`
                             : `**** **** **** ${sanitizedCardNumber.slice(-4)}`;
 
                         await pool.query(
                             `INSERT INTO payment_cards 
-                             (user_id, card_holder_name, card_token, card_alias, card_family, card_bank_name, card_mask, is_default)
-                             VALUES ($1, $2, $3, $4, $5, $6, $7, $8)`,
+                             (user_id, card_holder_name, card_token, card_user_key, card_alias, card_family, card_bank_name, card_mask, is_default)
+                             VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)`,
                             [
                                 user.id,
                                 card_holder_name,
                                 result.cardToken,
+                                result.cardUserKey || null,
                                 result.cardAssociation || `Card ending in ${sanitizedCardNumber.slice(-4)}`,
                                 result.cardFamily || 'Unknown',
                                 resolvedCardBankName,
