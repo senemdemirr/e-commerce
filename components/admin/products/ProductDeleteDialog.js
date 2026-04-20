@@ -9,7 +9,7 @@ import WarningAmberRoundedIcon from '@mui/icons-material/WarningAmberRounded';
 
 export default function ProductDeleteDialog({
     open,
-    productTitle = 'Ürün',
+    productTitle = 'Product',
     loading = false,
     onClose,
     onConfirm,
@@ -33,21 +33,21 @@ export default function ProductDeleteDialog({
                         <WarningAmberRoundedIcon className="!text-4xl" />
                     </div>
                     <h3 className="px-6 text-center text-xl font-bold text-text-main dark:text-white">
-                        Ürünü silmek istediğinize emin misiniz?
+                        Are you sure you want to delete this product?
                     </h3>
                 </div>
 
                 <div className="px-8 pb-8 text-center">
                     <div className="mb-4 rounded-lg border border-primary/10 bg-background-light p-4 dark:border-primary/10 dark:bg-background-dark">
                         <p className="mb-1 text-xs font-semibold uppercase tracking-wider text-text-muted">
-                            Seçili Ürün
+                            Selected Product
                         </p>
                         <p className="text-lg font-bold text-primary-dark dark:text-primary">
                             {productTitle}
                         </p>
                     </div>
                     <p className="text-sm leading-relaxed text-text-muted">
-                        Bu işlem geri alınamaz ve ürün tüm listelerden kalıcı olarak kaldırılacaktır.
+                        This action cannot be undone, and the product will be permanently removed from all lists.
                     </p>
                 </div>
 
@@ -59,7 +59,7 @@ export default function ProductDeleteDialog({
                         startIcon={<DeleteForeverRoundedIcon />}
                         className="!w-full !rounded-xl !bg-accent !px-4 !py-3 !font-bold !normal-case !text-white hover:!bg-accent/90 disabled:!bg-accent/60"
                     >
-                        {loading ? 'Siliniyor...' : 'Evet, Ürünü Sil'}
+                        {loading ? 'Deleting...' : 'Yes, Delete Product'}
                     </Button>
 
                     <Button
@@ -68,7 +68,7 @@ export default function ProductDeleteDialog({
                         disabled={loading}
                         className="!w-full !rounded-xl !border !border-primary/10 !bg-surface-light !px-4 !py-3 !font-semibold !normal-case !text-text-muted hover:!bg-white dark:!border-primary/10 dark:!bg-surface-dark dark:!text-white dark:hover:!bg-surface-dark/90"
                     >
-                        Vazgeç
+                        Cancel
                     </Button>
                 </div>
             </div>

@@ -21,23 +21,23 @@ export default function ProductVariationsSection({
     return (
         <SurfaceCard className="p-6 sm:p-8">
             <SectionIntro
-                eyebrow="Varyasyon"
-                title="Renkleri ve bedenleri tanımlayın"
-                description="Bu bölüm katalog kartının ritmini belirler. Renkleri ayrı satırlarda, bedenleri tek satırda virgülle ayırarak girin."
+                eyebrow="Variations"
+                title="Define colors and sizes"
+                description="This section shapes the rhythm of the catalog card. Add colors on separate rows and sizes in a single comma-separated line."
                 icon={<ViewInArRoundedIcon />}
             />
 
             <div className="mt-8 grid gap-8 lg:grid-cols-[1.1fr_0.9fr]">
                 <div>
                     <div className="flex items-center justify-between gap-4">
-                        <p className="text-sm font-black text-text-main">Renk paleti</p>
+                        <p className="text-sm font-black text-text-main">Color palette</p>
                         <Button
                             type="button"
                             onClick={onAddColor}
                             disabled={disabled}
                             className="!rounded-2xl !bg-primary/10 !px-4 !py-2 !text-xs !font-bold !normal-case !text-primary-dark hover:!bg-primary/20"
                         >
-                            Renk Satırı Ekle
+                            Add Color Row
                         </Button>
                     </div>
 
@@ -51,7 +51,7 @@ export default function ProductVariationsSection({
                                     value={color.name}
                                     onChange={(event) => onColorChange(index, 'name', event.target.value)}
                                     disabled={disabled}
-                                    placeholder="Örn. Kum Beji"
+                                    placeholder="e.g. Sand Beige"
                                 />
                                 <div className="flex items-center gap-3 rounded-2xl border border-primary/10 bg-white px-3">
                                     <input
@@ -69,7 +69,7 @@ export default function ProductVariationsSection({
                                     disabled={disabled}
                                     className="!rounded-2xl !border !border-primary/10 !px-4 !py-2 !text-xs !font-bold !normal-case !text-text-muted hover:!bg-white"
                                 >
-                                    Kaldır
+                                    Remove
                                 </Button>
                             </div>
                         ))}
@@ -77,7 +77,7 @@ export default function ProductVariationsSection({
                 </div>
 
                 <div>
-                    <Field label="Beden seti" hint="Virgülle ayırın">
+                    <Field label="Size set" hint="Separate with commas">
                         <Textarea
                             rows={5}
                             value={sizesValue}
@@ -96,7 +96,7 @@ export default function ProductVariationsSection({
                             />
                         )) : (
                             <p className="text-sm font-medium text-text-muted">
-                                Henüz beden etiketi eklenmedi.
+                                No size labels added yet.
                             </p>
                         )}
                     </div>

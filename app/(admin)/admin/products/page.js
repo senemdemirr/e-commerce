@@ -56,7 +56,7 @@ export default function ProductsPage() {
                 ]);
 
                 if (!productsResponse.ok) {
-                    throw new Error('Ürünler yüklenemedi.');
+                    throw new Error('Products could not be loaded.');
                 }
 
                 const nextProducts = await productsResponse.json();
@@ -77,7 +77,7 @@ export default function ProductsPage() {
                     return;
                 }
 
-                const message = error.message || 'Ürün kataloğu yüklenemedi.';
+                const message = error.message || 'Product catalog could not be loaded.';
                 setLoadError(message);
                 enqueueSnackbar(message, { variant: 'error' });
             } finally {
@@ -136,7 +136,7 @@ export default function ProductsPage() {
         };
     });
 
-    const categoryOptions = [{ value: 'all', label: 'Tüm Kategoriler', count: normalizedProducts.length }];
+    const categoryOptions = [{ value: 'all', label: 'All Categories', count: normalizedProducts.length }];
     const seenCategories = new Set();
 
     normalizedProducts.forEach((product) => {
@@ -153,7 +153,7 @@ export default function ProductsPage() {
         seenCategories.add(product.categorySlug);
     });
 
-    const subcategoryOptions = [{ value: 'all', label: 'Tüm Alt Kategoriler', count: normalizedProducts.length }];
+    const subcategoryOptions = [{ value: 'all', label: 'All Subcategories', count: normalizedProducts.length }];
     const seenSubcategories = new Set();
 
     normalizedProducts.forEach((product) => {
@@ -227,19 +227,19 @@ export default function ProductsPage() {
         ? normalizedProducts.reduce((sum, product) => sum + Number(product.price || 0), 0) / normalizedProducts.length
         : 0;
     const representedCategories = new Set(normalizedProducts.map((product) => product.categorySlug).filter(Boolean)).size;
-    const selectedCategoryLabel = categoryOptions.find((option) => option.value === categoryFilter)?.label || 'Tüm Kategoriler';
-    const selectedSubcategoryLabel = subcategoryOptions.find((option) => option.value === subcategoryFilter)?.label || 'Tüm Alt Kategoriler';
-    const selectedPriceLabel = PRICE_OPTIONS.find((option) => option.value === priceFilter)?.label || 'Tüm Fiyatlar';
-    const selectedSortLabel = SORT_OPTIONS.find((option) => option.value === sortBy)?.label || 'En Yeni';
+    const selectedCategoryLabel = categoryOptions.find((option) => option.value === categoryFilter)?.label || 'All Categories';
+    const selectedSubcategoryLabel = subcategoryOptions.find((option) => option.value === subcategoryFilter)?.label || 'All Subcategories';
+    const selectedPriceLabel = PRICE_OPTIONS.find((option) => option.value === priceFilter)?.label || 'All Prices';
+    const selectedSortLabel = SORT_OPTIONS.find((option) => option.value === sortBy)?.label || 'Newest';
 
     function handleExportCsv() {
         if (sortedProducts.length === 0) {
-            enqueueSnackbar('Dışa aktarılacak ürün bulunamadı.', { variant: 'info' });
+            enqueueSnackbar('No products available to export.', { variant: 'info' });
             return;
         }
 
         exportProductsToCsv(sortedProducts);
-        enqueueSnackbar('Ürün listesi CSV olarak indirildi.', { variant: 'success' });
+        enqueueSnackbar('Product list downloaded as CSV.', { variant: 'success' });
     }
 
     function openMenu(key, event) {
@@ -292,16 +292,16 @@ export default function ProductsPage() {
             const data = await response.json().catch(() => null);
 
             if (!response.ok) {
-                throw new Error(data?.error || 'Ürün silinemedi.');
+                throw new Error(data?.error || 'Product could not be deleted.');
             }
 
             setProducts((current) => current.filter(
                 (product) => Number(product.id) !== Number(deleteTarget.id)
             ));
-            enqueueSnackbar(`${deleteTarget.title || 'Ürün'} silindi.`, { variant: 'success' });
+            enqueueSnackbar(`${deleteTarget.title || 'Product'} deleted.`, { variant: 'success' });
             setDeleteTarget(null);
         } catch (error) {
-            enqueueSnackbar(error.message || 'Ürün silinemedi.', { variant: 'error' });
+            enqueueSnackbar(error.message || 'Product could not be deleted.', { variant: 'error' });
         } finally {
             setDeleteLoading(false);
         }
@@ -320,34 +320,34 @@ export default function ProductsPage() {
 
             <div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-4">
                 <ProductsSummaryCard
-                    title="Toplam Ürün"
+                    title="Total Products"
                     value={formatNumber(normalizedProducts.length)}
-                    caption={`${formatNumber(representedCategories)} kategoriye yayılıyor`}
-                    detail="Katalogdaki tüm ürünler tek listede toplanır; arama ve filtreler bu havuzun üzerinde çalışır."
+                    caption={`Across ${formatNumber(representedCategories)} categories`}
+                    detail="All products in the catalog are collected in one list, and search plus filters operate on this shared pool."
                     icon={Inventory2RoundedIcon}
                     iconClassName="bg-primary/15 text-primary-dark"
                 />
                 <ProductsSummaryCard
-                    title="Vitrine Hazır"
+                    title="Storefront Ready"
                     value={formatNumber(readyProducts)}
-                    caption={`Katalogun %${normalizedProducts.length ? Math.round((readyProducts / normalizedProducts.length) * 100) : 0}'i hazır`}
-                    detail="Görseli, temel açıklaması ve ürün varyantları güçlü olan kayıtlar burada toplanır."
+                    caption={`${normalizedProducts.length ? Math.round((readyProducts / normalizedProducts.length) * 100) : 0}% of the catalog is ready`}
+                    detail="Products with strong imagery, solid core copy, and complete variants are grouped here."
                     icon={AutoAwesomeRoundedIcon}
                     iconClassName="bg-secondary/20 text-text-main"
                 />
                 <ProductsSummaryCard
-                    title="Eksik İçerik"
+                    title="Missing Content"
                     value={formatNumber(missingProducts)}
-                    caption={`${formatNumber(growingProducts)} ürün gelişim aşamasında`}
-                    detail="Eksik görsel, zayıf açıklama veya yetersiz detay alanları yüzünden geride kalan ürünler."
+                    caption={`${formatNumber(growingProducts)} products are still in progress`}
+                    detail="These products are held back by missing imagery, weak copy, or thin detail coverage."
                     icon={WarningAmberRoundedIcon}
                     iconClassName="bg-accent/20 text-text-main"
                 />
                 <ProductsSummaryCard
-                    title="Ortalama Fiyat"
+                    title="Average Price"
                     value={formatCurrency(averagePrice)}
-                    caption={`${formatNumber(sortedProducts.length)} ürün filtreye uyuyor`}
-                    detail="Filtreler değiştikçe tablo anında güncellenir; ürünlerin fiyat bandı dağılımı doğrudan bu görünümden okunur."
+                    caption={`${formatNumber(sortedProducts.length)} products match the filters`}
+                    detail="The table updates instantly as filters change, so the current price-band spread is visible at a glance."
                     icon={PaidRoundedIcon}
                     iconClassName="bg-text-main text-white"
                 />
@@ -399,7 +399,7 @@ export default function ProductsPage() {
 
             <ProductDeleteDialog
                 open={Boolean(deleteTarget)}
-                productTitle={deleteTarget?.title || 'Ürün'}
+                productTitle={deleteTarget?.title || 'Product'}
                 loading={deleteLoading}
                 onClose={closeDeleteDialog}
                 onConfirm={confirmDeleteProduct}

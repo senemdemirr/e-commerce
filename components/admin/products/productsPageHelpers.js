@@ -1,34 +1,34 @@
 export const PAGE_SIZE = 8;
 
 export const PRICE_OPTIONS = [
-    { value: 'all', label: 'Tüm Fiyatlar' },
-    { value: 'entry', label: '0 ₺ - 749 ₺' },
-    { value: 'mid', label: '750 ₺ - 1.499 ₺' },
-    { value: 'upper', label: '1.500 ₺ - 2.999 ₺' },
-    { value: 'premium', label: '3.000 ₺ ve üzeri' },
+    { value: 'all', label: 'All Prices' },
+    { value: 'entry', label: 'TRY 0 - TRY 749' },
+    { value: 'mid', label: 'TRY 750 - TRY 1,499' },
+    { value: 'upper', label: 'TRY 1,500 - TRY 2,999' },
+    { value: 'premium', label: 'TRY 3,000+' },
 ];
 
 export const SORT_OPTIONS = [
-    { value: 'newest', label: 'En Yeni' },
-    { value: 'score_desc', label: 'Katalog Skoru' },
-    { value: 'price_desc', label: 'Fiyat (Yüksekten Düşüğe)' },
-    { value: 'price_asc', label: 'Fiyat (Düşükten Yükseğe)' },
-    { value: 'title_asc', label: 'Ürün Adı (A-Z)' },
+    { value: 'newest', label: 'Newest' },
+    { value: 'score_desc', label: 'Catalog Score' },
+    { value: 'price_desc', label: 'Price (High to Low)' },
+    { value: 'price_asc', label: 'Price (Low to High)' },
+    { value: 'title_asc', label: 'Product Name (A-Z)' },
 ];
 
 export const READINESS_FILTERS = [
-    { value: 'all', label: 'Tümü' },
-    { value: 'ready', label: 'Vitrine Hazır' },
-    { value: 'growing', label: 'Gelişiyor' },
-    { value: 'missing', label: 'Eksik İçerik' },
+    { value: 'all', label: 'All' },
+    { value: 'ready', label: 'Storefront Ready' },
+    { value: 'growing', label: 'In Progress' },
+    { value: 'missing', label: 'Missing Content' },
 ];
 
 export function formatNumber(value) {
-    return Number(value || 0).toLocaleString('tr-TR');
+    return Number(value || 0).toLocaleString('en-US');
 }
 
 export function formatCurrency(value) {
-    return new Intl.NumberFormat('tr-TR', {
+    return new Intl.NumberFormat('en-US', {
         style: 'currency',
         currency: 'TRY',
         minimumFractionDigits: 2,
@@ -38,10 +38,10 @@ export function formatCurrency(value) {
 
 export function formatDate(value) {
     if (!value) {
-        return 'Tarih yok';
+        return 'No date';
     }
 
-    return new Intl.DateTimeFormat('tr-TR', {
+    return new Intl.DateTimeFormat('en-US', {
         day: '2-digit',
         month: 'short',
         year: 'numeric',
@@ -50,7 +50,7 @@ export function formatDate(value) {
 
 export function formatSlugLabel(value) {
     if (!value) {
-        return 'Tanımsız';
+        return 'Unspecified';
     }
 
     return value
@@ -159,7 +159,7 @@ export function getReadinessMeta(score) {
     if (score >= 78) {
         return {
             value: 'ready',
-            label: 'Vitrine Hazır',
+            label: 'Storefront Ready',
             meterClassName: 'bg-primary',
         };
     }
@@ -167,14 +167,14 @@ export function getReadinessMeta(score) {
     if (score >= 50) {
         return {
             value: 'growing',
-            label: 'Gelişiyor',
+            label: 'In Progress',
             meterClassName: 'bg-accent',
         };
     }
 
     return {
         value: 'missing',
-        label: 'Eksik İçerik',
+        label: 'Missing Content',
         meterClassName: 'bg-red-500',
     };
 }
@@ -191,20 +191,20 @@ export function getPriceBand(price) {
 
     if (numericPrice >= 1500) {
         return {
-            label: 'Yüksek',
+            label: 'High',
             chipClassName: '!bg-accent/20 !text-text-main',
         };
     }
 
     if (numericPrice >= 750) {
         return {
-            label: 'Orta',
+            label: 'Mid',
             chipClassName: '!bg-secondary/20 !text-text-main',
         };
     }
 
     return {
-        label: 'Giriş',
+        label: 'Entry',
         chipClassName: '!bg-background-light !text-text-muted',
     };
 }
@@ -261,14 +261,14 @@ export function buildCategoryLookup(categories) {
 export function exportProductsToCsv(products) {
     const headers = [
         'ID',
-        'Urun',
-        'Marka',
-        'Kategori',
-        'Alt Kategori',
+        'Product',
+        'Brand',
+        'Category',
+        'Subcategory',
         'SKU',
-        'Fiyat',
-        'Katalog Skoru',
-        'Durum',
+        'Price',
+        'Catalog Score',
+        'Status',
     ];
 
     const rows = products.map((product) => [

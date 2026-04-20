@@ -13,11 +13,11 @@ export default function ProductsHeader({ onExport, canMutate }) {
             <div className="relative flex flex-row items-center justify-between gap-6 p-6 sm:p-8">
                 <div className="max-w-3xl">
                     <h1 className="font-display text-3xl font-black tracking-tight text-text-main sm:text-4xl">
-                        Ürün Yönetimi
+                        Product Management
                     </h1>
                     <p className="mt-4 max-w-2xl text-sm leading-7 text-text-muted sm:text-base">
-                        Mağazadaki ürünleri tek akışta tarayın, eksik içerikleri ayıklayın ve
-                        kategori dağılımını kaybetmeden kataloğu hızla temizleyin.
+                        Review store products in a single flow, spot missing content, and clean up the catalog
+                        without losing category coverage.
                     </p>
                 </div>
 
@@ -30,7 +30,7 @@ export default function ProductsHeader({ onExport, canMutate }) {
                             size="small"
                             className="!rounded-2xl !bg-primary !px-5 !py-3 !font-bold !normal-case !text-text-main hover:!bg-primary-dark hover:!text-white"
                         >
-                            Yeni Ürün Ekle
+                            Add Product
                         </Button>
                     ) : null}
 
@@ -40,7 +40,7 @@ export default function ProductsHeader({ onExport, canMutate }) {
                         size="small"
                         className="!rounded-2xl !border !border-primary/10 !bg-white !px-5 !py-3 !font-semibold !normal-case !text-text-main hover:!bg-background-light"
                     >
-                        CSV İndir
+                        Download CSV
                     </Button>
                 </div>
             </div>

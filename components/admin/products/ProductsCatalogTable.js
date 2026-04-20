@@ -12,25 +12,25 @@ export default function ProductsCatalogTable({ visibleProducts, onDeleteProduct,
                 <thead>
                     <tr className="border-b border-primary/10 bg-background-light">
                         <th className="px-6 py-4 text-xs font-black uppercase tracking-[0.2em] text-text-muted">
-                            Ürün
+                            Product
                         </th>
                         <th className="px-6 py-4 text-xs font-black uppercase tracking-[0.2em] text-text-muted">
-                            Kategori
+                            Category
                         </th>
                         <th className="px-6 py-4 text-xs font-black uppercase tracking-[0.2em] text-text-muted">
-                            Alt Kategori
+                            Subcategory
                         </th>
                         <th className="px-6 py-4 text-xs font-black uppercase tracking-[0.2em] text-text-muted">
                             SKU
                         </th>
                         <th className="px-6 py-4 text-xs font-black uppercase tracking-[0.2em] text-text-muted">
-                            Fiyat
+                            Price
                         </th>
                         <th className="px-6 py-4 text-xs font-black uppercase tracking-[0.2em] text-text-muted">
-                            Durum
+                            Status
                         </th>
                         <th className="px-6 py-4 text-right text-xs font-black uppercase tracking-[0.2em] text-text-muted">
-                            İşlemler
+                            Actions
                         </th>
                     </tr>
                 </thead>
@@ -60,7 +60,7 @@ export default function ProductsCatalogTable({ visibleProducts, onDeleteProduct,
                                             </p>
                                             {product.isFresh ? (
                                                 <span className="rounded-full bg-accent/20 px-2.5 py-1 text-[10px] font-black uppercase tracking-[0.18em] text-text-main">
-                                                    Yeni
+                                                    New
                                                 </span>
                                             ) : null}
                                         </div>
@@ -72,12 +72,12 @@ export default function ProductsCatalogTable({ visibleProducts, onDeleteProduct,
                                                 </span>
                                             ) : null}
                                             <span className="text-xs font-medium text-text-muted">
-                                                {product.colorCount} renk • {product.sizeCount} beden • {product.detailCount} detay alanı
+                                                {product.colorCount} colors • {product.sizeCount} sizes • {product.detailCount} detail fields
                                             </span>
                                         </div>
 
                                         <p className="mt-2 text-xs text-text-muted">
-                                            Eklendi: {formatDate(product.created_at)}
+                                            Added: {formatDate(product.created_at)}
                                         </p>
                                     </div>
                                 </div>
@@ -88,7 +88,7 @@ export default function ProductsCatalogTable({ visibleProducts, onDeleteProduct,
                                     <span className="inline-flex rounded-full bg-secondary/20 px-3 py-1 text-xs font-bold text-text-main">
                                         {product.categoryName}
                                     </span>
-                                    <p className="text-xs font-mono text-text-muted">/{product.categorySlug || 'kategori-yok'}</p>
+                                    <p className="text-xs font-mono text-text-muted">/{product.categorySlug || 'no-category'}</p>
                                 </div>
                             </td>
 
@@ -98,14 +98,14 @@ export default function ProductsCatalogTable({ visibleProducts, onDeleteProduct,
                                         {product.subcategoryName}
                                     </span>
                                     <p className="text-xs font-mono text-text-muted">
-                                        /{product.categorySlug || 'kategori'}/{product.subcategorySlug || 'alt-kategori'}
+                                        /{product.categorySlug || 'category'}/{product.subcategorySlug || 'subcategory'}
                                     </p>
                                 </div>
                             </td>
 
                             <td className="px-6 py-5">
                                 <span className="font-mono text-xs font-black text-text-main">
-                                    {product.sku || 'Tanımsız'}
+                                    {product.sku || 'Unspecified'}
                                 </span>
                             </td>
 
@@ -134,7 +134,7 @@ export default function ProductsCatalogTable({ visibleProducts, onDeleteProduct,
                                                         ? 'size-2 rounded-full bg-primary-dark'
                                                         : 'size-2 rounded-full bg-red-500'}
                                                 />
-                                                {enabled ? 'Aktif' : 'Pasif'}
+                                                {enabled ? 'Active' : 'Inactive'}
                                             </span>
                                         </div>
                                     );
@@ -143,7 +143,7 @@ export default function ProductsCatalogTable({ visibleProducts, onDeleteProduct,
 
                             <td className="px-6 py-5">
                                 <div className="flex justify-end gap-2">
-                                    <Tooltip title={canMutate ? 'Düzenle' : 'Görüntüle'}>
+                                    <Tooltip title={canMutate ? 'Edit' : 'View'}>
                                         <span>
                                             <IconButton
                                                 component={Link}
@@ -155,7 +155,7 @@ export default function ProductsCatalogTable({ visibleProducts, onDeleteProduct,
                                         </span>
                                     </Tooltip>
 
-                                    <Tooltip title={canMutate ? 'Sil' : 'Silme yetkisi gerekli'}>
+                                    <Tooltip title={canMutate ? 'Delete' : 'Delete permission required'}>
                                         <span>
                                             <IconButton
                                                 onClick={canMutate ? () => onDeleteProduct(product) : undefined}

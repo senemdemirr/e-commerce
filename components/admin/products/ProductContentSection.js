@@ -22,53 +22,53 @@ export default function ProductContentSection({
     return (
         <SurfaceCard className="p-6 sm:p-8">
             <SectionIntro
-                eyebrow="İçerik"
-                title="Detay katmanını zenginleştirin"
-                description="Uzun açıklama, materyal, bakım notları ve satışta öne çıkacak bullet point’ler ürünün ikna gücünü yükseltir."
+                eyebrow="Content"
+                title="Enrich the detail layer"
+                description="Long-form copy, material info, care notes, and sales-driven bullet points make the product more convincing."
                 icon={<AutoAwesomeRoundedIcon />}
             />
 
             <div className="mt-8 grid gap-5 md:grid-cols-2">
-                <Field label="Materyal">
+                <Field label="Material">
                     <Input
                         value={materialValue}
                         onChange={onMaterialChange}
                         disabled={disabled}
-                        placeholder="%80 cotton, %20 polyester"
+                        placeholder="80% cotton, 20% polyester"
                     />
                 </Field>
 
                 {imageField}
 
-                <Field label="Bakım notları" hint="Her satır ayrı kural">
+                <Field label="Care notes" hint="One rule per line">
                     <Textarea
                         rows={5}
                         value={careValue}
                         onChange={onCareChange}
                         disabled={disabled}
-                        placeholder={'30 derecede yikayin\nDusuk isiyle utuleyin\nKurutucu kullanmayin'}
+                        placeholder={'Wash at 30°C\nIron on low heat\nDo not tumble dry'}
                     />
                 </Field>
 
-                <Field label="Öne çıkan maddeler" hint="Her satır ayrı madde">
+                <Field label="Key bullets" hint="One bullet per line">
                     <Textarea
                         rows={5}
                         value={bulletPointsValue}
                         onChange={onBulletPointsChange}
                         disabled={disabled}
-                        placeholder={'Soft touch doku\nRelaxed fit kalip\nSezonlar arasi kullanima uygun'}
+                        placeholder={'Soft-touch texture\nRelaxed fit silhouette\nEasy to wear across seasons'}
                     />
                 </Field>
             </div>
 
             <div className="mt-5">
-                <Field label="Uzun açıklama" hint="PDP hikayesi">
+                <Field label="Long description" hint="PDP story">
                     <Textarea
                         rows={6}
                         value={descriptionLongValue}
                         onChange={onDescriptionLongChange}
                         disabled={disabled}
-                        placeholder="Kumaş hissi, kullanım bağlamı ve ürünün stil avantajını daha editoryal bir tonda detaylandırın."
+                        placeholder="Expand on the fabric feel, use case, and styling advantage in a more editorial tone."
                     />
                 </Field>
             </div>

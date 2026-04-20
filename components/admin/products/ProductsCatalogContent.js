@@ -51,7 +51,7 @@ export default function ProductsCatalogContent({
                     <WarningAmberRoundedIcon className="!text-4xl" />
                 </div>
                 <div className="space-y-2">
-                    <h3 className="font-display text-2xl font-black text-text-main">Ürün kataloğu yüklenemedi</h3>
+                    <h3 className="font-display text-2xl font-black text-text-main">Product catalog could not be loaded</h3>
                     <p className="max-w-lg text-sm leading-6 text-text-muted">{loadError}</p>
                 </div>
                 <Button
@@ -59,7 +59,7 @@ export default function ProductsCatalogContent({
                     startIcon={<RefreshRoundedIcon />}
                     className="!rounded-2xl !bg-primary !px-5 !py-3 !font-bold !normal-case !text-text-main hover:!bg-primary-dark hover:!text-white"
                 >
-                    Tekrar Dene
+                    Try Again
                 </Button>
             </div>
         );
@@ -72,9 +72,9 @@ export default function ProductsCatalogContent({
                     <CollectionsRoundedIcon className="!text-4xl" />
                 </div>
                 <div className="space-y-2">
-                    <h3 className="font-display text-2xl font-black text-text-main">Filtrelere uyan ürün bulunamadı</h3>
+                    <h3 className="font-display text-2xl font-black text-text-main">No products match the current filters</h3>
                     <p className="max-w-lg text-sm leading-6 text-text-muted">
-                        Arama terimini sadeleştirin ya da kategori ve fiyat filtrelerini genişleterek listeyi tekrar açın.
+                        Simplify the search term or broaden the category and price filters to see more results.
                     </p>
                 </div>
             </div>
@@ -114,13 +114,13 @@ export default function ProductsCatalogContent({
                                     <h3 className="text-base font-black text-text-main">{product.title}</h3>
                                     {product.isFresh ? (
                                         <span className="rounded-full bg-accent/20 px-2.5 py-1 text-[10px] font-black uppercase tracking-[0.18em] text-text-main">
-                                            Yeni
+                                            New
                                         </span>
                                     ) : null}
                                 </div>
 
                                 <p className="mt-2 text-xs font-mono font-bold text-text-muted">
-                                    {product.sku || 'SKU yok'}
+                                    {product.sku || 'No SKU'}
                                 </p>
                                 <p className="mt-3 text-lg font-black text-text-main">
                                     {formatCurrency(product.price)}
@@ -147,7 +147,7 @@ export default function ProductsCatalogContent({
 
                         <div className="mt-5 space-y-3">
                             <div className="flex items-center justify-between text-sm">
-                                <span className="font-semibold text-text-muted">Katalog Skoru</span>
+                                <span className="font-semibold text-text-muted">Catalog Score</span>
                                 <span className="font-black text-text-main">{product.catalogScore}/100</span>
                             </div>
                             <div className="h-2 overflow-hidden rounded-full bg-background-light">
@@ -158,14 +158,14 @@ export default function ProductsCatalogContent({
                             </div>
                             <div className="flex items-center justify-between text-xs">
                                 <span className="text-text-muted">
-                                    {product.colorCount} renk • {product.sizeCount} beden • {product.detailCount} detay
+                                    {product.colorCount} colors • {product.sizeCount} sizes • {product.detailCount} details
                                 </span>
                                 <span className="font-bold text-text-main">{product.readiness.label}</span>
                             </div>
                         </div>
 
                         <div className="mt-5 flex items-center justify-between">
-                            <span className="text-xs text-text-muted">Eklendi: {formatDate(product.created_at)}</span>
+                            <span className="text-xs text-text-muted">Added: {formatDate(product.created_at)}</span>
 
                             <div className="flex gap-2">
                                 <IconButton
@@ -175,7 +175,7 @@ export default function ProductsCatalogContent({
                                 >
                                     <EditRoundedIcon className="!text-lg" />
                                 </IconButton>
-                                <Tooltip title={canMutate ? 'Sil' : 'Silme yetkisi gerekli'}>
+                                <Tooltip title={canMutate ? 'Delete' : 'Delete permission required'}>
                                     <span>
                                         <IconButton
                                             onClick={canMutate ? () => onDeleteProduct(product) : undefined}
@@ -196,9 +196,8 @@ export default function ProductsCatalogContent({
 
             <div className="flex flex-col gap-4 border-t border-primary/10 px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-6">
                 <p className="text-sm text-text-muted">
-                    {formatNumber(totalCount)} ürün içinden{' '}
-                    {totalCount === 0 ? 0 : startIndex + 1}-
-                    {Math.min(startIndex + PAGE_SIZE, totalCount)} arası gösteriliyor
+                    Showing {totalCount === 0 ? 0 : startIndex + 1}-
+                    {Math.min(startIndex + PAGE_SIZE, totalCount)} of {formatNumber(totalCount)} products
                 </p>
 
                 <div className="flex items-center gap-1 self-start sm:self-auto">

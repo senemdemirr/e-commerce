@@ -128,11 +128,11 @@ export default function NewProductPage() {
                 ]);
 
                 if (!categoriesResponse.ok) {
-                    throw new Error(categoriesData?.error || 'Kategoriler yüklenemedi.');
+                    throw new Error(categoriesData?.error || 'Categories could not be loaded.');
                 }
 
                 if (!subcategoriesResponse.ok) {
-                    throw new Error(subcategoriesData?.error || 'Alt kategoriler yüklenemedi.');
+                    throw new Error(subcategoriesData?.error || 'Subcategories could not be loaded.');
                 }
 
                 if (!active) {
@@ -147,13 +147,13 @@ export default function NewProductPage() {
                         .filter((category) => Number(category?.activate ?? 0) === 1)
                         .map((category) => ({
                             id: Number(category?.id),
-                            name: category?.name || 'İsimsiz Kategori',
+                            name: category?.name || 'Untitled Category',
                             slug: category?.slug || '',
                             subcategories: activeSubcategories
                                 .filter((subcategory) => Number(subcategory?.category_id) === Number(category?.id))
                                 .map((subcategory) => ({
                                     id: Number(subcategory?.id),
-                                    name: subcategory?.name || 'İsimsiz Alt Kategori',
+                                    name: subcategory?.name || 'Untitled Subcategory',
                                     slug: subcategory?.slug || '',
                                 })),
                         }))
@@ -166,7 +166,7 @@ export default function NewProductPage() {
                 const firstSubcategory = firstCategory?.subcategories?.[0];
 
                 if (nextCategories.length === 0) {
-                    setLoadError('Ürün eklemek için önce aktif kategori ve aktif alt kategori oluşturun.');
+                    setLoadError('Create an active category and active subcategory before adding a product.');
                 }
 
                 setForm((current) => ({
@@ -179,7 +179,7 @@ export default function NewProductPage() {
                     return;
                 }
 
-                const message = error.message || 'Kategoriler yüklenemedi.';
+                const message = error.message || 'Categories could not be loaded.';
                 setLoadError(message);
                 enqueueSnackbar(message, { variant: 'error' });
             } finally {
@@ -245,16 +245,16 @@ export default function NewProductPage() {
     const readiness = getReadinessMeta(score);
 
     const checklist = [
-        { label: 'Kapak görseli eklendi', done: Boolean(imageFile) },
-        { label: 'Başlık ve SKU hazır', done: Boolean(form.title.trim() && form.sku.trim()) },
-        { label: 'Fiyat ve kategori seçildi', done: Boolean(form.price && form.subcategoryId) },
-        { label: 'Renk veya beden varyasyonu var', done: normalizedColors.length > 0 || normalizedSizes.length > 0 },
-        { label: 'Detay katmanı dolduruldu', done: Boolean(details.material || normalizedCare.length || normalizedBulletPoints.length || details.description_long) },
+        { label: 'Cover image added', done: Boolean(imageFile) },
+        { label: 'Title and SKU ready', done: Boolean(form.title.trim() && form.sku.trim()) },
+        { label: 'Price and category selected', done: Boolean(form.price && form.subcategoryId) },
+        { label: 'Color or size variation added', done: normalizedColors.length > 0 || normalizedSizes.length > 0 },
+        { label: 'Detail layer completed', done: Boolean(details.material || normalizedCare.length || normalizedBulletPoints.length || details.description_long) },
     ];
 
     const publicPath = selectedCategory?.slug && selectedSubcategory?.slug && form.sku
         ? `/${selectedCategory.slug}/${selectedSubcategory.slug}/${form.sku}`
-        : '/kategori/alt-kategori/SKU';
+        : '/category/subcategory/SKU';
 
     function clearError(key) {
         setErrors((current) => {
@@ -352,13 +352,13 @@ export default function NewProductPage() {
 
     function validateForm() {
         const nextErrors = {
-            title: form.title.trim() ? '' : 'Ürün adı gerekli.',
-            brand: form.brand.trim() ? '' : 'Marka gerekli.',
-            sku: form.sku.trim() ? '' : 'SKU gerekli.',
-            price: form.price ? '' : 'Fiyat gerekli.',
-            description: form.description.trim() ? '' : 'Kısa açıklama gerekli.',
-            subcategoryId: form.subcategoryId ? '' : 'Alt kategori seçin.',
-            image: imageFile ? '' : 'Kapak görseli gerekli.',
+            title: form.title.trim() ? '' : 'Product name is required.',
+            brand: form.brand.trim() ? '' : 'Brand is required.',
+            sku: form.sku.trim() ? '' : 'SKU is required.',
+            price: form.price ? '' : 'Price is required.',
+            description: form.description.trim() ? '' : 'Short description is required.',
+            subcategoryId: form.subcategoryId ? '' : 'Select a subcategory.',
+            image: imageFile ? '' : 'Cover image is required.',
         };
 
         setErrors(nextErrors);
@@ -374,7 +374,7 @@ export default function NewProductPage() {
         }
 
         if (!validateForm()) {
-            enqueueSnackbar('Eksik alanları tamamlayın.', { variant: 'warning' });
+            enqueueSnackbar('Complete the missing fields.', { variant: 'warning' });
             return;
         }
 
@@ -403,14 +403,14 @@ export default function NewProductPage() {
             const data = await response.json().catch(() => null);
 
             if (!response.ok) {
-                throw new Error(data?.error || 'Ürün oluşturulamadı.');
+                throw new Error(data?.error || 'Product could not be created.');
             }
 
-            enqueueSnackbar('Ürün başarıyla oluşturuldu.', { variant: 'success' });
+            enqueueSnackbar('Product created successfully.', { variant: 'success' });
             router.push('/admin/products');
             router.refresh();
         } catch (error) {
-            enqueueSnackbar(error.message || 'Ürün oluşturulamadı.', { variant: 'error' });
+            enqueueSnackbar(error.message || 'Product could not be created.', { variant: 'error' });
         } finally {
             setSubmitting(false);
         }
@@ -441,7 +441,7 @@ export default function NewProductPage() {
                         startIcon={<ArrowBackRoundedIcon />}
                         className="!mt-6 !rounded-2xl !bg-primary !px-5 !py-3 !font-bold !normal-case !text-text-main hover:!bg-primary-dark hover:!text-white"
                     >
-                        Ürün listesine dön
+                        Back to product list
                     </Button>
                 </SurfaceCard>
             </div>
@@ -458,12 +458,11 @@ export default function NewProductPage() {
                 <div className="relative flex flex-col gap-6 p-6 sm:p-8 xl:flex-row xl:items-end xl:justify-between">
                     <div className="max-w-3xl">
                         <h1 className="mt-5 font-display text-4xl font-black tracking-tight text-text-main">
-                            Yeni ürün kurgusunu vitrinden önce burada netleştirin
+                            Shape the new product entry before it reaches the storefront
                         </h1>
                         <p className="mt-4 max-w-2xl text-sm leading-7 text-text-muted sm:text-base">
-                            Bu ekran yalnızca veri girişi değil. Ürünün kategori yerleşimini, varyasyon
-                            yoğunluğunu ve vitrin hazır olma seviyesini aynı anda görerek kataloga daha temiz
-                            bir giriş yapmanızı sağlar.
+                            This screen is more than data entry. It helps you place the product, gauge variation
+                            depth, and see storefront readiness at the same time so the catalog starts cleaner.
                         </p>
                     </div>
 
@@ -474,7 +473,7 @@ export default function NewProductPage() {
                             startIcon={<RestartAltRoundedIcon />}
                             className="!rounded-2xl !border !border-primary/10 !bg-white !px-5 !py-3 !font-semibold !normal-case !text-text-main hover:!bg-background-light"
                         >
-                            Formu Temizle
+                            Clear Form
                         </Button>
                         <Button
                             type="submit"
@@ -482,7 +481,7 @@ export default function NewProductPage() {
                             startIcon={<PublishRoundedIcon />}
                             className="!rounded-2xl !bg-primary !px-5 !py-3 !font-bold !normal-case !text-text-main hover:!bg-primary-dark hover:!text-white disabled:!bg-primary/40 disabled:!text-text-main/70"
                         >
-                            {submitting ? 'Oluşturuluyor...' : 'Ürünü Oluştur'}
+                            {submitting ? 'Creating...' : 'Create Product'}
                         </Button>
                     </div>
                 </div>
@@ -546,7 +545,7 @@ export default function NewProductPage() {
                     <SurfaceCard className="overflow-hidden">
                         <div className="border-b border-primary/10 px-6 py-5">
                             <p className="text-[11px] font-black uppercase tracking-[0.24em] text-text-muted">
-                                Kalite Paneli
+                                Quality Panel
                             </p>
                             <div className="mt-3 flex items-end justify-between gap-4">
                                 <div>
@@ -597,7 +596,7 @@ export default function NewProductPage() {
                                         <div className="mx-auto flex size-16 items-center justify-center rounded-[24px] bg-primary/10 text-primary-dark">
                                             <Inventory2RoundedIcon className="!text-4xl" />
                                         </div>
-                                        <p className="mt-4 text-sm font-semibold">Kapak görseli bekleniyor</p>
+                                        <p className="mt-4 text-sm font-semibold">Cover image pending</p>
                                     </div>
                                 </div>
                             )}
@@ -623,10 +622,10 @@ export default function NewProductPage() {
                             <div className="flex items-center justify-between gap-3">
                                 <div>
                                     <p className="text-xs font-black uppercase tracking-[0.16em] text-text-muted">
-                                        {form.brand.trim() || 'Marka'}
+                                        {form.brand.trim() || 'Brand'}
                                     </p>
                                     <h3 className="mt-2 text-2xl font-black tracking-tight text-text-main">
-                                        {form.title.trim() || 'Ürün başlığı burada görünür'}
+                                        {form.title.trim() || 'Product title will appear here'}
                                     </h3>
                                 </div>
                                 <span className="rounded-full bg-secondary/20 px-3 py-1 text-xs font-black uppercase tracking-[0.16em] text-text-main">
@@ -635,13 +634,13 @@ export default function NewProductPage() {
                             </div>
 
                             <p className="text-sm leading-7 text-text-muted">
-                                {form.description.trim() || 'Kısa açıklama, ürün kartının tonu ve fayda anlatımı için burada önizlenir.'}
+                                {form.description.trim() || 'The short description is previewed here to set the product card tone and benefit framing.'}
                             </p>
 
                             <div className="flex items-center justify-between gap-3 rounded-[24px] border border-primary/10 bg-background-light px-4 py-3">
                                 <div className="flex items-center gap-2 text-text-muted">
                                     <LocalOfferRoundedIcon className="!text-lg" />
-                                    <span className="text-sm font-semibold">Liste fiyatı</span>
+                                    <span className="text-sm font-semibold">List price</span>
                                 </div>
                                 <span className="text-lg font-black text-text-main">
                                     {form.price ? formatCurrency(form.price) : formatCurrency(0)}
@@ -652,21 +651,21 @@ export default function NewProductPage() {
                                 <div className="rounded-[24px] border border-primary/10 bg-white p-4">
                                     <div className="flex items-center gap-2 text-text-muted">
                                         <ColorLensRoundedIcon className="!text-lg" />
-                                        <span className="text-xs font-black uppercase tracking-[0.16em]">Renk</span>
+                                        <span className="text-xs font-black uppercase tracking-[0.16em]">Color</span>
                                     </div>
                                     <p className="mt-3 text-2xl font-black text-text-main">{normalizedColors.length}</p>
                                 </div>
                                 <div className="rounded-[24px] border border-primary/10 bg-white p-4">
                                     <div className="flex items-center gap-2 text-text-muted">
                                         <StraightenRoundedIcon className="!text-lg" />
-                                        <span className="text-xs font-black uppercase tracking-[0.16em]">Beden</span>
+                                        <span className="text-xs font-black uppercase tracking-[0.16em]">Size</span>
                                     </div>
                                     <p className="mt-3 text-2xl font-black text-text-main">{normalizedSizes.length}</p>
                                 </div>
                                 <div className="rounded-[24px] border border-primary/10 bg-white p-4">
                                     <div className="flex items-center gap-2 text-text-muted">
                                         <AutoAwesomeRoundedIcon className="!text-lg" />
-                                        <span className="text-xs font-black uppercase tracking-[0.16em]">Detay</span>
+                                        <span className="text-xs font-black uppercase tracking-[0.16em]">Detail</span>
                                     </div>
                                     <p className="mt-3 text-2xl font-black text-text-main">
                                         {[details.material, normalizedCare.length, normalizedBulletPoints.length, details.description_long].filter(Boolean).length}
@@ -685,7 +684,7 @@ export default function NewProductPage() {
 
                             <div>
                                 <p className="text-xs font-black uppercase tracking-[0.16em] text-text-muted">
-                                    Aktif Varyasyonlar
+                                    Active Variations
                                 </p>
                                 <div className="mt-3 flex flex-wrap gap-2">
                                     {normalizedColors.map((color) => (
@@ -710,7 +709,7 @@ export default function NewProductPage() {
                                     ))}
                                     {normalizedColors.length === 0 && normalizedSizes.length === 0 ? (
                                         <p className="text-sm font-medium text-text-muted">
-                                            Henüz varyasyon tanımlanmadı.
+                                            No variations defined yet.
                                         </p>
                                     ) : null}
                                 </div>
@@ -724,29 +723,29 @@ export default function NewProductPage() {
                             className="inline-flex items-center gap-2 text-sm font-bold text-text-muted transition hover:text-primary-dark"
                         >
                             <ArrowBackRoundedIcon className="!text-base" />
-                            Ürün listesine dön
+                            Back to product list
                         </Link>
 
                         <p className="mt-6 text-[11px] font-black uppercase tracking-[0.24em] text-text-muted">
-                            Merch Notları
+                            Merch Notes
                         </p>
                         <div className="mt-4 space-y-3">
                             <div className="rounded-[24px] border border-primary/10 bg-background-light p-4">
-                                <p className="text-sm font-black text-text-main">Başlıkta kategori adı değil fayda kullanın</p>
+                                <p className="text-sm font-black text-text-main">Lead with benefit, not the category name</p>
                                 <p className="mt-2 text-sm leading-6 text-text-muted">
-                                    Aynı alt kategorideki ürünler arasında fark yaratan kumaş, siluet veya kullanım bağlamını öne alın.
+                                    Highlight the fabric, silhouette, or use case that makes the product stand out within the same subcategory.
                                 </p>
                             </div>
                             <div className="rounded-[24px] border border-primary/10 bg-background-light p-4">
-                                <p className="text-sm font-black text-text-main">Bedenleri satış akışına göre sırala</p>
+                                <p className="text-sm font-black text-text-main">Order sizes to match the selling flow</p>
                                 <p className="mt-2 text-sm leading-6 text-text-muted">
-                                    Stok akışı hangi sırayı kullanıyorsa burada da aynı düzeni koruyun: XS, S, M, L, XL gibi.
+                                    Keep the same order used by the stock flow here as well, such as XS, S, M, L, XL.
                                 </p>
                             </div>
                             <div className="rounded-[24px] border border-primary/10 bg-background-light p-4">
-                                <p className="text-sm font-black text-text-main">Detay alanını boş bırakmayın</p>
+                                <p className="text-sm font-black text-text-main">Do not leave the detail layer empty</p>
                                 <p className="mt-2 text-sm leading-6 text-text-muted">
-                                    Materyal, bakım ve bullet point blokları ürün kartını vitrine hazır seviyeye daha hızlı taşır.
+                                    Material, care, and bullet-point sections move the product card to a storefront-ready level faster.
                                 </p>
                             </div>
                         </div>

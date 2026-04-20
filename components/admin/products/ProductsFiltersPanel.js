@@ -32,15 +32,15 @@ export default function ProductsFiltersPanel({
                     <InputBase
                         value={searchInput}
                         onChange={(event) => onSearchChange(event.target.value)}
-                        placeholder="Ürün adı, SKU, marka veya kategori ara..."
+                        placeholder="Search product name, SKU, brand, or category..."
                         className="w-full text-sm text-text-main"
-                        inputProps={{ 'aria-label': 'Ürün ara' }}
+                        inputProps={{ 'aria-label': 'Search products' }}
                     />
                 </Paper>
 
                 <div className="flex flex-wrap gap-3">
                     <ProductsFilterMenuButton
-                        label="Kategori"
+                        label="Category"
                         valueLabel={selectedCategoryLabel}
                         options={categoryOptions.map((option) => ({
                             ...option,
@@ -54,7 +54,7 @@ export default function ProductsFiltersPanel({
                     />
 
                     <ProductsFilterMenuButton
-                        label="Alt Kategori"
+                        label="Subcategory"
                         valueLabel={selectedSubcategoryLabel}
                         options={subcategoryOptions.map((option) => ({
                             ...option,
@@ -68,7 +68,7 @@ export default function ProductsFiltersPanel({
                     />
 
                     <ProductsFilterMenuButton
-                        label="Fiyat"
+                        label="Price"
                         valueLabel={selectedPriceLabel}
                         options={priceOptions.map((option) => ({
                             ...option,
@@ -82,7 +82,7 @@ export default function ProductsFiltersPanel({
                     />
 
                     <ProductsFilterMenuButton
-                        label="Sırala"
+                        label="Sort"
                         valueLabel={selectedSortLabel}
                         options={sortOptions.map((option) => ({
                             ...option,
