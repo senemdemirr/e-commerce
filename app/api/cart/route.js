@@ -2,6 +2,8 @@ import { pool } from "@/lib/db";
 import { getOrCreateUserFromSession } from "@/lib/users";
 import { NextResponse } from "next/server";
 
+export const dynamic = "force-dynamic";
+
 async function getActiveCart(userId) {
     const existing = await pool.query("SELECT * FROM carts WHERE user_id=$1 AND status=$2", [userId, 'active']);
 

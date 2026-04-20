@@ -2,6 +2,8 @@ import { pool } from "@/lib/db";
 import { getOrCreateUserFromSession } from "@/lib/users";
 import { NextResponse } from "next/server";
 
+export const dynamic = "force-dynamic";
+
 // GET - Fetch all orders for the logged-in user
 export async function GET() {
     try {
