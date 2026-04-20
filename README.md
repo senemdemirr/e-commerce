@@ -25,6 +25,21 @@ You can start editing the page by modifying `app/page.js`. The page auto-updates
 
 This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
 
+## Environment Setup
+
+Use the env files with Next.js' built-in mode-specific loading:
+
+- `npm run dev` loads `.env.development.local`
+- `npm run build` and `npm run start` load `.env.production.local`
+- `.env.local` is now reserved for optional overrides shared by both modes
+
+Notes:
+
+- Keep local/sandbox credentials in `.env.development.local`
+- Keep production credentials and URLs in `.env.production.local`
+- Set `DATABASE_SSL=false` for local PostgreSQL and `DATABASE_SSL=true` in production
+- If your production PostgreSQL provider requires SSL but uses a managed certificate chain, `DATABASE_SSL_REJECT_UNAUTHORIZED=false` is usually the practical setting
+
 ## Learn More
 
 To learn more about Next.js, take a look at the following resources:

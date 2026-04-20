@@ -1,6 +1,7 @@
 import iyzipay from "@/lib/iyzipay";
 import { getOrCreateUserFromSession } from "@/lib/users";
 import { pool } from "@/lib/db";
+import { getAppBaseUrl } from "@/lib/env";
 import { NextResponse } from "next/server";
 import Iyzipay from "iyzipay";
 
@@ -37,6 +38,7 @@ function formatIyzipayDate(value, fallback) {
 }
 
 export async function POST() {
+    const callbackUrl = new URL("/api/payment/callback", getAppBaseUrl()).toString();
     const user = await getOrCreateUserFromSession();
     if (!user.id) return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
 
@@ -105,7 +107,7 @@ export async function POST() {
         currency: Iyzipay.CURRENCY.TRY,
         basketId: cart.id.toString(),
         paymentGroup: Iyzipay.PAYMENT_GROUP.PRODUCT,
-        callbackUrl: `${process.env.APP_BASE_URL}/api/payment/callback`, // Callback usually needed for raw usage, but checkout form handles it
+        callbackUrl, // Callback usually needed for raw usage, but checkout form handles it
         enabledInstallments: [2, 3, 6, 9],
         buyer,
         shippingAddress,
