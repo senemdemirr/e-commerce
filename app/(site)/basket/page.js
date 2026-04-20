@@ -13,6 +13,7 @@ import {
     SupportAgent,
 } from "@mui/icons-material";
 import { useRouter } from "next/navigation";
+import ColorizedProductImage from "@/components/ColorizedProductImage";
 
 export default function BasketPage() {
     const { items, updateItemQuantity, removeFromCart, isCartReady } = useCart();
@@ -93,11 +94,15 @@ export default function BasketPage() {
                         >
 
                             <div className="relative aspect-square w-full overflow-hidden rounded-xl bg-gray-100 sm:w-32 cursor-pointer">
-                                <Link href={`/${item.category_slug}/${item.subcategory_slug}/${item.sku}`}>
-                                    <img
-                                        alt={item.title}
-                                        className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110"
+                                <Link
+                                    href={`/${item.category_slug}/${item.subcategory_slug}/${item.sku}`}
+                                    className="block h-full w-full"
+                                >
+                                    <ColorizedProductImage
                                         src={item.image || "https://placehold.co/400"}
+                                        alt={item.title}
+                                        colorHex={item.selected_color_hex}
+                                        mediaClassName="transition-transform duration-500 group-hover:scale-110"
                                     />
                                 </Link>
                             </div>

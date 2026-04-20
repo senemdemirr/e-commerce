@@ -19,6 +19,7 @@ import StarIcon from '@mui/icons-material/Star';
 import StarHalfIcon from '@mui/icons-material/StarHalf';
 import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
 import FavoriteIcon from '@mui/icons-material/Favorite';
+import ColorizedProductImage from '@/components/ColorizedProductImage';
 
 export default function ProductDetailClient({ product }) {
     const { addToCart, loading } = useCart();
@@ -165,11 +166,14 @@ export default function ProductDetailClient({ product }) {
                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-16">
                     <div className="lg:col-span-7 flex flex-col gap-4">
                         <div className="w-full aspect-[3/4] md:aspect-[4/3] lg:aspect-[1/1] bg-gray-100 dark:bg-gray-800 rounded-2xl overflow-hidden relative group">
-                            <div
-                                className="w-full h-full bg-center bg-no-repeat bg-cover transition-transform duration-500 group-hover:scale-105"
-                                style={{ backgroundImage: `url("${product.image}")` }}
-                            >
-                            </div>
+                            <ColorizedProductImage
+                                src={product.image}
+                                alt={product.title}
+                                colorHex={selectedColor.hex}
+                                className="bg-gray-100 dark:bg-gray-800"
+                                mediaClassName="transition-transform duration-500 group-hover:scale-105"
+                                loading="eager"
+                            />
                             <div className="absolute top-4 left-4">
                                 <span className="bg-primary text-white text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider">
                                     New Season
