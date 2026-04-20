@@ -19,6 +19,7 @@ export default function CheckoutPage() {
     // Data states
     const [addresses, setAddresses] = useState([]);
     const [cartItems, setCartItems] = useState([]);
+    const [savedCards, setSavedCards] = useState([]);
     const [cartSummary, setCartSummary] = useState({ subtotal: 0, shipping: 0, total: 0 });
 
     // Form states
@@ -44,22 +45,28 @@ export default function CheckoutPage() {
     const fetchData = useCallback(async () => {
         try {
             setLoading(true);
-            // Fetch addresses from the correct endpoint
-            const addressRes = await apiFetch("/api/my-profile/my-addresses");
+            const [addressRes, cartRes, savedCardsRes] = await Promise.all([
+                apiFetch("/api/my-profile/my-addresses"),
+                apiFetch("/api/cart"),
+                apiFetch("/api/payment-cards"),
+            ]);
+
             if (addressRes && Array.isArray(addressRes)) {
                 setAddresses(addressRes);
-                // Auto-select first address
-                if (addressRes.length > 0) {
-                    setSelectedAddressId(addressRes[0].id);
-                }
+                setSelectedAddressId((current) => (
+                    addressRes.some((address) => address.id === current) ? current : (addressRes[0]?.id ?? null)
+                ));
             }
 
-            // Fetch cart
-            const cartRes = await apiFetch("/api/cart");
             if (cartRes.items) {
                 setCartItems(cartRes.items);
                 calculateSummary(cartRes.items);
+            } else {
+                setCartItems([]);
+                calculateSummary([]);
             }
+
+            setSavedCards(Array.isArray(savedCardsRes?.cards) ? savedCardsRes.cards : []);
         } catch (err) {
             if (err?.status === 401) {
                 enqueueSnackbar("Please sign in to continue checkout.", { variant: "warning" });
@@ -144,9 +151,9 @@ export default function CheckoutPage() {
     }
 
     return (
-        <main className="container py-8 mx-auto">
+        <main className="container mx-auto px-4 py-8 lg:py-10">
             {/* Page Heading */}
-            <div className="mb-8">
+            <div className="mb-8 max-w-2xl">
                 <h1 className="text-text-dark dark:text-white text-2xl sm:text-3xl md:text-4xl font-black leading-tight tracking-[-0.02em] md:tracking-[-0.033em]">
                     Checkout
                 </h1>
@@ -155,8 +162,8 @@ export default function CheckoutPage() {
                 </p>
             </div>
 
-            <div className="flex flex-col lg:flex-row gap-8">
-                <div className="flex-1 flex flex-col gap-8">
+            <div className="grid gap-8 xl:grid-cols-[minmax(0,1fr)_380px]">
+                <div className="min-w-0 space-y-8">
                     <AddressCard
                         addresses={addresses}
                         selectedAddressId={selectedAddressId}
@@ -164,6 +171,7 @@ export default function CheckoutPage() {
                         onAddAddress={() => setOpenAddressDialog(true)}
                     />
                     <PaymentCard
+                        savedCards={savedCards}
                         cardHolderName={cardHolderName}
                         setCardHolderName={setCardHolderName}
                         cardNumber={cardNumber}
@@ -179,7 +187,7 @@ export default function CheckoutPage() {
                     />
                 </div>
 
-                <div className="w-full lg:w-[380px]">
+                <div className="w-full self-start xl:sticky xl:top-24">
                     <OrderSummaryCard
                         cartItems={cartItems}
                         cartSummary={cartSummary}
