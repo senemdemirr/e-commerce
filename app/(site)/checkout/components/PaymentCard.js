@@ -155,13 +155,6 @@ export default function PaymentCard({
                 </h2>
             </div>
 
-            <div className="mb-6 flex items-start gap-3 rounded-lg border border-accent/30 bg-accent/10 p-4">
-                <InfoOutlinedIcon className="mt-0.5 text-accent" fontSize="small" />
-                <p className="text-sm text-gray-700 dark:text-gray-300">
-                    Interest-free <span className="font-bold text-text-dark dark:text-white">3-installment</span> option for Halkbank and Is Bank cards.
-                </p>
-            </div>
-
             <div className="mb-8">
                 <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
                     <div>
