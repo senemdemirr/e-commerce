@@ -1,8 +1,10 @@
 "use client";
-import { useCallback, useEffect, useRef, useState } from "react";
+
+import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { apiFetch } from "@/lib/apiFetch/fetch";
 import { useCart } from "@/context/CartContext";
+import { useUser } from "@/context/UserContext";
 import NewAdresForm from "@/app/(site)/my-profile/components/UserAdresses/NewAdresForm";
 import { useSnackbar } from "notistack";
 import AddressCard from "./components/AddressCard";
@@ -11,18 +13,16 @@ import OrderSummaryCard from "./components/OrderSummaryCard";
 
 export default function CheckoutPage() {
     const router = useRouter();
+    const user = useUser();
     const { enqueueSnackbar } = useSnackbar();
+    const { items: cartItems, fetchCart, isCartReady } = useCart();
+
     const [loading, setLoading] = useState(true);
     const [processing, setProcessing] = useState(false);
-    const { fetchCart } = useCart();
-
-    // Data states
     const [addresses, setAddresses] = useState([]);
-    const [cartItems, setCartItems] = useState([]);
     const [savedCards, setSavedCards] = useState([]);
     const [cartSummary, setCartSummary] = useState({ subtotal: 0, shipping: 0, total: 0 });
 
-    // Form states
     const [selectedAddressId, setSelectedAddressId] = useState(null);
     const [selectedSavedCardId, setSelectedSavedCardId] = useState(null);
     const [paymentMethod, setPaymentMethod] = useState(null);
@@ -34,9 +34,12 @@ export default function CheckoutPage() {
     const [saveCard, setSaveCard] = useState(false);
     const [agreedToTerms, setAgreedToTerms] = useState(false);
 
-    // Address dialog
     const [openAddressDialog, setOpenAddressDialog] = useState(false);
     const previousSavedCardsCountRef = useRef(0);
+    const hasFetchedCheckoutDataRef = useRef(false);
+    const hasRedirectedToLoginRef = useRef(false);
+    const hasRedirectedToBasketRef = useRef(false);
+    const [accessState, setAccessState] = useState("checking");
 
     const calculateSummary = useCallback((items) => {
         const subtotal = items.reduce((acc, item) => acc + (Number(item.unit_price) * item.quantity), 0);
@@ -48,9 +51,8 @@ export default function CheckoutPage() {
     const fetchData = useCallback(async () => {
         try {
             setLoading(true);
-            const [addressRes, cartRes, savedCardsRes] = await Promise.all([
+            const [addressRes, savedCardsRes] = await Promise.all([
                 apiFetch("/api/my-profile/my-addresses"),
-                apiFetch("/api/cart"),
                 apiFetch("/api/payment-cards"),
             ]);
 
@@ -61,31 +63,60 @@ export default function CheckoutPage() {
                 ));
             }
 
-            if (cartRes.items) {
-                setCartItems(cartRes.items);
-                calculateSummary(cartRes.items);
-            } else {
-                setCartItems([]);
-                calculateSummary([]);
-            }
-
             setSavedCards(Array.isArray(savedCardsRes?.cards) ? savedCardsRes.cards : []);
         } catch (err) {
             if (err?.status === 401) {
                 enqueueSnackbar("Please sign in to continue checkout.", { variant: "warning" });
-                router.push("/auth/login");
+                router.replace("/auth/login");
                 return;
             }
             console.error("Error fetching data:", err);
-            enqueueSnackbar("Failed to load cart and address information. Please try again.", { variant: "error" });
+            enqueueSnackbar("Failed to load checkout information. Please try again.", { variant: "error" });
         } finally {
             setLoading(false);
         }
-    }, [calculateSummary, enqueueSnackbar, router]);
+    }, [enqueueSnackbar, router]);
 
     useEffect(() => {
-        fetchData();
-    }, [fetchData]);
+        calculateSummary(cartItems);
+    }, [cartItems, calculateSummary]);
+
+    useLayoutEffect(() => {
+        if (!isCartReady) {
+            return;
+        }
+
+        if (!user) {
+            setLoading(false);
+            setAccessState("redirecting");
+            if (!hasRedirectedToLoginRef.current) {
+                hasRedirectedToLoginRef.current = true;
+                enqueueSnackbar("Please sign in to continue checkout.", { variant: "warning" });
+                router.replace("/auth/login");
+            }
+            return;
+        }
+
+        if (cartItems.length === 0) {
+            setLoading(false);
+            setAccessState("redirecting");
+            if (!hasRedirectedToBasketRef.current) {
+                hasRedirectedToBasketRef.current = true;
+                enqueueSnackbar("Your basket is empty.", { variant: "info" });
+                router.replace("/basket");
+            }
+            return;
+        }
+
+        hasRedirectedToLoginRef.current = false;
+        hasRedirectedToBasketRef.current = false;
+        setAccessState("allowed");
+
+        if (!hasFetchedCheckoutDataRef.current) {
+            hasFetchedCheckoutDataRef.current = true;
+            fetchData();
+        }
+    }, [cartItems.length, enqueueSnackbar, fetchData, isCartReady, router, user]);
 
     useEffect(() => {
         const sortCardsByLatest = (cards) => [...cards].sort((leftCard, rightCard) => Number(rightCard.id) - Number(leftCard.id));
@@ -114,13 +145,17 @@ export default function CheckoutPage() {
 
     const handleAddressSuccess = () => {
         setOpenAddressDialog(false);
-        fetchData(); // Refresh addresses
+        fetchData();
     };
 
     const handleSubmitOrder = async () => {
         const isUsingSavedCard = paymentMethod === "saved" && Boolean(selectedSavedCardId);
 
-        // Validation
+        if (cartItems.length === 0) {
+            enqueueSnackbar("Your basket is empty.", { variant: "info" });
+            router.replace("/basket");
+            return;
+        }
         if (!selectedAddressId) {
             enqueueSnackbar("Please select a delivery address.", { variant: "warning" });
             return;
@@ -145,10 +180,10 @@ export default function CheckoutPage() {
                     }
                     : {
                         card_holder_name: cardHolderName,
-                        card_number: cardNumber.replace(/\s/g, ''),
+                        card_number: cardNumber.replace(/\s/g, ""),
                         expire_month: expireMonth,
                         expire_year: expireYear,
-                        cvc: cvc,
+                        cvc,
                         save_card: saveCard,
                     }),
             };
@@ -160,7 +195,7 @@ export default function CheckoutPage() {
 
             if (res.order) {
                 const { order_number, total_amount, subtotal, shipping_cost } = res.order;
-                fetchCart(); // Clear cart in context
+                fetchCart();
                 router.push(`/checkout/success?orderNumber=${order_number}&total=${total_amount}&subtotal=${subtotal}&shipping=${shipping_cost}`);
             } else {
                 enqueueSnackbar(res.message || res.error || "Payment failed. Please try again.", { variant: "error" });
@@ -178,7 +213,11 @@ export default function CheckoutPage() {
         }
     };
 
-    if (loading) {
+    if (accessState === "redirecting") {
+        return null;
+    }
+
+    if (!isCartReady || accessState === "checking" || loading) {
         return (
             <div className="flex items-center justify-center min-h-[50vh]">
                 <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
@@ -188,7 +227,6 @@ export default function CheckoutPage() {
 
     return (
         <main className="container mx-auto px-4 py-8 lg:py-10">
-            {/* Page Heading */}
             <div className="mb-8 max-w-2xl">
                 <h1 className="text-text-dark dark:text-white text-2xl sm:text-3xl md:text-4xl font-black leading-tight tracking-[-0.02em] md:tracking-[-0.033em]">
                     Checkout
@@ -239,7 +277,6 @@ export default function CheckoutPage() {
                 </div>
             </div>
 
-            {/* Add Address Dialog */}
             {openAddressDialog && (
                 <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
                     <div className="bg-white dark:bg-surface-dark rounded-xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">

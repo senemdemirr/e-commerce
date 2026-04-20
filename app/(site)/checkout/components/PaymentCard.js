@@ -120,16 +120,8 @@ export default function PaymentCard({
     const selectedSavedCard = savedCards.find((card) => card.id === selectedSavedCardId) ?? null;
 
     const handleSavedCardSelect = (savedCardId) => {
-        const savedCard = savedCards.find((card) => card.id === savedCardId);
-
         setSelectedSavedCardId(savedCardId);
         setShowDatePicker(false);
-
-        if (!savedCard) {
-            return;
-        }
-
-        setCardHolderName((savedCard.card_holder_name || userFullName || "").toUpperCase());
         setPaymentMethod("saved");
     };
 
