@@ -65,7 +65,7 @@ export default function UserInfo() {
     };
 
     return (
-        <form onSubmit={handleSubmit(onSubmit)} className="w-full pr-4 md:pr-10">
+        <form onSubmit={handleSubmit(onSubmit)} className="w-full pr-4 md:pr-10 h-full flex flex-col justify-around">
             <div className="w-full flex flex-col md:flex-row gap-6 mb-0">
                 <FormControl fullWidth error={!!errors.name}>
                     <FormLabel className="!text-text-main !text-sm !font-bold my-2">Name</FormLabel>
@@ -143,7 +143,7 @@ export default function UserInfo() {
                 <FormHelperText>{errors.phone?.message}</FormHelperText>
             </FormControl>
 
-            <Button type="submit" className="cursor-pointer !mt-4 w-auto px-8 h-10 rounded-lg font-bold flex items-center justify-center gap-2 !bg-primary !text-white hover:!bg-primary-dark">Save</Button>
+            <Button type="submit" className="cursor-pointer !mt-4 self-end w-auto px-8 h-10 rounded-lg font-bold flex items-center justify-center gap-2 !bg-primary !text-white hover:!bg-primary-dark max-w-[200px]">Save</Button>
         </form>
     );
 }

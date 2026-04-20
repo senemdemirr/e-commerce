@@ -58,7 +58,7 @@ export default async function Section({ params }) {
                     </Box>
                 </Box>
             </Box>
-            <div className='p-6 md:p-8'>
+            <div className='p-6 md:p-8 h-full'>
                 <Component />
             </div>
         </Box>
