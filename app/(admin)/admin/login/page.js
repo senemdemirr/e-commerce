@@ -134,18 +134,8 @@ export default function AdminLoginPage() {
                 </div>
                 {/* External Support Link */}
                 <div className="mt-8 text-center flex flex-col gap-4">
-                    <div className="flex items-center justify-center gap-6">
-                        <Link className="text-xs text-slate-500 hover:text-primary transition-colors flex items-center gap-1" href="#">
-                            <HelpOutlineIcon fontSize="small" />
-                            Help Center
-                        </Link>
-                        <Link className="text-xs text-slate-500 hover:text-primary transition-colors flex items-center gap-1" href="#">
-                            <DescriptionOutlinedIcon fontSize="small" />
-                            Terms of Use
-                        </Link>
-                    </div>
                     <p className="text-[10px] uppercase tracking-widest text-slate-400 font-bold">
-                        © 2024 Iron E-Commerce Admin Panel. All rights reserved.
+                        © 2026 Iron E-Commerce Admin Panel. All rights reserved.
                     </p>
                 </div>
             </div>
