@@ -54,10 +54,10 @@ export default async function Header() {
                     {/* Favorites */}
                     <Link
                         href={favoritesHref}
-                        className="inline-flex items-center gap-2 rounded px-4 py-2 text-gray-600 transition-colors hover:bg-transparent"
+                        className="inline-flex items-center gap-2 rounded px-4 py-2 transition-colors hover:bg-transparent"
                     >
-                        <FavoriteBorderOutlinedIcon />
-                        My Favorites
+                        <FavoriteBorderOutlinedIcon className="!h-[21px] !w-[21px] text-[#6E7982]" />
+                        <span className="text-[14.5px] text-gray-800">My Favorites</span>
                     </Link>
                     <BasketButton />
                 </div>
