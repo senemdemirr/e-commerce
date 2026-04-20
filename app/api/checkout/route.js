@@ -5,6 +5,37 @@ import { NextResponse } from "next/server";
 import iyzipay from "@/lib/iyzipay";
 import Iyzipay from "iyzipay";
 
+function retrieveBankNameFromBin(binNumber, conversationId) {
+    return new Promise((resolve) => {
+        if (!binNumber) {
+            resolve(null);
+            return;
+        }
+
+        iyzipay.binNumber.retrieve(
+            {
+                locale: Iyzipay.LOCALE.TR,
+                conversationId,
+                binNumber,
+            },
+            (err, result) => {
+                if (err) {
+                    console.error("Iyzico bin lookup error:", err);
+                    resolve(null);
+                    return;
+                }
+
+                resolve(
+                    result?.cardBankName
+                    || result?.bankName
+                    || result?.bank
+                    || null
+                );
+            }
+        );
+    });
+}
+
 // POST - Process checkout and create order
 export async function POST(request) {
     try {
@@ -107,11 +138,12 @@ export async function POST(request) {
 
         // Generate unique order number
         const orderNumber = `ORD-${Date.now()}-${user.id}`;
+        const sanitizedCardNumber = card_number.replace(/\s/g, '');
 
         // Prepare Iyzico payment request
         const paymentCard = {
             cardHolderName: card_holder_name,
-            cardNumber: card_number.replace(/\s/g, ''),
+            cardNumber: sanitizedCardNumber,
             expireMonth: expire_month,
             expireYear: expire_year,
             cvc: cvc,
@@ -205,6 +237,13 @@ export async function POST(request) {
                 }
 
                 try {
+                    const resolvedCardBankName = result.cardBankName
+                        || await retrieveBankNameFromBin(
+                            result.binNumber || sanitizedCardNumber.slice(0, 6),
+                            result.conversationId || orderNumber
+                        )
+                        || "Unknown";
+
                     // Payment successful - Create order in database
                     const orderResult = await pool.query(
                         `INSERT INTO orders 
@@ -235,7 +274,7 @@ export async function POST(request) {
                             result.conversationId,
                             `${result.binNumber} **** ${result.lastFourDigits}`,
                             result.cardFamily || result.cardAssociation,
-                            result.cardBankName
+                            resolvedCardBankName
                         ]
                     );
 
@@ -265,17 +304,22 @@ export async function POST(request) {
 
                     // Save card token if requested
                     if (save_card && result.cardToken) {
+                        const cardMask = result.binNumber && result.lastFourDigits
+                            ? `${result.binNumber} **** ${result.lastFourDigits}`
+                            : `**** **** **** ${sanitizedCardNumber.slice(-4)}`;
+
                         await pool.query(
                             `INSERT INTO payment_cards 
-                             (user_id, card_holder_name, card_token, card_alias, card_family, card_bank_name, is_default)
-                             VALUES ($1, $2, $3, $4, $5, $6, $7)`,
+                             (user_id, card_holder_name, card_token, card_alias, card_family, card_bank_name, card_mask, is_default)
+                             VALUES ($1, $2, $3, $4, $5, $6, $7, $8)`,
                             [
                                 user.id,
                                 card_holder_name,
                                 result.cardToken,
-                                result.cardAssociation || `Card ending in ${card_number.slice(-4)}`,
+                                result.cardAssociation || `Card ending in ${sanitizedCardNumber.slice(-4)}`,
                                 result.cardFamily || 'Unknown',
-                                result.cardBankName || 'Unknown',
+                                resolvedCardBankName,
+                                cardMask,
                                 false
                             ]
                         );

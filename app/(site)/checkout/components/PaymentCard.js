@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { Checkbox, Collapse } from "@mui/material";
+import { useUser } from "@/context/UserContext";
 import AddCardIcon from "@mui/icons-material/AddCard";
 import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
 import CalendarTodayIcon from "@mui/icons-material/CalendarToday";
@@ -28,6 +29,7 @@ export default function PaymentCard({
     saveCard,
     setSaveCard,
 }) {
+    const user = useUser();
     const [showCvv, setShowCvv] = useState(false);
     const [showDatePicker, setShowDatePicker] = useState(false);
     const [isManualFormOpen, setIsManualFormOpen] = useState(savedCards.length === 0);
@@ -103,12 +105,21 @@ export default function PaymentCard({
         setCardNumber(formatCardNumber(event.target.value));
     };
 
+    const userFullName = [user?.name, user?.surname]
+        .filter(Boolean)
+        .join(" ")
+        .trim();
+
     const getCardBrandLabel = (savedCard) => {
         const label = savedCard.card_family || savedCard.card_alias || "Card";
         return String(label).trim().toUpperCase();
     };
 
     const getMaskedCardNumber = (savedCard) => {
+        if (savedCard.card_mask) {
+            return savedCard.card_mask;
+        }
+
         const match = String(savedCard.card_alias || "").match(/(\d{4})\s*$/);
         const lastFour = match?.[1] || "****";
         return `**** **** **** ${lastFour}`;
@@ -169,7 +180,7 @@ export default function PaymentCard({
                                         <div className="mb-8 flex items-start justify-between gap-4">
                                             <div className="flex flex-col">
                                                 <p className={`mb-1 text-xs font-bold uppercase tracking-[0.2em] ${isSelected ? "text-primary" : "text-gray-400"}`}>
-                                                    {savedCard.card_alias || "Saved Card"}
+                                                    {savedCard.card_holder_name || userFullName || "Saved Card"}
                                                 </p>
                                                 <div className="flex items-center gap-1.5">
                                                     {isSelected && (
@@ -195,7 +206,7 @@ export default function PaymentCard({
                                             </p>
                                             <div className="flex items-end justify-between gap-4">
                                                 <p className="text-xs uppercase text-gray-500">
-                                                    {savedCard.card_holder_name || "Card Holder"}
+                                                    {userFullName || savedCard.card_holder_name || "Card Holder"}
                                                 </p>
                                                 <p className="text-xs font-bold text-gray-400">
                                                     {savedCard.is_default ? "Default" : "Stored"}

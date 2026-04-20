@@ -15,7 +15,7 @@ export async function GET() {
         }
 
         const result = await pool.query(
-            `SELECT id, card_holder_name, card_alias, card_family, card_bank_name, is_default
+            `SELECT id, user_id, card_holder_name, card_alias, card_family, card_bank_name, card_mask, is_default
              FROM payment_cards
              WHERE user_id = $1
              ORDER BY is_default DESC, id DESC`,
