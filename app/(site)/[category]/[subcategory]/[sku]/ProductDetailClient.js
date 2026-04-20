@@ -160,8 +160,8 @@ export default function ProductDetailClient({ product }) {
     };
 
     return (
-        <div className="flex-grow flex justify-center w-full px-4 md:px-10 py-5">
-            <div className="flex flex-col max-w-7xl w-full">
+        <div className="container py-8 mx-auto">
+            <div className="flex flex-col w-full">
                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-16">
                     <div className="lg:col-span-7 flex flex-col gap-4">
                         <div className="w-full aspect-[3/4] md:aspect-[4/3] lg:aspect-[1/1] bg-gray-100 dark:bg-gray-800 rounded-2xl overflow-hidden relative group">

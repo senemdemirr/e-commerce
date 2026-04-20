@@ -144,7 +144,7 @@ export default function CheckoutPage() {
     }
 
     return (
-        <main className="flex-1 max-w-[1200px] mx-auto w-full px-4 py-6 md:py-8">
+        <main className="container py-8 mx-auto">
             {/* Page Heading */}
             <div className="mb-8">
                 <h1 className="text-text-dark dark:text-white text-2xl sm:text-3xl md:text-4xl font-black leading-tight tracking-[-0.02em] md:tracking-[-0.033em]">

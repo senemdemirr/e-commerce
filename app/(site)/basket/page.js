@@ -31,7 +31,7 @@ export default function BasketPage() {
 
     if (!isCartReady) {
         return (
-            <main className="flex-grow container mx-auto max-w-7xl px-4 py-8 lg:px-8">
+            <main className="container py-8 mx-auto">
                 <div className="flex items-center justify-center min-h-[50vh]">
                     <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
                 </div>
@@ -41,7 +41,7 @@ export default function BasketPage() {
 
     if (items.length === 0) {
         return (
-            <main className="flex-grow container mx-auto max-w-7xl px-4 py-8 lg:px-8">
+            <main className="container py-8 mx-auto">
                 <div className="flex flex-col items-center justify-center gap-6 py-20 text-center">
                     <h2 className="text-2xl font-bold text-text-main dark:text-white">Your Cart is Empty</h2>
                     <p className="text-text-muted dark:text-gray-400">You haven't added any items to your cart yet.</p>
@@ -58,7 +58,7 @@ export default function BasketPage() {
     }
 
     return (
-        <main className="flex-grow container mx-auto max-w-7xl px-4 py-8 lg:px-8">
+        <main className="container py-8 mx-auto">
             {/* Breadcrumb / Progress Bar */}
             <div className="mb-10">
                 <div className="flex flex-col gap-4">

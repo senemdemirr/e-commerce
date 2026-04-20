@@ -151,7 +151,7 @@ export default function OrderDetailsPage({ params }) {
                             <p className={`text-sm font-black ${order.status === 'Shipped' ? 'text-primary' : 'text-text-dark dark:text-white'}`}>Shipped</p>
                         </Box>
                     </Box>
-                    <Box className={`flex flex-col items-center md:items-start gap-2 relative z-10 ${order.status === 'Delivered' ? '' : 'opacity-40'}`}>
+                    <Box className={`flex flex-col items-center md:items-start gap-2 relative z-10`}>
                         <Box className={`size-10 rounded-full flex items-center justify-center text-white ${order.status === 'Delivered' ? 'bg-primary' : 'bg-gray-200 dark:bg-white/10 text-gray-400'}`}>
                             <HomeIcon sx={{ fontSize: 20 }} />
                         </Box>
