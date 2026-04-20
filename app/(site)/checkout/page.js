@@ -1,5 +1,5 @@
 "use client";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { apiFetch } from "@/lib/apiFetch/fetch";
 import { useCart } from "@/context/CartContext";
@@ -36,6 +36,7 @@ export default function CheckoutPage() {
 
     // Address dialog
     const [openAddressDialog, setOpenAddressDialog] = useState(false);
+    const previousSavedCardsCountRef = useRef(0);
 
     const calculateSummary = useCallback((items) => {
         const subtotal = items.reduce((acc, item) => acc + (Number(item.unit_price) * item.quantity), 0);
@@ -87,12 +88,10 @@ export default function CheckoutPage() {
     }, [fetchData]);
 
     useEffect(() => {
-        const usableSavedCards = savedCards.filter((card) => card.can_charge);
-        const defaultSavedCardId = usableSavedCards.find((card) => card.is_default)?.id
-            ?? savedCards.find((card) => card.is_default)?.id
-            ?? usableSavedCards[0]?.id
-            ?? savedCards[0]?.id
-            ?? null;
+        const sortCardsByLatest = (cards) => [...cards].sort((leftCard, rightCard) => Number(rightCard.id) - Number(leftCard.id));
+        const latestSavedCardId = sortCardsByLatest(savedCards)[0]?.id ?? null;
+        const defaultSavedCardId = latestSavedCardId ?? null;
+        const hadNoSavedCardsBefore = previousSavedCardsCountRef.current === 0;
 
         setSelectedSavedCardId((current) => (
             savedCards.some((card) => card.id === current) ? current : defaultSavedCardId
@@ -103,12 +102,14 @@ export default function CheckoutPage() {
                 return "manual";
             }
 
-            if (current === "saved" && usableSavedCards.length === 0) {
-                return "manual";
+            if (current === "manual" && hadNoSavedCardsBefore) {
+                return "saved";
             }
 
-            return current ?? (usableSavedCards.length > 0 ? "saved" : "manual");
+            return current ?? "saved";
         });
+
+        previousSavedCardsCountRef.current = savedCards.length;
     }, [savedCards]);
 
     const handleAddressSuccess = () => {
