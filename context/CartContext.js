@@ -64,6 +64,7 @@ export function CartProvider({ children }) {
                 body: JSON.stringify({
                     productSku: product.sku,
                     quantity: normalizedQuantity,
+                    variantId: product.variantId,
                     selectedSize: product.selectedSize,
                     selectedColor: product.selectedColor,
                     selectedColorHex: product.selectedColorHex

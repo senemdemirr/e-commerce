@@ -20,35 +20,198 @@ import StarHalfIcon from '@mui/icons-material/StarHalf';
 import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
 import FavoriteIcon from '@mui/icons-material/Favorite';
 
+function normalizeColorItem(color) {
+    if (color && typeof color === 'object' && !Array.isArray(color)) {
+        return {
+            name: String(color.name || '').trim(),
+            hex: String(color.hex || '').trim(),
+        };
+    }
+
+    const label = String(color || '').trim();
+    return {
+        name: label,
+        hex: '',
+    };
+}
+
+function normalizeColorOptions(colors = []) {
+    return Array.isArray(colors)
+        ? colors
+            .map((color) => normalizeColorItem(color))
+            .filter((color) => color.name)
+        : [];
+}
+
+function normalizeVariants(variants = [], fallbackPrice = 0) {
+    return Array.isArray(variants)
+        ? variants
+            .map((variant) => {
+                if (!variant || typeof variant !== 'object' || Array.isArray(variant)) {
+                    return null;
+                }
+
+                return {
+                    id: Number(variant.id || 0),
+                    sku: String(variant.sku || '').trim(),
+                    price: Number(variant.price ?? fallbackPrice ?? 0),
+                    stock: Number(variant.stock || 0),
+                    is_default: Boolean(variant.is_default),
+                    color_name: String(variant.color_name || '').trim(),
+                    color_hex: String(variant.color_hex || '').trim(),
+                    size_label: String(variant.size_label || '').trim(),
+                };
+            })
+            .filter((variant) => variant && variant.sku)
+        : [];
+}
+
+function findDefaultVariant(variants = []) {
+    return variants.find((variant) => variant.is_default) || variants[0] || null;
+}
+
+function uniqueColorsFromVariants(variants = []) {
+    const seen = new Set();
+    const items = [];
+
+    variants.forEach((variant) => {
+        if (!variant.color_name) {
+            return;
+        }
+
+        const key = `${variant.color_name}::${variant.color_hex}`;
+
+        if (seen.has(key)) {
+            return;
+        }
+
+        seen.add(key);
+        items.push({
+            name: variant.color_name,
+            hex: variant.color_hex,
+        });
+    });
+
+    return items;
+}
+
+function uniqueSizesFromVariants(variants = [], selectedColorName = '') {
+    const seen = new Set();
+    const items = [];
+
+    variants.forEach((variant) => {
+        if (!variant.size_label) {
+            return;
+        }
+
+        if (selectedColorName && variant.color_name && variant.color_name !== selectedColorName) {
+            return;
+        }
+
+        const key = variant.size_label;
+
+        if (seen.has(key)) {
+            return;
+        }
+
+        seen.add(key);
+        items.push(variant.size_label);
+    });
+
+    return items;
+}
+
+function findMatchingVariant(variants = [], selectedColorName = '', selectedSize = '') {
+    if (!Array.isArray(variants) || variants.length === 0) {
+        return null;
+    }
+
+    if (selectedColorName && selectedSize) {
+        const exact = variants.find((variant) => (
+            variant.color_name === selectedColorName
+            && variant.size_label === selectedSize
+        ));
+
+        if (exact) {
+            return exact;
+        }
+    }
+
+    if (selectedColorName) {
+        const byColor = variants.find((variant) => variant.color_name === selectedColorName);
+
+        if (byColor) {
+            return byColor;
+        }
+    }
+
+    if (selectedSize) {
+        const bySize = variants.find((variant) => variant.size_label === selectedSize);
+
+        if (bySize) {
+            return bySize;
+        }
+    }
+
+    return findDefaultVariant(variants);
+}
+
+function getInitialSelections(product) {
+    const normalizedColors = normalizeColorOptions(product?.colors);
+    const normalizedVariants = normalizeVariants(product?.variants, product?.price);
+    const defaultVariant = findDefaultVariant(normalizedVariants);
+
+    const initialColor = defaultVariant?.color_name
+        ? {
+            name: defaultVariant.color_name,
+            hex: defaultVariant.color_hex,
+        }
+        : normalizedColors[0] || { name: "", hex: "" };
+
+    const initialSize = defaultVariant?.size_label
+        || (Array.isArray(product?.sizes) ? product.sizes[0] || "" : "");
+
+    return {
+        color: initialColor,
+        size: initialSize,
+    };
+}
+
 export default function ProductDetailClient({ product }) {
     const { addToCart, loading } = useCart();
     const user = useUser();
     const { enqueueSnackbar } = useSnackbar();
     const reviewsRef = useRef(null);
 
-    const colors = Array.isArray(product.colors) ? product.colors : [];
-    const initialColor = colors.length > 0
-        ? (typeof colors[0] === 'object' ? colors[0] : { name: colors[0], hex: colors[0] })
-        : { name: "", hex: "" };
+    const colors = normalizeColorOptions(product?.colors);
+    const variants = normalizeVariants(product?.variants, product?.price);
+    const { color: initialColor, size: initialSize } = getInitialSelections(product);
+    const colorOptions = variants.length > 0 ? uniqueColorsFromVariants(variants) : colors;
 
     const [selectedColor, setSelectedColor] = useState(initialColor);
-    const [selectedSize, setSelectedSize] = useState(product.sizes?.[0] || "");
+    const [selectedSize, setSelectedSize] = useState(initialSize);
     const [quantity, setQuantity] = useState(1);
     const [tabValue, setTabValue] = useState(0);
     const [favoriteIds, setFavoriteIds] = useState([]);
     const [favoritePending, setFavoritePending] = useState(false);
 
     useEffect(() => {
-        const nextColors = Array.isArray(product?.colors) ? product.colors : [];
-        const nextInitialColor = nextColors.length > 0
-            ? (typeof nextColors[0] === 'object' ? nextColors[0] : { name: nextColors[0], hex: nextColors[0] })
-            : { name: "", hex: "" };
+        const nextSelections = getInitialSelections(product);
 
-        setSelectedColor(nextInitialColor);
-        setSelectedSize(product?.sizes?.[0] || "");
+        setSelectedColor(nextSelections.color);
+        setSelectedSize(nextSelections.size);
         setQuantity(1);
         setTabValue(0);
     }, [product?.id, product?.sku]);
+
+    const availableSizes = variants.length > 0
+        ? uniqueSizesFromVariants(variants, selectedColor.name)
+        : (Array.isArray(product?.sizes) ? product.sizes.filter(Boolean) : []);
+    const activeVariant = variants.length > 0
+        ? findMatchingVariant(variants, selectedColor.name, selectedSize)
+        : null;
+    const displayPrice = activeVariant?.price ?? Number(product?.price || 0);
+    const isInStock = variants.length > 0 ? Number(activeVariant?.stock || 0) > 0 : true;
 
     const scrollToReviews = () => {
         setTabValue(1);
@@ -58,11 +221,22 @@ export default function ProductDetailClient({ product }) {
     };
 
     const handleAddToCart = () => {
+        if (variants.length > 0 && !activeVariant) {
+            enqueueSnackbar("Please select an available variant.", { variant: "warning" });
+            return;
+        }
+
+        if (!isInStock) {
+            enqueueSnackbar("Selected variant is out of stock.", { variant: "warning" });
+            return;
+        }
+
         addToCart({
             ...product,
-            selectedColor: selectedColor.name,
-            selectedColorHex: selectedColor.hex,
-            selectedSize
+            variantId: activeVariant?.id || null,
+            selectedColor: activeVariant?.color_name || selectedColor.name,
+            selectedColorHex: activeVariant?.color_hex || selectedColor.hex,
+            selectedSize: activeVariant?.size_label || selectedSize,
         }, quantity);
     };
 
@@ -216,7 +390,7 @@ export default function ProductDetailClient({ product }) {
                             </div>
 
                             <div className="flex items-end gap-3">
-                                <span className="text-3xl font-bold text-primary">₺{product.price}</span>
+                                <span className="text-3xl font-bold text-primary">₺{displayPrice}</span>
                             </div>
                         </div>
                         <div className="mb-8">
@@ -225,19 +399,28 @@ export default function ProductDetailClient({ product }) {
                             </p>
                         </div>
 
-                        {colors.length > 0 && (
+                        {colorOptions.length > 0 && (
                             <div className="mb-6">
                                 <h3 className="text-sm font-bold text-text-dark dark:text-white uppercase tracking-wider mb-3">
                                     Color: <span className="font-normal text-[#6d7e73]">{selectedColor.name}</span>
                                 </h3>
                                 <div className="flex gap-3">
-                                    {colors.map((colorObj, index) => {
-                                        const color = typeof colorObj === 'object' ? colorObj : { name: colorObj, hex: colorObj };
+                                    {colorOptions.map((color, index) => {
                                         return (
                                             <button
                                                 key={index}
                                                 aria-label={`Color ${color.name}`}
-                                                onClick={() => setSelectedColor(color)}
+                                                onClick={() => {
+                                                    const nextSizes = variants.length > 0
+                                                        ? uniqueSizesFromVariants(variants, color.name)
+                                                        : availableSizes;
+                                                    const nextSize = nextSizes.includes(selectedSize)
+                                                        ? selectedSize
+                                                        : (nextSizes[0] || "");
+
+                                                    setSelectedColor(color);
+                                                    setSelectedSize(nextSize);
+                                                }}
                                                 className={`w-10 h-10 rounded-full border-2 transition-all focus:outline-none ${selectedColor.hex === color.hex
                                                     ? "border-white ring-2 ring-primary shadow-sm"
                                                     : "border-transparent hover:border-white hover:ring-2 hover:ring-gray-200"
@@ -250,15 +433,15 @@ export default function ProductDetailClient({ product }) {
                             </div>
                         )}
 
-                        {product.sizes && product.sizes.length > 0 && (
+                        {availableSizes.length > 0 && (
                             <div className="mb-8">
                                 <div className="flex justify-between items-center mb-3">
                                     <h3 className="text-sm font-bold text-text-dark dark:text-white uppercase tracking-wider">
-                                        {product.sizes[0] === 'Standard' ? 'Option:' : 'Size:'} <span className="font-normal text-[#6d7e73]">{selectedSize}</span>
+                                        {availableSizes[0] === 'Standard' ? 'Option:' : 'Size:'} <span className="font-normal text-[#6d7e73]">{selectedSize}</span>
                                     </h3>
                                 </div>
                                 <div className="flex flex-wrap gap-3">
-                                    {product.sizes.map((size, index) => (
+                                    {availableSizes.map((size, index) => (
                                         <button
                                             key={index}
                                             onClick={() => setSelectedSize(size)}
@@ -298,16 +481,18 @@ export default function ProductDetailClient({ product }) {
                                 </div>
                                 <button
                                     onClick={handleAddToCart}
-                                    disabled={loading}
-                                    className="flex-1 bg-primary hover:bg-primary-dark text-white font-bold rounded-lg transition-colors flex items-center justify-center gap-2 shadow-lg shadow-primary/30"
+                                    disabled={loading || (variants.length > 0 && !activeVariant) || !isInStock}
+                                    className="flex-1 bg-primary hover:bg-primary-dark text-white font-bold rounded-lg transition-colors flex items-center justify-center gap-2 shadow-lg shadow-primary/30 disabled:cursor-not-allowed disabled:bg-primary/40 disabled:shadow-none"
                                 >
                                     <ShoppingBagIcon sx={{ fontSize: 20 }} />
-                                    {loading ? "Adding..." : "Add to Cart"}
+                                    {loading ? "Adding..." : isInStock ? "Add to Cart" : "Out of Stock"}
                                 </button>
                             </div>
                             <div className="flex items-center gap-2 text-sm text-[#6d7e73] mt-2">
-                                <CheckCircleIcon sx={{ fontSize: 18, color: '#8dc8a1' }} />
-                                <span>In Stock. <span className="font-medium text-text-dark dark:text-white">Free shipping</span> (over 1000₺)</span>
+                                <CheckCircleIcon sx={{ fontSize: 18, color: isInStock ? '#8dc8a1' : '#ef4444' }} />
+                                <span>
+                                    {isInStock ? 'In Stock.' : 'Out of Stock.'} <span className="font-medium text-text-dark dark:text-white">Free shipping</span> (over 1000₺)
+                                </span>
                             </div>
                         </div>
                     </div>

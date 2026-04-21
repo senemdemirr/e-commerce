@@ -72,7 +72,7 @@ export default function ProductsCatalogTable({ visibleProducts, onDeleteProduct,
                                                 </span>
                                             ) : null}
                                             <span className="text-xs font-medium text-text-muted">
-                                                {product.colorCount} colors • {product.sizeCount} sizes • {product.detailCount} detail fields
+                                                {product.colorCount} colors • {product.sizeCount} sizes • {product.variantCount || 0} variants • {product.detailCount} detail fields
                                             </span>
                                         </div>
 

@@ -99,6 +99,7 @@ export default function ProductsPage() {
         const colors = normalizeList(product.colors);
         const sizes = normalizeList(product.sizes);
         const details = normalizeDetails(product.details);
+        const variants = Array.isArray(product.variants) ? product.variants : [];
         const location = categoryLookup.get(product.subCategorySlug) || {};
         const categorySlug = location.categorySlug || product.categorySlug || '';
         const subcategorySlug = location.subcategorySlug || product.subCategorySlug || '';
@@ -118,6 +119,7 @@ export default function ProductsPage() {
             colors,
             sizes,
             details,
+            variants,
             categorySlug,
             subcategorySlug,
             categoryName,
@@ -128,6 +130,7 @@ export default function ProductsPage() {
             detailCount: getFilledDetailCount(details),
             colorCount: colors.length,
             sizeCount: sizes.length,
+            variantCount: Number(product.variant_count || variants.length || 0),
             descriptionLength: product.description?.trim().length || 0,
             isFresh: Boolean(product.created_at) && (Date.now() - new Date(product.created_at).getTime()) < 1000 * 60 * 60 * 24 * 30,
             publicHref: categorySlug && subcategorySlug && product.sku

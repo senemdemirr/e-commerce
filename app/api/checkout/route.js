@@ -1,6 +1,7 @@
 export const runtime = "nodejs";
 import { pool } from "@/lib/db";
 import { ensurePaymentCardSchema } from "@/lib/paymentCards";
+import { ensureProductVariantSchema } from "@/lib/productSchema";
 import { getOrCreateUserFromSession } from "@/lib/users";
 import { NextResponse } from "next/server";
 import iyzipay from "@/lib/iyzipay";
@@ -40,6 +41,8 @@ function retrieveBankNameFromBin(binNumber, conversationId) {
 // POST - Process checkout and create order
 export async function POST(request) {
     try {
+        await ensureProductVariantSchema();
+
         const user = await getOrCreateUserFromSession();
         if (!user.id) {
             return NextResponse.json(
@@ -126,9 +129,10 @@ export async function POST(request) {
 
         // Get cart items
         const itemsResult = await pool.query(
-            `SELECT ci.*, p.title, p.price, p.sku 
+            `SELECT ci.*, p.title, p.price, p.sku, pv.sku AS variant_sku
              FROM cart_items ci 
              JOIN products p ON ci.product_id = p.id 
+             LEFT JOIN product_variants pv ON pv.id = ci.variant_id
              WHERE ci.cart_id = $1`,
             [cart.id]
         );
@@ -355,19 +359,20 @@ export async function POST(request) {
                         await pool.query(
                             `INSERT INTO order_items 
                              (order_id, product_id, product_title, product_sku, quantity, 
-                              unit_price, total_price, selected_size, selected_color, selected_color_hex)
-                             VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)`,
+                              unit_price, total_price, selected_size, selected_color, selected_color_hex, variant_id)
+                             VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)`,
                             [
                                 order.id,
                                 item.product_id,
                                 item.title,
-                                item.sku,
+                                item.variant_sku || item.sku,
                                 item.quantity,
                                 item.unit_price,
                                 Number(item.unit_price) * item.quantity,
                                 item.selected_size,
                                 item.selected_color,
-                                item.selected_color_hex
+                                item.selected_color_hex,
+                                item.variant_id || null
                             ]
                         );
                     }

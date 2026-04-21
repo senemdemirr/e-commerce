@@ -30,6 +30,17 @@ import {
     getCatalogScore,
     getReadinessMeta,
 } from '@/components/admin/products/productsPageHelpers';
+import {
+    buildVariantMatrix,
+    createEmptyColor,
+    createEmptyVariant,
+    createSku,
+    normalizeColorRows,
+    normalizeVariantPayload,
+    normalizeVariantRows,
+    parseCommaList,
+    parseLineList,
+} from '@/lib/admin/product-editor';
 import { useAdminSession } from '@/context/AdminSessionContext';
 
 const INITIAL_FORM = {
@@ -46,52 +57,6 @@ const INITIAL_FORM = {
     bulletPoints: '',
     descriptionLong: '',
 };
-
-function createEmptyColor() {
-    return {
-        name: '',
-        hex: '#111827',
-    };
-}
-
-function createSku(value = '') {
-    const letterMap = {
-        c: /[çÇ]/g,
-        g: /[ğĞ]/g,
-        i: /[ıİ]/g,
-        o: /[öÖ]/g,
-        s: /[şŞ]/g,
-        u: /[üÜ]/g,
-    };
-
-    let normalized = String(value).trim();
-
-    Object.entries(letterMap).forEach(([replacement, pattern]) => {
-        normalized = normalized.replace(pattern, replacement);
-    });
-
-    return normalized
-        .normalize('NFD')
-        .replace(/[\u0300-\u036f]/g, '')
-        .replace(/[^a-zA-Z0-9]+/g, '-')
-        .replace(/^-+|-+$/g, '')
-        .replace(/-{2,}/g, '-')
-        .toUpperCase();
-}
-
-function parseCommaList(value = '') {
-    return value
-        .split(',')
-        .map((item) => item.trim())
-        .filter(Boolean);
-}
-
-function parseLineList(value = '') {
-    return value
-        .split('\n')
-        .map((item) => item.trim())
-        .filter(Boolean);
-}
 
 function normalizeCategories(categoriesData = [], subcategoriesData = [], currentIds = {}) {
     const currentCategoryId = Number(currentIds.categoryId || 0);
@@ -126,26 +91,6 @@ function normalizeCategories(categoriesData = [], subcategoriesData = [], curren
         : [];
 }
 
-function normalizeColorRows(value) {
-    if (!Array.isArray(value) || value.length === 0) {
-        return [createEmptyColor()];
-    }
-
-    return value.map((color) => {
-        if (color && typeof color === 'object' && !Array.isArray(color)) {
-            return {
-                name: String(color.name || '').trim(),
-                hex: String(color.hex || '#111827').trim() || '#111827',
-            };
-        }
-
-        return {
-            name: String(color || '').trim(),
-            hex: '#111827',
-        };
-    });
-}
-
 function buildFormFromProduct(product, nextCategories) {
     const details = product?.details && typeof product.details === 'object' && !Array.isArray(product.details)
         ? product.details
@@ -176,6 +121,7 @@ function buildFormFromProduct(product, nextCategories) {
             descriptionLong: typeof details.description_long === 'string' ? details.description_long : '',
         },
         colors: normalizeColorRows(product?.colors),
+        variants: normalizeVariantRows(product?.variants, product?.price),
         imagePreview: product?.image || '',
         meta: {
             id: Number(product?.id || 0),
@@ -200,6 +146,7 @@ export default function ProductDetailPage() {
     const [skuTouched, setSkuTouched] = useState(false);
     const [form, setForm] = useState(INITIAL_FORM);
     const [colors, setColors] = useState([createEmptyColor()]);
+    const [variants, setVariants] = useState([createEmptyVariant()]);
     const [imageFile, setImageFile] = useState(null);
     const [storedImagePreview, setStoredImagePreview] = useState('');
     const [uploadedImagePreview, setUploadedImagePreview] = useState('');
@@ -271,6 +218,7 @@ export default function ProductDetailPage() {
                 setCategories(nextCategories);
                 setForm(nextDraft.form);
                 setColors(nextDraft.colors);
+                setVariants(nextDraft.variants);
                 setStoredImagePreview(nextDraft.imagePreview);
                 setUploadedImagePreview('');
                 setImageFile(null);
@@ -330,6 +278,11 @@ export default function ProductDetailPage() {
         }))
         .filter((color) => color.name);
     const normalizedSizes = parseCommaList(form.sizes);
+    const normalizedVariants = normalizeVariantPayload(
+        variants,
+        form.sku.trim(),
+        form.price.trim()
+    );
     const normalizedCare = parseLineList(form.care);
     const normalizedBulletPoints = parseLineList(form.bulletPoints);
     const details = {
@@ -354,6 +307,7 @@ export default function ProductDetailPage() {
         { label: 'Title and SKU ready', done: Boolean(form.title.trim() && form.sku.trim()) },
         { label: 'Price and category selected', done: Boolean(form.price && form.subcategoryId) },
         { label: 'Color or size variation added', done: normalizedColors.length > 0 || normalizedSizes.length > 0 },
+        { label: 'Variant matrix configured', done: normalizedVariants.length > 0 },
         { label: 'Detail layer completed', done: Boolean(details.material || normalizedCare.length || normalizedBulletPoints.length || details.description_long) },
     ];
 
@@ -435,6 +389,39 @@ export default function ProductDetailPage() {
         ));
     }
 
+    function handleVariantChange(index, key, value) {
+        setVariants((current) => current.map((variant, variantIndex) => (
+            variantIndex === index
+                ? { ...variant, [key]: value }
+                : variant
+        )));
+    }
+
+    function handleRemoveVariant(index) {
+        setVariants((current) => (
+            current.length === 1
+                ? [createEmptyVariant({ price: form.price.trim() })]
+                : current.filter((_, variantIndex) => variantIndex !== index)
+        ));
+    }
+
+    function handleSetDefaultVariant(index) {
+        setVariants((current) => current.map((variant, variantIndex) => ({
+            ...variant,
+            isDefault: variantIndex === index,
+        })));
+    }
+
+    function handleGenerateVariants() {
+        setVariants((current) => buildVariantMatrix({
+            colors: normalizedColors,
+            sizes: normalizedSizes,
+            baseSku: form.sku.trim(),
+            basePrice: form.price.trim(),
+            existingVariants: current,
+        }));
+    }
+
     function handleImageChange(nextFile) {
         setImageFile(nextFile);
         clearError('image');
@@ -447,6 +434,7 @@ export default function ProductDetailPage() {
 
         setForm(initialDraft.form);
         setColors(initialDraft.colors);
+        setVariants(initialDraft.variants);
         setStoredImagePreview(initialDraft.imagePreview);
         setUploadedImagePreview('');
         setImageFile(null);
@@ -526,6 +514,7 @@ export default function ProductDetailPage() {
             payload.set('colors', JSON.stringify(normalizedColors));
             payload.set('sizes', JSON.stringify(normalizedSizes));
             payload.set('details', JSON.stringify(details));
+            payload.set('variants', JSON.stringify(normalizedVariants));
             payload.set('image', submitImage);
 
             const response = await fetch(`/api/admin/products/${productId}`, {
@@ -545,6 +534,7 @@ export default function ProductDetailPage() {
             const nextDraft = {
                 form,
                 colors,
+                variants,
                 imagePreview: nextStoredImagePreview,
                 meta: {
                     id: Number(data?.id || productMeta.id),
@@ -750,13 +740,21 @@ export default function ProductDetailPage() {
 
                     <ProductVariationsSection
                         colors={colors}
+                        normalizedColors={normalizedColors}
                         sizesValue={form.sizes}
                         normalizedSizes={normalizedSizes}
+                        variants={variants}
+                        normalizedVariants={normalizedVariants}
                         disabled={!canMutate}
                         onAddColor={() => setColors((current) => [...current, createEmptyColor()])}
                         onColorChange={handleColorChange}
                         onRemoveColor={handleRemoveColor}
                         onSizesChange={(event) => updateForm('sizes', event.target.value)}
+                        onAddVariant={() => setVariants((current) => [...current, createEmptyVariant({ price: form.price.trim() })])}
+                        onVariantChange={handleVariantChange}
+                        onRemoveVariant={handleRemoveVariant}
+                        onGenerateVariants={handleGenerateVariants}
+                        onSetDefaultVariant={handleSetDefaultVariant}
                     />
 
                     <ProductContentSection
@@ -926,6 +924,14 @@ export default function ProductDetailPage() {
                                     Active Variations
                                 </p>
                                 <div className="mt-3 flex flex-wrap gap-2">
+                                    {normalizedVariants.map((variant) => (
+                                        <span
+                                            key={variant.sku}
+                                            className="inline-flex items-center gap-2 rounded-full border border-primary/10 bg-primary/10 px-3 py-1.5 text-xs font-bold text-text-main"
+                                        >
+                                            {variant.sku}
+                                        </span>
+                                    ))}
                                     {normalizedColors.map((color) => (
                                         <span
                                             key={color.name}
@@ -946,7 +952,7 @@ export default function ProductDetailPage() {
                                             {size}
                                         </span>
                                     ))}
-                                    {normalizedColors.length === 0 && normalizedSizes.length === 0 ? (
+                                    {normalizedColors.length === 0 && normalizedSizes.length === 0 && normalizedVariants.length === 0 ? (
                                         <p className="text-sm font-medium text-text-muted">
                                             No variations defined yet.
                                         </p>

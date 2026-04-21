@@ -34,7 +34,7 @@ test('apiFetch returns empty object for 204', async () => {
   expect(result).toEqual({});
 });
 
-test('apiFetch returns parsed error body when response is not ok', async () => {
+test('apiFetch throws parsed error body when response is not ok', async () => {
   const errBody = { message: 'bad request' };
   global.fetch = jest.fn().mockResolvedValue({
     ok: false,
@@ -43,7 +43,10 @@ test('apiFetch returns parsed error body when response is not ok', async () => {
     json: async () => errBody,
   });
 
-  const result = await apiFetch('/api/test');
-  expect(result).toEqual(errBody);
+  await expect(apiFetch('/api/test')).rejects.toMatchObject({
+    message: 'bad request',
+    status: 400,
+    data: errBody,
+  });
   expect(consoleErrorSpy).toHaveBeenCalledWith('API Fetch failed: 400 Bad Request');
 });

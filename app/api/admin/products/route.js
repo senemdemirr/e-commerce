@@ -1,5 +1,10 @@
 import { pool } from '../../../../lib/db.js';
 import {
+    buildProductRelationsJoins,
+    buildProductRelationsSelect,
+} from '../../../../lib/products-data.js';
+import { ensureProductVariantSchema } from '../../../../lib/productSchema.js';
+import {
     requireAdminReadAccess,
     requireAdminWriteAccess,
 } from '../../../../lib/admin/auth.js';
@@ -11,6 +16,8 @@ import {
     listFallbackProducts,
     normalizeProductRow,
     parseProductFormData,
+    prepareProductRelations,
+    syncProductVariantsForProduct,
 } from '../../../../lib/admin/products.js';
 
 function forbiddenResponse() {
@@ -68,24 +75,15 @@ export async function GET(req) {
     }
 
     try {
+        await ensureProductVariantSchema();
+
         const offset = (page - 1) * limit;
         const [countResult, productsResult] = await Promise.all([
             pool.query('SELECT COUNT(*) AS total FROM products'),
             pool.query(
                 `
                     SELECT
-                        p.id,
-                        p.sub_category_id,
-                        p.title,
-                        p.description,
-                        p.sku,
-                        p.price,
-                        p.image,
-                        p.brand,
-                        p.colors,
-                        p.sizes,
-                        p.details,
-                        p.created_at,
+                        ${buildProductRelationsSelect('p')},
                         sc.id AS subcategory_id,
                         sc.name AS subcategory_name,
                         sc.slug AS "subCategorySlug",
@@ -93,6 +91,7 @@ export async function GET(req) {
                         c.name AS category_name,
                         c.slug AS "categorySlug"
                     FROM products p
+                    ${buildProductRelationsJoins('p')}
                     LEFT JOIN sub_categories sc ON sc.id = p.sub_category_id
                     LEFT JOIN categories c ON c.id = sc.category_id
                     ORDER BY p.created_at DESC NULLS LAST, p.id DESC
@@ -127,6 +126,8 @@ export async function POST(req) {
     }
 
     try {
+        await ensureProductVariantSchema();
+
         const formData = await req.formData();
         const parsed = await parseProductFormData(formData);
 
@@ -154,68 +155,97 @@ export async function POST(req) {
                 colors: parsed.payload.colors,
                 sizes: parsed.payload.sizes,
                 details: parsed.payload.details,
+                variants: parsed.payload.variants,
             }), { status: 201 });
         }
 
-        const subcategoryResult = await pool.query(
-            `
-                SELECT
-                    sc.id,
-                    sc.name AS subcategory_name,
-                    sc.slug AS "subCategorySlug",
-                    c.id AS category_id,
-                    c.name AS category_name,
-                    c.slug AS "categorySlug"
-                FROM sub_categories sc
-                INNER JOIN categories c ON c.id = sc.category_id
-                WHERE sc.id = $1
-                LIMIT 1
-            `,
-            [parsed.payload.subcategory_id]
-        );
+        const client = await pool.connect();
 
-        if (subcategoryResult.rowCount === 0) {
-            return Response.json({ error: 'Sub-category not found' }, { status: 404 });
+        try {
+            await client.query('BEGIN');
+
+            const subcategoryResult = await client.query(
+                `
+                    SELECT
+                        sc.id,
+                        sc.name AS subcategory_name,
+                        sc.slug AS "subCategorySlug",
+                        c.id AS category_id,
+                        c.name AS category_name,
+                        c.slug AS "categorySlug"
+                    FROM sub_categories sc
+                    INNER JOIN categories c ON c.id = sc.category_id
+                    WHERE sc.id = $1
+                    LIMIT 1
+                `,
+                [parsed.payload.subcategory_id]
+            );
+
+            if (subcategoryResult.rowCount === 0) {
+                await client.query('ROLLBACK');
+                return Response.json({ error: 'Sub-category not found' }, { status: 404 });
+            }
+
+            const relationState = await prepareProductRelations(client, parsed.payload);
+
+            const createdProduct = await client.query(
+                `
+                    INSERT INTO products (
+                        sub_category_id,
+                        title,
+                        description,
+                        sku,
+                        price,
+                        image,
+                        brand,
+                        colors_id,
+                        sizes_id,
+                        detail_id
+                    )
+                    VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+                    RETURNING id, sub_category_id, title, description, sku, price, image, brand, colors_id, sizes_id, detail_id, created_at
+                `,
+                [
+                    parsed.payload.subcategory_id,
+                    parsed.payload.title,
+                    parsed.payload.description,
+                    parsed.payload.sku,
+                    parsed.payload.price,
+                    imageValue,
+                    parsed.payload.brand,
+                    relationState.colors_id,
+                    relationState.sizes_id,
+                    relationState.detail_id,
+                ]
+            );
+
+            await syncProductVariantsForProduct(
+                client,
+                Number(createdProduct.rows[0].id),
+                parsed.payload,
+                relationState
+            );
+
+            await client.query('COMMIT');
+
+            return Response.json(
+                normalizeProductRow({
+                    ...createdProduct.rows[0],
+                    ...subcategoryResult.rows[0],
+                    colors: parsed.payload.colors,
+                    sizes: parsed.payload.sizes,
+                    details: parsed.payload.details,
+                    variants: parsed.payload.variants,
+                    variant_count: parsed.payload.variants.length,
+                }),
+                { status: 201 }
+            );
+        } catch (error) {
+            await client.query('ROLLBACK');
+            throw error;
+        } finally {
+            client.release();
         }
-
-        const createdProduct = await pool.query(
-            `
-                INSERT INTO products (
-                    sub_category_id,
-                    title,
-                    description,
-                    sku,
-                    price,
-                    image,
-                    brand,
-                    colors,
-                    sizes,
-                    details
-                )
-                VALUES ($1, $2, $3, $4, $5, $6, $7, $8::jsonb, $9, $10::jsonb)
-                RETURNING id, sub_category_id, title, description, sku, price, image, brand, colors, sizes, details, created_at
-            `,
-            [
-                parsed.payload.subcategory_id,
-                parsed.payload.title,
-                parsed.payload.description,
-                parsed.payload.sku,
-                parsed.payload.price,
-                imageValue,
-                parsed.payload.brand,
-                JSON.stringify(parsed.payload.colors),
-                parsed.payload.sizes,
-                JSON.stringify(parsed.payload.details),
-            ]
-        );
-
-        return Response.json(
-            normalizeProductRow({
-                ...createdProduct.rows[0],
-                ...subcategoryResult.rows[0],
-            }),
-            { status: 201 }
-        );
     } catch (error) {
         if (error?.code === '23505') {
             return Response.json({ error: 'Product already exists' }, { status: 409 });

@@ -1,64 +1,118 @@
-CREATE TABLE categories(
+CREATE TABLE IF NOT EXISTS colors (
     id SERIAL PRIMARY KEY,
     name VARCHAR(200) NOT NULL,
-    slug VARCHAR(200) UNIQUE NOT NULL,
-    activate SMALLINT NOT NULL DEFAULT 1,
+    code VARCHAR(20) NOT NULL DEFAULT '',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
-CREATE TABLE users(
-    id SERIAL PRIMARY KEY,
-    auth0_id VARCHAR(200) UNIQUE NOT NULL,
-    email VARCHAR(200) UNIQUE NOT NULL,
-    name VARCHAR(200),
-    verified BOOLEAN DEFAULT FALSE,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
-CREATE TABLE sub_categories(
-    id SERIAL PRIMARY KEY,
-    category_id INT NOT NULL,
-    name VARCHAR(200) NOT NULL,
-    slug VARCHAR(200) NOT NULL,
-    activate SMALLINT NOT NULL DEFAULT 1,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    CONSTRAINT fk_subcategory_category 
-        FOREIGN KEY(category_id) 
-        REFERENCES categories(id) 
-        ON DELETE CASCADE
-);
-CREATE TABLE products(
-    id SERIAL PRIMARY KEY,
-    sub_category_id INT NOT NULL,
-    title VARCHAR(200) NOT NULL,
-    description VARCHAR(500) NOT NULL,
-    sku TEXT UNIQUE,
-    price DECIMAL(10,2) NOT NULL,
-    image TEXT,
-    brand VARCHAR(200),
-    colors JSONB DEFAULT '[]',
-    sizes TEXT[] DEFAULT '{}',
-    details JSONB DEFAULT '{}',
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    CONSTRAINT fk_product_subcategory 
-        FOREIGN KEY(sub_category_id) 
-        REFERENCES sub_categories(id) 
-        ON DELETE CASCADE
-);
-CREATE TABLE FAVORITES(
-    id SERIAL PRIMARY KEY,
-    user_id INT NOT NULL,
-    product_id INT NOT NULL,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    CONSTRAINT fk_favorite_user 
-        FOREIGN KEY(user_id) 
-        REFERENCES users(id) 
-        ON DELETE CASCADE, 
-    CONSTRAINT fk_favorite_product
-        FOREIGN KEY (product_id)
-        REFERENCES products(id)
-        ON DELETE CASCADE,
-    CONSTRAINT unique_favorite UNIQUE (user_id, product_id)
 );
 
--- ON DELETE CASCADES = This sql was added so that if a category is deleted, all subcategories attached to it will be deleted.
--- CONSTRAINT FOREIGN KEY REFERENCES = This sql shows that id is an existing id in another table. This means it is not a separate number and an irrelevant value cannot be entered.
-ALTER TABLE sub_categories ADD COLUMN IF NOT EXISTS activate SMALLINT NOT NULL DEFAULT 1;
+CREATE UNIQUE INDEX IF NOT EXISTS idx_colors_name_code_unique
+ON colors (LOWER(name), code);
+
+CREATE TABLE IF NOT EXISTS sizes (
+    id SERIAL PRIMARY KEY,
+    name VARCHAR(100) NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE UNIQUE INDEX IF NOT EXISTS idx_sizes_name_unique
+ON sizes (LOWER(name));
+
+CREATE TABLE IF NOT EXISTS details (
+    id SERIAL PRIMARY KEY,
+    detail_key VARCHAR(50) NOT NULL,
+    detail_value TEXT NOT NULL,
+    display_order INT NOT NULL DEFAULT 0,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+ALTER TABLE products
+ADD COLUMN IF NOT EXISTS colors_id INT[] NOT NULL DEFAULT ARRAY[]::INT[],
+ADD COLUMN IF NOT EXISTS sizes_id INT[] NOT NULL DEFAULT ARRAY[]::INT[],
+ADD COLUMN IF NOT EXISTS detail_id INT[] NOT NULL DEFAULT ARRAY[]::INT[];
+
+ALTER TABLE products
+ALTER COLUMN colors_id TYPE INT[]
+USING CASE
+    WHEN colors_id IS NULL THEN ARRAY[]::INT[]
+    ELSE ARRAY[colors_id]
+END;
+
+ALTER TABLE products
+ALTER COLUMN sizes_id TYPE INT[]
+USING CASE
+    WHEN sizes_id IS NULL THEN ARRAY[]::INT[]
+    ELSE ARRAY[sizes_id]
+END;
+
+ALTER TABLE products
+ALTER COLUMN detail_id TYPE INT[]
+USING CASE
+    WHEN detail_id IS NULL THEN ARRAY[]::INT[]
+    ELSE ARRAY[detail_id]
+END;
+
+CREATE TABLE IF NOT EXISTS product_variants (
+    id SERIAL PRIMARY KEY,
+    product_id INT NOT NULL,
+    color_id INT,
+    size_id INT,
+    sku VARCHAR(200) NOT NULL,
+    price DECIMAL(10,2),
+    stock INT NOT NULL DEFAULT 0,
+    is_default BOOLEAN NOT NULL DEFAULT FALSE,
+    display_order INT NOT NULL DEFAULT 0,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+ALTER TABLE product_variants
+ADD COLUMN IF NOT EXISTS color_id INT,
+ADD COLUMN IF NOT EXISTS size_id INT;
+
+DROP INDEX IF EXISTS idx_product_variants_combination_unique;
+
+CREATE UNIQUE INDEX IF NOT EXISTS idx_product_variants_sku_unique
+ON product_variants (sku);
+
+DO $$
+BEGIN
+    IF EXISTS (
+        SELECT 1
+        FROM information_schema.tables
+        WHERE table_schema = 'public'
+          AND table_name = 'cart_items'
+    ) THEN
+        ALTER TABLE cart_items
+        ADD COLUMN IF NOT EXISTS variant_id INT;
+    END IF;
+END $$;
+
+DO $$
+BEGIN
+    IF EXISTS (
+        SELECT 1
+        FROM information_schema.tables
+        WHERE table_schema = 'public'
+          AND table_name = 'order_items'
+    ) THEN
+        ALTER TABLE order_items
+        ADD COLUMN IF NOT EXISTS variant_id INT;
+    END IF;
+END $$;
+
+ALTER TABLE products
+DROP COLUMN IF EXISTS colors,
+DROP COLUMN IF EXISTS sizes,
+DROP COLUMN IF EXISTS details,
+DROP COLUMN IF EXISTS color_group_id,
+DROP COLUMN IF EXISTS size_group_id;
+
+ALTER TABLE product_variants
+DROP COLUMN IF EXISTS color_name,
+DROP COLUMN IF EXISTS color_hex,
+DROP COLUMN IF EXISTS size_label;
+
+DROP TABLE IF EXISTS product_colors;
+DROP TABLE IF EXISTS product_sizes;
+DROP TABLE IF EXISTS product_color_groups;
+DROP TABLE IF EXISTS product_size_groups;
+DROP TABLE IF EXISTS product_details;
