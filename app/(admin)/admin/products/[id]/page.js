@@ -33,13 +33,15 @@ import {
 import {
     buildVariantMatrix,
     createEmptyColor,
+    createEmptySize,
+    createEmptyTextRow,
     createEmptyVariant,
     createSku,
     normalizeColorRows,
+    normalizeSizeRows,
+    normalizeTextRows,
     normalizeVariantPayload,
     normalizeVariantRows,
-    parseCommaList,
-    parseLineList,
 } from '@/lib/admin/product-editor';
 import { useAdminSession } from '@/context/AdminSessionContext';
 
@@ -51,10 +53,7 @@ const INITIAL_FORM = {
     description: '',
     categoryId: '',
     subcategoryId: '',
-    sizes: '',
     material: '',
-    care: '',
-    bulletPoints: '',
     descriptionLong: '',
 };
 
@@ -114,13 +113,13 @@ function buildFormFromProduct(product, nextCategories) {
             description: product?.description || '',
             categoryId: nextCategoryId,
             subcategoryId: nextSubcategoryId,
-            sizes: Array.isArray(product?.sizes) ? product.sizes.join(', ') : '',
             material: typeof details.material === 'string' ? details.material : '',
-            care: Array.isArray(details.care) ? details.care.join('\n') : '',
-            bulletPoints: Array.isArray(details.bullet_points) ? details.bullet_points.join('\n') : '',
             descriptionLong: typeof details.description_long === 'string' ? details.description_long : '',
         },
         colors: normalizeColorRows(product?.colors),
+        sizes: normalizeSizeRows(product?.sizes),
+        careItems: normalizeTextRows(details.care),
+        bulletPointItems: normalizeTextRows(details.bullet_points),
         variants: normalizeVariantRows(product?.variants, product?.price),
         imagePreview: product?.image || '',
         meta: {
@@ -146,6 +145,9 @@ export default function ProductDetailPage() {
     const [skuTouched, setSkuTouched] = useState(false);
     const [form, setForm] = useState(INITIAL_FORM);
     const [colors, setColors] = useState([createEmptyColor()]);
+    const [sizes, setSizes] = useState([createEmptySize()]);
+    const [careItems, setCareItems] = useState([createEmptyTextRow()]);
+    const [bulletPointItems, setBulletPointItems] = useState([createEmptyTextRow()]);
     const [variants, setVariants] = useState([createEmptyVariant()]);
     const [imageFile, setImageFile] = useState(null);
     const [storedImagePreview, setStoredImagePreview] = useState('');
@@ -218,6 +220,9 @@ export default function ProductDetailPage() {
                 setCategories(nextCategories);
                 setForm(nextDraft.form);
                 setColors(nextDraft.colors);
+                setSizes(nextDraft.sizes);
+                setCareItems(nextDraft.careItems);
+                setBulletPointItems(nextDraft.bulletPointItems);
                 setVariants(nextDraft.variants);
                 setStoredImagePreview(nextDraft.imagePreview);
                 setUploadedImagePreview('');
@@ -277,14 +282,20 @@ export default function ProductDetailPage() {
             hex: color.hex,
         }))
         .filter((color) => color.name);
-    const normalizedSizes = parseCommaList(form.sizes);
+    const normalizedSizes = sizes
+        .map((size) => String(size || '').trim())
+        .filter(Boolean);
     const normalizedVariants = normalizeVariantPayload(
         variants,
         form.sku.trim(),
         form.price.trim()
     );
-    const normalizedCare = parseLineList(form.care);
-    const normalizedBulletPoints = parseLineList(form.bulletPoints);
+    const normalizedCare = careItems
+        .map((item) => String(item || '').trim())
+        .filter(Boolean);
+    const normalizedBulletPoints = bulletPointItems
+        .map((item) => String(item || '').trim())
+        .filter(Boolean);
     const details = {
         material: form.material.trim(),
         care: normalizedCare,
@@ -389,6 +400,48 @@ export default function ProductDetailPage() {
         ));
     }
 
+    function handleSizeChange(index, value) {
+        setSizes((current) => current.map((size, sizeIndex) => (
+            sizeIndex === index ? value : size
+        )));
+    }
+
+    function handleRemoveSize(index) {
+        setSizes((current) => (
+            current.length === 1
+                ? [createEmptySize()]
+                : current.filter((_, sizeIndex) => sizeIndex !== index)
+        ));
+    }
+
+    function handleCareItemChange(index, value) {
+        setCareItems((current) => current.map((item, itemIndex) => (
+            itemIndex === index ? value : item
+        )));
+    }
+
+    function handleRemoveCareItem(index) {
+        setCareItems((current) => (
+            current.length === 1
+                ? [createEmptyTextRow()]
+                : current.filter((_, itemIndex) => itemIndex !== index)
+        ));
+    }
+
+    function handleBulletPointChange(index, value) {
+        setBulletPointItems((current) => current.map((item, itemIndex) => (
+            itemIndex === index ? value : item
+        )));
+    }
+
+    function handleRemoveBulletPoint(index) {
+        setBulletPointItems((current) => (
+            current.length === 1
+                ? [createEmptyTextRow()]
+                : current.filter((_, itemIndex) => itemIndex !== index)
+        ));
+    }
+
     function handleVariantChange(index, key, value) {
         setVariants((current) => current.map((variant, variantIndex) => (
             variantIndex === index
@@ -434,6 +487,9 @@ export default function ProductDetailPage() {
 
         setForm(initialDraft.form);
         setColors(initialDraft.colors);
+        setSizes(initialDraft.sizes);
+        setCareItems(initialDraft.careItems);
+        setBulletPointItems(initialDraft.bulletPointItems);
         setVariants(initialDraft.variants);
         setStoredImagePreview(initialDraft.imagePreview);
         setUploadedImagePreview('');
@@ -534,6 +590,9 @@ export default function ProductDetailPage() {
             const nextDraft = {
                 form,
                 colors,
+                sizes,
+                careItems,
+                bulletPointItems,
                 variants,
                 imagePreview: nextStoredImagePreview,
                 meta: {
@@ -741,7 +800,7 @@ export default function ProductDetailPage() {
                     <ProductVariationsSection
                         colors={colors}
                         normalizedColors={normalizedColors}
-                        sizesValue={form.sizes}
+                        sizes={sizes}
                         normalizedSizes={normalizedSizes}
                         variants={variants}
                         normalizedVariants={normalizedVariants}
@@ -749,7 +808,9 @@ export default function ProductDetailPage() {
                         onAddColor={() => setColors((current) => [...current, createEmptyColor()])}
                         onColorChange={handleColorChange}
                         onRemoveColor={handleRemoveColor}
-                        onSizesChange={(event) => updateForm('sizes', event.target.value)}
+                        onAddSize={() => setSizes((current) => [...current, createEmptySize()])}
+                        onSizeChange={handleSizeChange}
+                        onRemoveSize={handleRemoveSize}
                         onAddVariant={() => setVariants((current) => [...current, createEmptyVariant({ price: form.price.trim() })])}
                         onVariantChange={handleVariantChange}
                         onRemoveVariant={handleRemoveVariant}
@@ -759,13 +820,19 @@ export default function ProductDetailPage() {
 
                     <ProductContentSection
                         materialValue={form.material}
-                        careValue={form.care}
-                        bulletPointsValue={form.bulletPoints}
+                        careItems={careItems}
+                        bulletPointItems={bulletPointItems}
+                        normalizedCare={normalizedCare}
+                        normalizedBulletPoints={normalizedBulletPoints}
                         descriptionLongValue={form.descriptionLong}
                         disabled={!canMutate}
                         onMaterialChange={(event) => updateForm('material', event.target.value)}
-                        onCareChange={(event) => updateForm('care', event.target.value)}
-                        onBulletPointsChange={(event) => updateForm('bulletPoints', event.target.value)}
+                        onAddCareItem={() => setCareItems((current) => [...current, createEmptyTextRow()])}
+                        onCareItemChange={handleCareItemChange}
+                        onRemoveCareItem={handleRemoveCareItem}
+                        onAddBulletPoint={() => setBulletPointItems((current) => [...current, createEmptyTextRow()])}
+                        onBulletPointChange={handleBulletPointChange}
+                        onRemoveBulletPoint={handleRemoveBulletPoint}
                         onDescriptionLongChange={(event) => updateForm('descriptionLong', event.target.value)}
                         imageField={(
                             <ProductImageField

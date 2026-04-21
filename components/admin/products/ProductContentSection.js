@@ -9,13 +9,19 @@ import {
 
 export default function ProductContentSection({
     materialValue,
-    careValue,
-    bulletPointsValue,
+    careItems,
+    bulletPointItems,
+    normalizedCare,
+    normalizedBulletPoints,
     descriptionLongValue,
     disabled = false,
     onMaterialChange,
-    onCareChange,
-    onBulletPointsChange,
+    onAddCareItem,
+    onCareItemChange,
+    onRemoveCareItem,
+    onAddBulletPoint,
+    onBulletPointChange,
+    onRemoveBulletPoint,
     onDescriptionLongChange,
     imageField,
 }) {
@@ -40,25 +46,93 @@ export default function ProductContentSection({
 
                 {imageField}
 
-                <Field label="Care notes" hint="One rule per line">
-                    <Textarea
-                        rows={5}
-                        value={careValue}
-                        onChange={onCareChange}
-                        disabled={disabled}
-                        placeholder={'Wash at 30°C\nIron on low heat\nDo not tumble dry'}
-                    />
-                </Field>
+                <div className="space-y-3">
+                    <div className="flex items-center justify-between gap-4">
+                        <p className="text-sm font-bold text-text-main">Care notes</p>
+                        <button
+                            type="button"
+                            onClick={onAddCareItem}
+                            disabled={disabled}
+                            className="rounded-2xl bg-primary/10 px-4 py-2 text-xs font-bold text-primary-dark transition hover:bg-primary/20 disabled:cursor-not-allowed disabled:opacity-70"
+                        >
+                            Add Care Row
+                        </button>
+                    </div>
 
-                <Field label="Key bullets" hint="One bullet per line">
-                    <Textarea
-                        rows={5}
-                        value={bulletPointsValue}
-                        onChange={onBulletPointsChange}
-                        disabled={disabled}
-                        placeholder={'Soft-touch texture\nRelaxed fit silhouette\nEasy to wear across seasons'}
-                    />
-                </Field>
+                    <div className="space-y-3">
+                        {careItems.map((item, index) => (
+                            <div
+                                key={`care-${index}`}
+                                className="grid gap-3 rounded-[24px] border border-primary/10 bg-background-light p-4 md:grid-cols-[minmax(0,1fr)_auto]"
+                            >
+                                <Input
+                                    value={item}
+                                    onChange={(event) => onCareItemChange(index, event.target.value)}
+                                    disabled={disabled}
+                                    placeholder="e.g. Wash at 30°C"
+                                />
+                                <button
+                                    type="button"
+                                    onClick={() => onRemoveCareItem(index)}
+                                    disabled={disabled}
+                                    className="rounded-2xl border border-primary/10 bg-white px-4 py-2 text-xs font-bold text-text-muted transition hover:bg-background-light disabled:cursor-not-allowed disabled:opacity-70"
+                                >
+                                    Remove
+                                </button>
+                            </div>
+                        ))}
+                    </div>
+
+                    <p className="text-xs font-medium text-text-muted">
+                        {normalizedCare.length > 0
+                            ? `${normalizedCare.length} care rows ready for details table`
+                            : 'No care rows added yet.'}
+                    </p>
+                </div>
+
+                <div className="space-y-3">
+                    <div className="flex items-center justify-between gap-4">
+                        <p className="text-sm font-bold text-text-main">Key bullets</p>
+                        <button
+                            type="button"
+                            onClick={onAddBulletPoint}
+                            disabled={disabled}
+                            className="rounded-2xl bg-primary/10 px-4 py-2 text-xs font-bold text-primary-dark transition hover:bg-primary/20 disabled:cursor-not-allowed disabled:opacity-70"
+                        >
+                            Add Bullet Row
+                        </button>
+                    </div>
+
+                    <div className="space-y-3">
+                        {bulletPointItems.map((item, index) => (
+                            <div
+                                key={`bullet-${index}`}
+                                className="grid gap-3 rounded-[24px] border border-primary/10 bg-background-light p-4 md:grid-cols-[minmax(0,1fr)_auto]"
+                            >
+                                <Input
+                                    value={item}
+                                    onChange={(event) => onBulletPointChange(index, event.target.value)}
+                                    disabled={disabled}
+                                    placeholder="e.g. Soft-touch texture"
+                                />
+                                <button
+                                    type="button"
+                                    onClick={() => onRemoveBulletPoint(index)}
+                                    disabled={disabled}
+                                    className="rounded-2xl border border-primary/10 bg-white px-4 py-2 text-xs font-bold text-text-muted transition hover:bg-background-light disabled:cursor-not-allowed disabled:opacity-70"
+                                >
+                                    Remove
+                                </button>
+                            </div>
+                        ))}
+                    </div>
+
+                    <p className="text-xs font-medium text-text-muted">
+                        {normalizedBulletPoints.length > 0
+                            ? `${normalizedBulletPoints.length} bullet rows ready for details table`
+                            : 'No bullet rows added yet.'}
+                    </p>
+                </div>
             </div>
 
             <div className="mt-5">

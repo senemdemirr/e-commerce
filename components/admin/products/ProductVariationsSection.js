@@ -6,13 +6,12 @@ import {
     SectionIntro,
     Select,
     SurfaceCard,
-    Textarea,
 } from './ProductFormPrimitives';
 
 export default function ProductVariationsSection({
     colors,
     normalizedColors,
-    sizesValue,
+    sizes,
     normalizedSizes,
     variants,
     normalizedVariants,
@@ -20,7 +19,9 @@ export default function ProductVariationsSection({
     onAddColor,
     onColorChange,
     onRemoveColor,
-    onSizesChange,
+    onAddSize,
+    onSizeChange,
+    onRemoveSize,
     onAddVariant,
     onVariantChange,
     onRemoveVariant,
@@ -86,15 +87,41 @@ export default function ProductVariationsSection({
                 </div>
 
                 <div>
-                    <Field label="Size set" hint="Separate with commas">
-                        <Textarea
-                            rows={5}
-                            value={sizesValue}
-                            onChange={onSizesChange}
+                    <div className="flex items-center justify-between gap-4">
+                        <p className="text-sm font-black text-text-main">Size set</p>
+                        <Button
+                            type="button"
+                            onClick={onAddSize}
                             disabled={disabled}
-                            placeholder="XS, S, M, L, XL"
-                        />
-                    </Field>
+                            className="!rounded-2xl !bg-secondary/20 !px-4 !py-2 !text-xs !font-bold !normal-case !text-text-main hover:!bg-secondary/30"
+                        >
+                            Add Size Row
+                        </Button>
+                    </div>
+
+                    <div className="mt-4 space-y-3">
+                        {sizes.map((size, index) => (
+                            <div
+                                key={`size-${index}`}
+                                className="grid gap-3 rounded-[24px] border border-primary/10 bg-background-light p-4 md:grid-cols-[minmax(0,1fr)_auto]"
+                            >
+                                <Input
+                                    value={size}
+                                    onChange={(event) => onSizeChange(index, event.target.value)}
+                                    disabled={disabled}
+                                    placeholder="e.g. XS"
+                                />
+                                <Button
+                                    type="button"
+                                    onClick={() => onRemoveSize(index)}
+                                    disabled={disabled}
+                                    className="!rounded-2xl !border !border-primary/10 !px-4 !py-2 !text-xs !font-bold !normal-case !text-text-muted hover:!bg-white"
+                                >
+                                    Remove
+                                </Button>
+                            </div>
+                        ))}
+                    </div>
 
                     <div className="mt-4 flex flex-wrap gap-2">
                         {normalizedSizes.length > 0 ? normalizedSizes.map((size) => (
