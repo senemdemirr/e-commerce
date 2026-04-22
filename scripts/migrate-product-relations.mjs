@@ -79,11 +79,11 @@ async function main() {
             SELECT table_name
             FROM information_schema.tables
             WHERE table_schema = 'public'
-              AND table_name IN ('colors', 'sizes', 'details')
+              AND table_name IN ('colors', 'sizes', 'product_details')
             ORDER BY table_name
         `);
 
-        console.log(`Migrated ${productsResult.rows[0]?.total || 0} products to normalized colors/sizes/details tables.`);
+        console.log(`Migrated ${productsResult.rows[0]?.total || 0} products to normalized colors/sizes/product_details tables.`);
         console.table(productTablesResult.rows);
     } finally {
         client.release();

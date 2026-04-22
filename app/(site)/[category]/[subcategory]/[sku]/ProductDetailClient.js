@@ -301,7 +301,14 @@ export default function ProductDetailClient({ product }) {
     };
 
     const details = product.details || {};
-    const bulletPoints = details.bullet_points || [];
+    const materialItems = Array.isArray(details.material) ? details.material : [];
+    const careItems = Array.isArray(details.care) ? details.care : [];
+    const bulletPoints = Array.isArray(details.bullet_point)
+        ? details.bullet_point
+        : (Array.isArray(details.bullet_points) ? details.bullet_points : []);
+    const longDescription = Array.isArray(details.description_long)
+        ? (details.description_long[0] || '')
+        : String(details.description_long || '').trim();
 
     const renderStars = (rating, size = 20) => {
         return [1, 2, 3, 4, 5].map((star) => {
@@ -529,7 +536,7 @@ export default function ProductDetailClient({ product }) {
                     {tabValue === 0 && (
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
                             <div className="text-[#6d7e73] dark:text-[#a0aead] space-y-4">
-                                <p>{details.description_long || product.description}</p>
+                                <p>{longDescription || product.description}</p>
                                 {bulletPoints.length > 0 && (
                                     <ul className="list-disc pl-5 space-y-2 mt-4">
                                         {bulletPoints.map((point, i) => (
@@ -540,6 +547,26 @@ export default function ProductDetailClient({ product }) {
                             </div>
                             <div className="bg-primary/5 dark:bg-primary/10 p-6 rounded-xl">
                                 <h4 className="font-bold text-lg mb-4 text-text-dark dark:text-white">Material & Care</h4>
+                                {(materialItems.length > 0 || careItems.length > 0) && (
+                                    <div className="mb-6 space-y-4 text-sm text-[#6d7e73] dark:text-[#a0aead]">
+                                        {materialItems.length > 0 && (
+                                            <div>
+                                                <p className="font-semibold text-text-dark dark:text-white">Material</p>
+                                                <p className="mt-1">{materialItems.join(', ')}</p>
+                                            </div>
+                                        )}
+                                        {careItems.length > 0 && (
+                                            <div>
+                                                <p className="font-semibold text-text-dark dark:text-white">Care</p>
+                                                <ul className="mt-2 list-disc pl-5 space-y-1">
+                                                    {careItems.map((item, index) => (
+                                                        <li key={`${item}-${index}`}>{item}</li>
+                                                    ))}
+                                                </ul>
+                                            </div>
+                                        )}
+                                    </div>
+                                )}
                                 <div className="flex gap-6 mb-6">
                                     <div className="flex flex-col items-center gap-2 text-center w-20">
                                         <div className="w-12 h-12 rounded-full bg-white dark:bg-[#2a362f] flex items-center justify-center text-primary shadow-sm">

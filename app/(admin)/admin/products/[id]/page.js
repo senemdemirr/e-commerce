@@ -33,10 +33,14 @@ import {
 import {
     buildVariantMatrix,
     createEmptyColor,
+    createEmptyProductLookups,
     createEmptySize,
     createEmptyTextRow,
     createEmptyVariant,
     createSku,
+    findLookupColor,
+    findLookupValue,
+    normalizeProductLookups,
     normalizeColorRows,
     normalizeSizeRows,
     normalizeTextRows,
@@ -53,7 +57,6 @@ const INITIAL_FORM = {
     description: '',
     categoryId: '',
     subcategoryId: '',
-    material: '',
     descriptionLong: '',
 };
 
@@ -113,13 +116,15 @@ function buildFormFromProduct(product, nextCategories) {
             description: product?.description || '',
             categoryId: nextCategoryId,
             subcategoryId: nextSubcategoryId,
-            material: typeof details.material === 'string' ? details.material : '',
-            descriptionLong: typeof details.description_long === 'string' ? details.description_long : '',
+            descriptionLong: Array.isArray(details.description_long)
+                ? (details.description_long[0] || '')
+                : (typeof details.description_long === 'string' ? details.description_long : ''),
         },
         colors: normalizeColorRows(product?.colors),
         sizes: normalizeSizeRows(product?.sizes),
+        materialItems: normalizeTextRows(details.material),
         careItems: normalizeTextRows(details.care),
-        bulletPointItems: normalizeTextRows(details.bullet_points),
+        bulletPointItems: normalizeTextRows(details.bullet_point || details.bullet_points),
         variants: normalizeVariantRows(product?.variants, product?.price),
         imagePreview: product?.image || '',
         meta: {
@@ -146,12 +151,14 @@ export default function ProductDetailPage() {
     const [form, setForm] = useState(INITIAL_FORM);
     const [colors, setColors] = useState([createEmptyColor()]);
     const [sizes, setSizes] = useState([createEmptySize()]);
+    const [materialItems, setMaterialItems] = useState([createEmptyTextRow()]);
     const [careItems, setCareItems] = useState([createEmptyTextRow()]);
     const [bulletPointItems, setBulletPointItems] = useState([createEmptyTextRow()]);
     const [variants, setVariants] = useState([createEmptyVariant()]);
     const [imageFile, setImageFile] = useState(null);
     const [storedImagePreview, setStoredImagePreview] = useState('');
     const [uploadedImagePreview, setUploadedImagePreview] = useState('');
+    const [lookupOptions, setLookupOptions] = useState(() => createEmptyProductLookups());
     const [errors, setErrors] = useState({});
     const [productMeta, setProductMeta] = useState({ id: 0, createdAt: null });
     const [initialDraft, setInitialDraft] = useState(null);
@@ -221,6 +228,7 @@ export default function ProductDetailPage() {
                 setForm(nextDraft.form);
                 setColors(nextDraft.colors);
                 setSizes(nextDraft.sizes);
+                setMaterialItems(nextDraft.materialItems);
                 setCareItems(nextDraft.careItems);
                 setBulletPointItems(nextDraft.bulletPointItems);
                 setVariants(nextDraft.variants);
@@ -252,6 +260,41 @@ export default function ProductDetailPage() {
             active = false;
         };
     }, [enqueueSnackbar, productId]);
+
+    useEffect(() => {
+        let active = true;
+
+        async function loadLookupOptions() {
+            try {
+                const response = await fetch('/api/admin/products/lookups', {
+                    headers: { role: 'admin' },
+                });
+                const data = await response.json().catch(() => createEmptyProductLookups());
+
+                if (!active) {
+                    return;
+                }
+
+                if (!response.ok) {
+                    throw new Error(data?.error || 'Product lookups could not be loaded.');
+                }
+
+                setLookupOptions(normalizeProductLookups(data));
+            } catch {
+                if (!active) {
+                    return;
+                }
+
+                setLookupOptions(createEmptyProductLookups());
+            }
+        }
+
+        loadLookupOptions();
+
+        return () => {
+            active = false;
+        };
+    }, []);
 
     useEffect(() => {
         if (!imageFile) {
@@ -290,6 +333,9 @@ export default function ProductDetailPage() {
         form.sku.trim(),
         form.price.trim()
     );
+    const normalizedMaterials = materialItems
+        .map((item) => String(item || '').trim())
+        .filter(Boolean);
     const normalizedCare = careItems
         .map((item) => String(item || '').trim())
         .filter(Boolean);
@@ -297,10 +343,10 @@ export default function ProductDetailPage() {
         .map((item) => String(item || '').trim())
         .filter(Boolean);
     const details = {
-        material: form.material.trim(),
+        material: normalizedMaterials,
         care: normalizedCare,
-        bullet_points: normalizedBulletPoints,
-        description_long: form.descriptionLong.trim(),
+        bullet_point: normalizedBulletPoints,
+        description_long: form.descriptionLong.trim() ? [form.descriptionLong.trim()] : [],
     };
 
     const score = getCatalogScore({
@@ -319,7 +365,7 @@ export default function ProductDetailPage() {
         { label: 'Price and category selected', done: Boolean(form.price && form.subcategoryId) },
         { label: 'Color or size variation added', done: normalizedColors.length > 0 || normalizedSizes.length > 0 },
         { label: 'Variant matrix configured', done: normalizedVariants.length > 0 },
-        { label: 'Detail layer completed', done: Boolean(details.material || normalizedCare.length || normalizedBulletPoints.length || details.description_long) },
+        { label: 'Detail layer completed', done: Boolean(normalizedMaterials.length || normalizedCare.length || normalizedBulletPoints.length || details.description_long.length) },
     ];
 
     const publicPath = selectedCategory?.slug && selectedSubcategory?.slug && form.sku
@@ -387,7 +433,21 @@ export default function ProductDetailPage() {
     function handleColorChange(index, key, value) {
         setColors((current) => current.map((color, colorIndex) => (
             colorIndex === index
-                ? { ...color, [key]: value }
+                ? (() => {
+                    if (key !== 'name') {
+                        return { ...color, [key]: value };
+                    }
+
+                    if (!String(value || '').trim()) {
+                        return createEmptyColor();
+                    }
+
+                    const matchedColor = findLookupColor(lookupOptions.colors, value);
+
+                    return matchedColor
+                        ? { ...color, name: matchedColor.name, hex: matchedColor.hex }
+                        : { ...color, name: value };
+                })()
                 : color
         )));
     }
@@ -401,8 +461,10 @@ export default function ProductDetailPage() {
     }
 
     function handleSizeChange(index, value) {
+        const matchedSize = findLookupValue(lookupOptions.sizes, value);
+
         setSizes((current) => current.map((size, sizeIndex) => (
-            sizeIndex === index ? value : size
+            sizeIndex === index ? (matchedSize || value) : size
         )));
     }
 
@@ -411,6 +473,20 @@ export default function ProductDetailPage() {
             current.length === 1
                 ? [createEmptySize()]
                 : current.filter((_, sizeIndex) => sizeIndex !== index)
+        ));
+    }
+
+    function handleMaterialItemChange(index, value) {
+        setMaterialItems((current) => current.map((item, itemIndex) => (
+            itemIndex === index ? value : item
+        )));
+    }
+
+    function handleRemoveMaterialItem(index) {
+        setMaterialItems((current) => (
+            current.length === 1
+                ? [createEmptyTextRow()]
+                : current.filter((_, itemIndex) => itemIndex !== index)
         ));
     }
 
@@ -488,6 +564,7 @@ export default function ProductDetailPage() {
         setForm(initialDraft.form);
         setColors(initialDraft.colors);
         setSizes(initialDraft.sizes);
+        setMaterialItems(initialDraft.materialItems);
         setCareItems(initialDraft.careItems);
         setBulletPointItems(initialDraft.bulletPointItems);
         setVariants(initialDraft.variants);
@@ -591,6 +668,7 @@ export default function ProductDetailPage() {
                 form,
                 colors,
                 sizes,
+                materialItems,
                 careItems,
                 bulletPointItems,
                 variants,
@@ -799,8 +877,10 @@ export default function ProductDetailPage() {
 
                     <ProductVariationsSection
                         colors={colors}
+                        colorLookupOptions={lookupOptions.colors}
                         normalizedColors={normalizedColors}
                         sizes={sizes}
+                        sizeLookupOptions={lookupOptions.sizes}
                         normalizedSizes={normalizedSizes}
                         variants={variants}
                         normalizedVariants={normalizedVariants}
@@ -819,14 +899,17 @@ export default function ProductDetailPage() {
                     />
 
                     <ProductContentSection
-                        materialValue={form.material}
+                        materialItems={materialItems}
                         careItems={careItems}
                         bulletPointItems={bulletPointItems}
+                        normalizedMaterials={normalizedMaterials}
                         normalizedCare={normalizedCare}
                         normalizedBulletPoints={normalizedBulletPoints}
                         descriptionLongValue={form.descriptionLong}
                         disabled={!canMutate}
-                        onMaterialChange={(event) => updateForm('material', event.target.value)}
+                        onAddMaterialItem={() => setMaterialItems((current) => [...current, createEmptyTextRow()])}
+                        onMaterialItemChange={handleMaterialItemChange}
+                        onRemoveMaterialItem={handleRemoveMaterialItem}
                         onAddCareItem={() => setCareItems((current) => [...current, createEmptyTextRow()])}
                         onCareItemChange={handleCareItemChange}
                         onRemoveCareItem={handleRemoveCareItem}
@@ -972,7 +1055,7 @@ export default function ProductDetailPage() {
                                         <span className="text-xs font-black uppercase tracking-[0.16em]">Detail</span>
                                     </div>
                                     <p className="mt-3 text-2xl font-black text-text-main">
-                                        {[details.material, normalizedCare.length, normalizedBulletPoints.length, details.description_long].filter(Boolean).length}
+                                        [normalizedMaterials.length, normalizedCare.length, normalizedBulletPoints.length, details.description_long.length].filter(Boolean).length
                                     </p>
                                 </div>
                             </div>

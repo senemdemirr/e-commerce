@@ -11,13 +11,13 @@ import {
 import {
     convertImageToStorageValue,
     deleteFallbackProduct,
-    deleteProductRelations,
     findFallbackProductById,
     findFallbackSubcategoryById,
     isProductTestMode,
     normalizeProductRow,
     parseProductFormData,
     prepareProductRelations,
+    replaceProductDetailsForProduct,
     syncProductVariantsForProduct,
     updateFallbackProduct,
 } from '../../../../../lib/admin/products.js';
@@ -158,8 +158,7 @@ export async function PUT(req, { params }) {
                     SELECT
                         id,
                         colors_id,
-                        sizes_id,
-                        detail_id
+                        sizes_id
                     FROM products
                     WHERE id = $1
                     LIMIT 1
@@ -197,8 +196,7 @@ export async function PUT(req, { params }) {
 
             const relationState = await prepareProductRelations(
                 client,
-                parsed.payload,
-                existingProduct.rows[0]
+                parsed.payload
             );
 
             const updatedProduct = await client.query(
@@ -213,10 +211,9 @@ export async function PUT(req, { params }) {
                         image = $6,
                         brand = $7,
                         colors_id = $8,
-                        sizes_id = $9,
-                        detail_id = $10
-                    WHERE id = $11
-                    RETURNING id, sub_category_id, title, description, sku, price, image, brand, colors_id, sizes_id, detail_id, created_at
+                        sizes_id = $9
+                    WHERE id = $10
+                    RETURNING id, sub_category_id, title, description, sku, price, image, brand, colors_id, sizes_id, created_at
                 `,
                 [
                     parsed.payload.subcategory_id,
@@ -228,11 +225,11 @@ export async function PUT(req, { params }) {
                     parsed.payload.brand,
                     relationState.colors_id,
                     relationState.sizes_id,
-                    relationState.detail_id,
                     id,
                 ]
             );
 
+            await replaceProductDetailsForProduct(client, id, parsed.payload.details);
             await syncProductVariantsForProduct(client, id, parsed.payload, relationState);
             await client.query('COMMIT');
 
@@ -291,7 +288,7 @@ export async function DELETE(req, { params }) {
 
             const productResult = await client.query(
                 `
-                    SELECT id, colors_id, sizes_id, detail_id
+                    SELECT id
                     FROM products
                     WHERE id = $1
                     LIMIT 1
@@ -310,7 +307,6 @@ export async function DELETE(req, { params }) {
                 [id]
             );
 
-            await deleteProductRelations(client, productResult.rows[0]);
             await client.query('COMMIT');
 
             return Response.json({ id: Number(result.rows[0].id) }, { status: 200 });

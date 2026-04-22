@@ -17,18 +17,21 @@ CREATE TABLE IF NOT EXISTS sizes (
 CREATE UNIQUE INDEX IF NOT EXISTS idx_sizes_name_unique
 ON sizes (LOWER(name));
 
-CREATE TABLE IF NOT EXISTS details (
+CREATE TABLE IF NOT EXISTS product_details (
     id SERIAL PRIMARY KEY,
-    detail_key VARCHAR(50) NOT NULL,
-    detail_value TEXT NOT NULL,
+    product_id INT REFERENCES products(id) ON DELETE CASCADE,
+    section VARCHAR(50) NOT NULL,
+    value TEXT NOT NULL,
     display_order INT NOT NULL DEFAULT 0,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
+CREATE INDEX IF NOT EXISTS idx_product_details_product_order
+ON product_details (product_id, section, display_order, id);
+
 ALTER TABLE products
 ADD COLUMN IF NOT EXISTS colors_id INT[] NOT NULL DEFAULT ARRAY[]::INT[],
-ADD COLUMN IF NOT EXISTS sizes_id INT[] NOT NULL DEFAULT ARRAY[]::INT[],
-ADD COLUMN IF NOT EXISTS detail_id INT[] NOT NULL DEFAULT ARRAY[]::INT[];
+ADD COLUMN IF NOT EXISTS sizes_id INT[] NOT NULL DEFAULT ARRAY[]::INT[];
 
 ALTER TABLE products
 ALTER COLUMN colors_id TYPE INT[]
@@ -42,13 +45,6 @@ ALTER COLUMN sizes_id TYPE INT[]
 USING CASE
     WHEN sizes_id IS NULL THEN ARRAY[]::INT[]
     ELSE ARRAY[sizes_id]
-END;
-
-ALTER TABLE products
-ALTER COLUMN detail_id TYPE INT[]
-USING CASE
-    WHEN detail_id IS NULL THEN ARRAY[]::INT[]
-    ELSE ARRAY[detail_id]
 END;
 
 CREATE TABLE IF NOT EXISTS product_variants (
@@ -104,15 +100,16 @@ DROP COLUMN IF EXISTS colors,
 DROP COLUMN IF EXISTS sizes,
 DROP COLUMN IF EXISTS details,
 DROP COLUMN IF EXISTS color_group_id,
-DROP COLUMN IF EXISTS size_group_id;
+DROP COLUMN IF EXISTS size_group_id,
+DROP COLUMN IF EXISTS detail_id;
 
 ALTER TABLE product_variants
 DROP COLUMN IF EXISTS color_name,
 DROP COLUMN IF EXISTS color_hex,
 DROP COLUMN IF EXISTS size_label;
 
+DROP TABLE IF EXISTS details;
 DROP TABLE IF EXISTS product_colors;
 DROP TABLE IF EXISTS product_sizes;
 DROP TABLE IF EXISTS product_color_groups;
 DROP TABLE IF EXISTS product_size_groups;
-DROP TABLE IF EXISTS product_details;

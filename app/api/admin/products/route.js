@@ -17,6 +17,7 @@ import {
     normalizeProductRow,
     parseProductFormData,
     prepareProductRelations,
+    replaceProductDetailsForProduct,
     syncProductVariantsForProduct,
 } from '../../../../lib/admin/products.js';
 
@@ -199,11 +200,10 @@ export async function POST(req) {
                         image,
                         brand,
                         colors_id,
-                        sizes_id,
-                        detail_id
+                        sizes_id
                     )
-                    VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
-                    RETURNING id, sub_category_id, title, description, sku, price, image, brand, colors_id, sizes_id, detail_id, created_at
+                    VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+                    RETURNING id, sub_category_id, title, description, sku, price, image, brand, colors_id, sizes_id, created_at
                 `,
                 [
                     parsed.payload.subcategory_id,
@@ -215,8 +215,13 @@ export async function POST(req) {
                     parsed.payload.brand,
                     relationState.colors_id,
                     relationState.sizes_id,
-                    relationState.detail_id,
                 ]
+            );
+
+            await replaceProductDetailsForProduct(
+                client,
+                Number(createdProduct.rows[0].id),
+                parsed.payload.details
             );
 
             await syncProductVariantsForProduct(

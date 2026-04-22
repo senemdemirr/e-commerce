@@ -8,10 +8,40 @@ import {
     SurfaceCard,
 } from './ProductFormPrimitives';
 
+function normalizeLookupKey(value = '') {
+    return String(value || '').trim().toLocaleLowerCase('tr-TR');
+}
+
+function buildAvailableColorOptions(options, rows, currentValue) {
+    const currentKey = normalizeLookupKey(currentValue);
+    const selectedKeys = new Set(
+        rows
+            .map((row) => normalizeLookupKey(row?.name))
+            .filter(Boolean)
+            .filter((key) => key !== currentKey)
+    );
+
+    return options.filter((option) => !selectedKeys.has(normalizeLookupKey(option?.name)));
+}
+
+function buildAvailableStringOptions(options, rows, currentValue) {
+    const currentKey = normalizeLookupKey(currentValue);
+    const selectedKeys = new Set(
+        rows
+            .map((row) => normalizeLookupKey(row))
+            .filter(Boolean)
+            .filter((key) => key !== currentKey)
+    );
+
+    return options.filter((option) => !selectedKeys.has(normalizeLookupKey(option)));
+}
+
 export default function ProductVariationsSection({
     colors,
+    colorLookupOptions = [],
     normalizedColors,
     sizes,
+    sizeLookupOptions = [],
     normalizedSizes,
     variants,
     normalizedVariants,
@@ -28,6 +58,9 @@ export default function ProductVariationsSection({
     onGenerateVariants,
     onSetDefaultVariant,
 }) {
+    const canAddColorRow = !disabled && colorLookupOptions.length > 0 && colors.length < colorLookupOptions.length;
+    const canAddSizeRow = !disabled && sizeLookupOptions.length > 0 && sizes.length < sizeLookupOptions.length;
+
     return (
         <SurfaceCard className="p-6 sm:p-8">
             <SectionIntro
@@ -44,7 +77,7 @@ export default function ProductVariationsSection({
                         <Button
                             type="button"
                             onClick={onAddColor}
-                            disabled={disabled}
+                            disabled={!canAddColorRow}
                             className="!rounded-2xl !bg-primary/10 !px-4 !py-2 !text-xs !font-bold !normal-case !text-primary-dark hover:!bg-primary/20"
                         >
                             Add Color Row
@@ -55,23 +88,34 @@ export default function ProductVariationsSection({
                         {colors.map((color, index) => (
                             <div
                                 key={`color-${index}`}
-                                className="grid gap-3 rounded-[24px] border border-primary/10 bg-background-light p-4 md:grid-cols-[minmax(0,1fr)_120px_auto]"
+                                className="grid gap-3 rounded-[24px] border border-primary/10 bg-background-light p-4 md:grid-cols-[minmax(0,1fr)_140px_auto]"
                             >
-                                <Input
-                                    value={color.name}
-                                    onChange={(event) => onColorChange(index, 'name', event.target.value)}
-                                    disabled={disabled}
-                                    placeholder="e.g. Sand Beige"
-                                />
-                                <div className="flex items-center gap-3 rounded-2xl border border-primary/10 bg-white px-3">
-                                    <input
-                                        type="color"
-                                        value={color.hex}
-                                        onChange={(event) => onColorChange(index, 'hex', event.target.value)}
-                                        disabled={disabled}
-                                        className="h-8 w-8 cursor-pointer border-0 bg-transparent p-0 disabled:cursor-not-allowed"
-                                    />
-                                    <span className="text-sm font-bold text-text-main">{color.hex.toUpperCase()}</span>
+                                <Field label="Saved color">
+                                    <Select
+                                        value={color.name}
+                                        onChange={(event) => onColorChange(index, 'name', event.target.value)}
+                                        disabled={disabled || colorLookupOptions.length === 0}
+                                    >
+                                        <option value="">
+                                            {colorLookupOptions.length > 0 ? 'Select color' : 'No saved color'}
+                                        </option>
+                                        {buildAvailableColorOptions(colorLookupOptions, colors, color.name).map((option) => (
+                                            <option key={`${option.name}-${option.hex}`} value={option.name}>
+                                                {option.name}
+                                            </option>
+                                        ))}
+                                    </Select>
+                                </Field>
+                                <div className="flex items-end">
+                                    <div className="flex h-12 w-full items-center gap-3 rounded-2xl border border-primary/10 bg-white px-3">
+                                        <span
+                                            className="h-7 w-7 rounded-full border border-primary/10"
+                                            style={{ backgroundColor: color.hex || '#111827' }}
+                                        />
+                                        <span className="text-sm font-bold text-text-main">
+                                            {(color.hex || '#111827').toUpperCase()}
+                                        </span>
+                                    </div>
                                 </div>
                                 <Button
                                     type="button"
@@ -84,6 +128,12 @@ export default function ProductVariationsSection({
                             </div>
                         ))}
                     </div>
+
+                    <p className="mt-3 text-xs font-medium text-text-muted">
+                        {colorLookupOptions.length > 0
+                            ? `${colorLookupOptions.length} unique color values are available in the dropdown.`
+                            : 'No saved color lookup exists yet.'}
+                    </p>
                 </div>
 
                 <div>
@@ -92,7 +142,7 @@ export default function ProductVariationsSection({
                         <Button
                             type="button"
                             onClick={onAddSize}
-                            disabled={disabled}
+                            disabled={!canAddSizeRow}
                             className="!rounded-2xl !bg-secondary/20 !px-4 !py-2 !text-xs !font-bold !normal-case !text-text-main hover:!bg-secondary/30"
                         >
                             Add Size Row
@@ -105,12 +155,22 @@ export default function ProductVariationsSection({
                                 key={`size-${index}`}
                                 className="grid gap-3 rounded-[24px] border border-primary/10 bg-background-light p-4 md:grid-cols-[minmax(0,1fr)_auto]"
                             >
-                                <Input
-                                    value={size}
-                                    onChange={(event) => onSizeChange(index, event.target.value)}
-                                    disabled={disabled}
-                                    placeholder="e.g. XS"
-                                />
+                                <Field label="Saved size">
+                                    <Select
+                                        value={size}
+                                        onChange={(event) => onSizeChange(index, event.target.value)}
+                                        disabled={disabled || sizeLookupOptions.length === 0}
+                                    >
+                                        <option value="">
+                                            {sizeLookupOptions.length > 0 ? 'Select size' : 'No saved size'}
+                                        </option>
+                                        {buildAvailableStringOptions(sizeLookupOptions, sizes, size).map((option) => (
+                                            <option key={option} value={option}>
+                                                {option}
+                                            </option>
+                                        ))}
+                                    </Select>
+                                </Field>
                                 <Button
                                     type="button"
                                     onClick={() => onRemoveSize(index)}
@@ -136,6 +196,12 @@ export default function ProductVariationsSection({
                             </p>
                         )}
                     </div>
+
+                    <p className="mt-3 text-xs font-medium text-text-muted">
+                        {sizeLookupOptions.length > 0
+                            ? `${sizeLookupOptions.length} unique size values are available in the dropdown.`
+                            : 'No saved size lookup exists yet.'}
+                    </p>
                 </div>
             </div>
 

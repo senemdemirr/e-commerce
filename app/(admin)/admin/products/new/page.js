@@ -31,10 +31,14 @@ import {
 import {
     buildVariantMatrix,
     createEmptyColor,
+    createEmptyProductLookups,
     createEmptySize,
     createEmptyTextRow,
     createEmptyVariant,
     createSku,
+    findLookupColor,
+    findLookupValue,
+    normalizeProductLookups,
     normalizeVariantPayload,
 } from '@/lib/admin/product-editor';
 import { useAdminSession } from '@/context/AdminSessionContext';
@@ -47,7 +51,6 @@ const INITIAL_FORM = {
     description: '',
     categoryId: '',
     subcategoryId: '',
-    material: '',
     descriptionLong: '',
 };
 
@@ -63,11 +66,13 @@ export default function NewProductPage() {
     const [form, setForm] = useState(INITIAL_FORM);
     const [colors, setColors] = useState([createEmptyColor()]);
     const [sizes, setSizes] = useState([createEmptySize()]);
+    const [materialItems, setMaterialItems] = useState([createEmptyTextRow()]);
     const [careItems, setCareItems] = useState([createEmptyTextRow()]);
     const [bulletPointItems, setBulletPointItems] = useState([createEmptyTextRow()]);
     const [variants, setVariants] = useState([createEmptyVariant()]);
     const [imageFile, setImageFile] = useState(null);
     const [imagePreview, setImagePreview] = useState('');
+    const [lookupOptions, setLookupOptions] = useState(() => createEmptyProductLookups());
     const [errors, setErrors] = useState({});
 
     useEffect(() => {
@@ -161,6 +166,41 @@ export default function NewProductPage() {
     }, [enqueueSnackbar]);
 
     useEffect(() => {
+        let active = true;
+
+        async function loadLookupOptions() {
+            try {
+                const response = await fetch('/api/admin/products/lookups', {
+                    headers: { role: 'admin' },
+                });
+                const data = await response.json().catch(() => createEmptyProductLookups());
+
+                if (!active) {
+                    return;
+                }
+
+                if (!response.ok) {
+                    throw new Error(data?.error || 'Product lookups could not be loaded.');
+                }
+
+                setLookupOptions(normalizeProductLookups(data));
+            } catch {
+                if (!active) {
+                    return;
+                }
+
+                setLookupOptions(createEmptyProductLookups());
+            }
+        }
+
+        loadLookupOptions();
+
+        return () => {
+            active = false;
+        };
+    }, []);
+
+    useEffect(() => {
         if (!imageFile) {
             setImagePreview('');
             return undefined;
@@ -196,6 +236,9 @@ export default function NewProductPage() {
         form.sku.trim(),
         form.price.trim()
     );
+    const normalizedMaterials = materialItems
+        .map((item) => String(item || '').trim())
+        .filter(Boolean);
     const normalizedCare = careItems
         .map((item) => String(item || '').trim())
         .filter(Boolean);
@@ -203,10 +246,10 @@ export default function NewProductPage() {
         .map((item) => String(item || '').trim())
         .filter(Boolean);
     const details = {
-        material: form.material.trim(),
+        material: normalizedMaterials,
         care: normalizedCare,
-        bullet_points: normalizedBulletPoints,
-        description_long: form.descriptionLong.trim(),
+        bullet_point: normalizedBulletPoints,
+        description_long: form.descriptionLong.trim() ? [form.descriptionLong.trim()] : [],
     };
 
     const score = getCatalogScore({
@@ -225,7 +268,7 @@ export default function NewProductPage() {
         { label: 'Price and category selected', done: Boolean(form.price && form.subcategoryId) },
         { label: 'Color or size variation added', done: normalizedColors.length > 0 || normalizedSizes.length > 0 },
         { label: 'Variant matrix configured', done: normalizedVariants.length > 0 },
-        { label: 'Detail layer completed', done: Boolean(details.material || normalizedCare.length || normalizedBulletPoints.length || details.description_long) },
+        { label: 'Detail layer completed', done: Boolean(normalizedMaterials.length || normalizedCare.length || normalizedBulletPoints.length || details.description_long.length) },
     ];
 
     const publicPath = selectedCategory?.slug && selectedSubcategory?.slug && form.sku
@@ -293,7 +336,21 @@ export default function NewProductPage() {
     function handleColorChange(index, key, value) {
         setColors((current) => current.map((color, colorIndex) => (
             colorIndex === index
-                ? { ...color, [key]: value }
+                ? (() => {
+                    if (key !== 'name') {
+                        return { ...color, [key]: value };
+                    }
+
+                    if (!String(value || '').trim()) {
+                        return createEmptyColor();
+                    }
+
+                    const matchedColor = findLookupColor(lookupOptions.colors, value);
+
+                    return matchedColor
+                        ? { ...color, name: matchedColor.name, hex: matchedColor.hex }
+                        : { ...color, name: value };
+                })()
                 : color
         )));
     }
@@ -307,8 +364,10 @@ export default function NewProductPage() {
     }
 
     function handleSizeChange(index, value) {
+        const matchedSize = findLookupValue(lookupOptions.sizes, value);
+
         setSizes((current) => current.map((size, sizeIndex) => (
-            sizeIndex === index ? value : size
+            sizeIndex === index ? (matchedSize || value) : size
         )));
     }
 
@@ -317,6 +376,20 @@ export default function NewProductPage() {
             current.length === 1
                 ? [createEmptySize()]
                 : current.filter((_, sizeIndex) => sizeIndex !== index)
+        ));
+    }
+
+    function handleMaterialItemChange(index, value) {
+        setMaterialItems((current) => current.map((item, itemIndex) => (
+            itemIndex === index ? value : item
+        )));
+    }
+
+    function handleRemoveMaterialItem(index) {
+        setMaterialItems((current) => (
+            current.length === 1
+                ? [createEmptyTextRow()]
+                : current.filter((_, itemIndex) => itemIndex !== index)
         ));
     }
 
@@ -397,6 +470,7 @@ export default function NewProductPage() {
         });
         setColors([createEmptyColor()]);
         setSizes([createEmptySize()]);
+        setMaterialItems([createEmptyTextRow()]);
         setCareItems([createEmptyTextRow()]);
         setBulletPointItems([createEmptyTextRow()]);
         setVariants([createEmptyVariant()]);
@@ -570,8 +644,10 @@ export default function NewProductPage() {
 
                     <ProductVariationsSection
                         colors={colors}
+                        colorLookupOptions={lookupOptions.colors}
                         normalizedColors={normalizedColors}
                         sizes={sizes}
+                        sizeLookupOptions={lookupOptions.sizes}
                         normalizedSizes={normalizedSizes}
                         variants={variants}
                         normalizedVariants={normalizedVariants}
@@ -589,13 +665,16 @@ export default function NewProductPage() {
                     />
 
                     <ProductContentSection
-                        materialValue={form.material}
+                        materialItems={materialItems}
                         careItems={careItems}
                         bulletPointItems={bulletPointItems}
+                        normalizedMaterials={normalizedMaterials}
                         normalizedCare={normalizedCare}
                         normalizedBulletPoints={normalizedBulletPoints}
                         descriptionLongValue={form.descriptionLong}
-                        onMaterialChange={(event) => updateForm('material', event.target.value)}
+                        onAddMaterialItem={() => setMaterialItems((current) => [...current, createEmptyTextRow()])}
+                        onMaterialItemChange={handleMaterialItemChange}
+                        onRemoveMaterialItem={handleRemoveMaterialItem}
                         onAddCareItem={() => setCareItems((current) => [...current, createEmptyTextRow()])}
                         onCareItemChange={handleCareItemChange}
                         onRemoveCareItem={handleRemoveCareItem}
@@ -740,7 +819,7 @@ export default function NewProductPage() {
                                         <span className="text-xs font-black uppercase tracking-[0.16em]">Detail</span>
                                     </div>
                                     <p className="mt-3 text-2xl font-black text-text-main">
-                                        {[details.material, normalizedCare.length, normalizedBulletPoints.length, details.description_long].filter(Boolean).length}
+                                        [normalizedMaterials.length, normalizedCare.length, normalizedBulletPoints.length, details.description_long.length].filter(Boolean).length
                                     </p>
                                 </div>
                             </div>

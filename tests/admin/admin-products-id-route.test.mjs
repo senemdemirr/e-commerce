@@ -24,14 +24,14 @@ describe('Admin Product ID Route', () => {
             ['sizes', JSON.stringify(['S', 'M', 'L'])],
             ['details', JSON.stringify({
                 care: ["Machine wash cold", "Tumble dry low", "Iron low heat"],
-                material: "100% Organic Cotton",
-                bullet_points: [
+                material: ["100% Organic Cotton"],
+                bullet_point: [
                     "100% Sustainable Organic Cotton",
                     "Natural dyes used",
                     "Classic fit",
                     "Reinforced seams"
                 ],
-                description_long: "A sustainable and stylish choice for your daily wardrobe. Made from premium organic cotton for maximum breathability and comfort."
+                description_long: ["A sustainable and stylish choice for your daily wardrobe. Made from premium organic cotton for maximum breathability and comfort."]
             })],
             ['image', { name: 'test.png', size: 1024 * 1024, type: 'image/png', arrayBuffer: async () => new ArrayBuffer(10) }]
         ]);
@@ -272,9 +272,9 @@ describe('Admin Product ID Route', () => {
         const req = createMockRequest({ 
             details: JSON.stringify({ 
                 care: "String gönderiyoruz ama dizi (array) olmalı", 
-                material: "Cotton", 
-                bullet_points: ["Point 1", "Point 2"], 
-                description_long: "Açıklama" 
+                material: ["Cotton"], 
+                bullet_point: ["Point 1", "Point 2"], 
+                description_long: ["Açıklama"] 
             }) 
         }, [], 'superadmin');
         const response = await PUT(req, { params: { id: '1' } });
