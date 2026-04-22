@@ -11,10 +11,10 @@ import WarningAmberRoundedIcon from '@mui/icons-material/WarningAmberRounded';
 
 export default function ConfirmDialog({
     open,
-    title = 'Emin misiniz?',
-    description = 'Bu islem geri alinamaz.',
-    confirmText = 'Onayla',
-    cancelText = 'Vazgec',
+    title = 'Are you sure?',
+    description = 'This action cannot be undone.',
+    confirmText = 'Confirm',
+    cancelText = 'Cancel',
     loading = false,
     onClose,
     onConfirm,
