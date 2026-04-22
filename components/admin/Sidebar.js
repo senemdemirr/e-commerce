@@ -9,6 +9,7 @@ import InventoryIcon from '@mui/icons-material/Inventory';
 import CategoryIcon from '@mui/icons-material/Category';
 import AccountTreeIcon from '@mui/icons-material/AccountTree';
 import PaletteRoundedIcon from '@mui/icons-material/PaletteRounded';
+import StraightenRoundedIcon from '@mui/icons-material/StraightenRounded';
 import SettingsIcon from '@mui/icons-material/Settings';
 import Image from 'next/image';
 
@@ -20,6 +21,7 @@ const Sidebar = () => {
         { name: 'Orders', path: '/admin/orders', icon: <ShoppingCartIcon sx={{ fontSize: 20 }} /> },
         { name: 'Products', path: '/admin/products', icon: <InventoryIcon sx={{ fontSize: 20 }} /> },
         { name: 'Colors', path: '/admin/colors', icon: <PaletteRoundedIcon sx={{ fontSize: 20 }} /> },
+        { name: 'Sizes', path: '/admin/sizes', icon: <StraightenRoundedIcon sx={{ fontSize: 20 }} /> },
         { name: 'Categories', path: '/admin/categories', icon: <CategoryIcon sx={{ fontSize: 20 }} /> },
         { name: 'Sub Categories', path: '/admin/subcategories', icon: <AccountTreeIcon sx={{ fontSize: 20 }} /> },
         { name: 'Customers', path: '/admin/customers', icon: <PeopleIcon sx={{ fontSize: 20 }} /> },
