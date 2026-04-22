@@ -276,6 +276,12 @@ export default function NewProductPage() {
         bullet_point: normalizedBulletPoints,
         description_long: form.descriptionLong.trim() ? [form.descriptionLong.trim()] : [],
     };
+    const detailSectionCount = [
+        normalizedMaterials.length,
+        normalizedCare.length,
+        normalizedBulletPoints.length,
+        details.description_long.length,
+    ].filter(Boolean).length;
 
     const score = getCatalogScore({
         image: imagePreview,
@@ -907,9 +913,7 @@ export default function NewProductPage() {
                                         <AutoAwesomeRoundedIcon className="!text-lg" />
                                         <span className="text-xs font-black uppercase tracking-[0.16em]">Detail</span>
                                     </div>
-                                    <p className="mt-3 text-2xl font-black text-text-main">
-                                        [normalizedMaterials.length, normalizedCare.length, normalizedBulletPoints.length, details.description_long.length].filter(Boolean).length
-                                    </p>
+                                    <p className="mt-3 text-2xl font-black text-text-main">{detailSectionCount}</p>
                                 </div>
                             </div>
 
