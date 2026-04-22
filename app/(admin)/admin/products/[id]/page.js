@@ -16,6 +16,7 @@ import SaveRoundedIcon from '@mui/icons-material/SaveRounded';
 import StraightenRoundedIcon from '@mui/icons-material/StraightenRounded';
 import WarningAmberRoundedIcon from '@mui/icons-material/WarningAmberRounded';
 import { useSnackbar } from 'notistack';
+import ColorForm from '@/components/admin/ColorForm';
 import ReadOnlyNotice from '@/components/admin/ReadOnlyNotice';
 import ProductCategoryFlowSection from '@/components/admin/products/ProductCategoryFlowSection';
 import ProductContentSection from '@/components/admin/products/ProductContentSection';
@@ -40,6 +41,7 @@ import {
     createSku,
     findLookupColor,
     findLookupValue,
+    mergeColorLookupOptions,
     normalizeProductLookups,
     normalizeColorRows,
     normalizeSizeRows,
@@ -47,6 +49,7 @@ import {
     normalizeVariantPayload,
     normalizeVariantRows,
 } from '@/lib/admin/product-editor';
+import { normalizeColorRecord } from '@/lib/admin/colors';
 import { useAdminSession } from '@/context/AdminSessionContext';
 
 const INITIAL_FORM = {
@@ -59,6 +62,25 @@ const INITIAL_FORM = {
     subcategoryId: '',
     descriptionLong: '',
 };
+
+function applyCreatedColorToRows(rows, targetIndex, color) {
+    const nextColor = {
+        name: String(color?.name || '').trim(),
+        hex: String(color?.hex || '#111827').trim() || '#111827',
+    };
+
+    if (!nextColor.name) {
+        return rows;
+    }
+
+    if (!Number.isInteger(targetIndex) || targetIndex < 0 || targetIndex >= rows.length) {
+        return [...rows, nextColor];
+    }
+
+    return rows.map((row, index) => (
+        index === targetIndex ? nextColor : row
+    ));
+}
 
 function normalizeCategories(categoriesData = [], subcategoriesData = [], currentIds = {}) {
     const currentCategoryId = Number(currentIds.categoryId || 0);
@@ -159,6 +181,9 @@ export default function ProductDetailPage() {
     const [storedImagePreview, setStoredImagePreview] = useState('');
     const [uploadedImagePreview, setUploadedImagePreview] = useState('');
     const [lookupOptions, setLookupOptions] = useState(() => createEmptyProductLookups());
+    const [colorFormOpen, setColorFormOpen] = useState(false);
+    const [colorFormSubmitting, setColorFormSubmitting] = useState(false);
+    const [colorCreateTargetIndex, setColorCreateTargetIndex] = useState(null);
     const [errors, setErrors] = useState({});
     const [productMeta, setProductMeta] = useState({ id: 0, createdAt: null });
     const [initialDraft, setInitialDraft] = useState(null);
@@ -458,6 +483,68 @@ export default function ProductDetailPage() {
                 ? [createEmptyColor()]
                 : current.filter((_, colorIndex) => colorIndex !== index)
         ));
+    }
+
+    function openColorCreateModal(index) {
+        if (!canMutate) {
+            enqueueSnackbar('Only superadmin can create colors.', { variant: 'warning' });
+            return;
+        }
+
+        setColorCreateTargetIndex(index);
+        setColorFormOpen(true);
+    }
+
+    function closeColorCreateModal() {
+        if (colorFormSubmitting) {
+            return;
+        }
+
+        setColorFormOpen(false);
+        setColorCreateTargetIndex(null);
+    }
+
+    async function handleCreateColor(payload) {
+        if (!canMutate) {
+            enqueueSnackbar('Only superadmin can create colors.', { variant: 'warning' });
+            return;
+        }
+
+        const targetIndex = colorCreateTargetIndex;
+
+        try {
+            setColorFormSubmitting(true);
+
+            const response = await fetch('/api/admin/colors', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    role: 'admin',
+                },
+                body: JSON.stringify(payload),
+            });
+            const data = await response.json().catch(() => null);
+
+            if (!response.ok) {
+                throw new Error(data?.error || 'Color could not be created.');
+            }
+
+            const createdColor = normalizeColorRecord(data);
+
+            setLookupOptions((current) => ({
+                ...current,
+                colors: mergeColorLookupOptions(current.colors, createdColor),
+            }));
+            setColors((current) => applyCreatedColorToRows(current, targetIndex, createdColor));
+
+            enqueueSnackbar('Color created and selected.', { variant: 'success' });
+            setColorFormOpen(false);
+            setColorCreateTargetIndex(null);
+        } catch (error) {
+            enqueueSnackbar(error.message || 'Color could not be created.', { variant: 'error' });
+        } finally {
+            setColorFormSubmitting(false);
+        }
     }
 
     function handleSizeChange(index, value) {
@@ -887,6 +974,7 @@ export default function ProductDetailPage() {
                         disabled={!canMutate}
                         onAddColor={() => setColors((current) => [...current, createEmptyColor()])}
                         onColorChange={handleColorChange}
+                        onOpenCreateColor={openColorCreateModal}
                         onRemoveColor={handleRemoveColor}
                         onAddSize={() => setSizes((current) => [...current, createEmptySize()])}
                         onSizeChange={handleSizeChange}
@@ -1146,6 +1234,15 @@ export default function ProductDetailPage() {
                 loading={deleting}
                 onClose={closeDeleteDialog}
                 onConfirm={confirmDelete}
+            />
+
+            <ColorForm
+                open={colorFormOpen}
+                mode="create"
+                initialValues={null}
+                submitting={colorFormSubmitting}
+                onClose={closeColorCreateModal}
+                onSubmit={handleCreateColor}
             />
         </form>
     );

@@ -1,4 +1,5 @@
 import ViewInArRoundedIcon from '@mui/icons-material/ViewInArRounded';
+import AddRoundedIcon from '@mui/icons-material/AddRounded';
 import { Button, Chip } from '@mui/material';
 import {
     Field,
@@ -48,6 +49,7 @@ export default function ProductVariationsSection({
     disabled = false,
     onAddColor,
     onColorChange,
+    onOpenCreateColor,
     onRemoveColor,
     onAddSize,
     onSizeChange,
@@ -60,6 +62,7 @@ export default function ProductVariationsSection({
 }) {
     const canAddColorRow = !disabled && colorLookupOptions.length > 0 && colors.length < colorLookupOptions.length;
     const canAddSizeRow = !disabled && sizeLookupOptions.length > 0 && sizes.length < sizeLookupOptions.length;
+    const canQuickCreateColor = typeof onOpenCreateColor === 'function';
 
     return (
         <SurfaceCard className="p-6 sm:p-8">
@@ -90,22 +93,39 @@ export default function ProductVariationsSection({
                                 key={`color-${index}`}
                                 className="grid gap-3 rounded-[24px] border border-primary/10 bg-background-light p-4 md:grid-cols-[minmax(0,1fr)_140px_auto]"
                             >
-                                <Field label="Saved color">
-                                    <Select
-                                        value={color.name}
-                                        onChange={(event) => onColorChange(index, 'name', event.target.value)}
-                                        disabled={disabled || colorLookupOptions.length === 0}
-                                    >
-                                        <option value="">
-                                            {colorLookupOptions.length > 0 ? 'Select color' : 'No saved color'}
-                                        </option>
-                                        {buildAvailableColorOptions(colorLookupOptions, colors, color.name).map((option) => (
-                                            <option key={`${option.name}-${option.hex}`} value={option.name}>
-                                                {option.name}
+                                <div className="grid gap-3 md:grid-cols-[minmax(0,1fr)_auto]">
+                                    <Field label="Saved color">
+                                        <Select
+                                            value={color.name}
+                                            onChange={(event) => onColorChange(index, 'name', event.target.value)}
+                                            disabled={disabled || colorLookupOptions.length === 0}
+                                        >
+                                            <option value="">
+                                                {colorLookupOptions.length > 0 ? 'Select color' : 'No saved color'}
                                             </option>
-                                        ))}
-                                    </Select>
-                                </Field>
+                                            {buildAvailableColorOptions(colorLookupOptions, colors, color.name).map((option) => (
+                                                <option key={`${option.name}-${option.hex}`} value={option.name}>
+                                                    {option.name}
+                                                </option>
+                                            ))}
+                                        </Select>
+                                    </Field>
+
+                                    {canQuickCreateColor ? (
+                                        <div className="flex items-end">
+                                            <Button
+                                                type="button"
+                                                onClick={() => onOpenCreateColor(index)}
+                                                disabled={disabled}
+                                                title="Create color"
+                                                aria-label="Create color"
+                                                className="!size-12 !min-w-0 !rounded-2xl !border !border-primary/10 !bg-white !p-0 !text-primary-dark hover:!bg-primary/5"
+                                            >
+                                                <AddRoundedIcon className="!text-lg" />
+                                            </Button>
+                                        </div>
+                                    ) : null}
+                                </div>
                                 <div className="flex items-end">
                                     <div className="flex h-12 w-full items-center gap-3 rounded-2xl border border-primary/10 bg-white px-3">
                                         <span

@@ -14,6 +14,7 @@ import PublishRoundedIcon from '@mui/icons-material/PublishRounded';
 import RestartAltRoundedIcon from '@mui/icons-material/RestartAltRounded';
 import StraightenRoundedIcon from '@mui/icons-material/StraightenRounded';
 import { useSnackbar } from 'notistack';
+import ColorForm from '@/components/admin/ColorForm';
 import ReadOnlyNotice from '@/components/admin/ReadOnlyNotice';
 import ProductCategoryFlowSection from '@/components/admin/products/ProductCategoryFlowSection';
 import ProductContentSection from '@/components/admin/products/ProductContentSection';
@@ -38,9 +39,11 @@ import {
     createSku,
     findLookupColor,
     findLookupValue,
+    mergeColorLookupOptions,
     normalizeProductLookups,
     normalizeVariantPayload,
 } from '@/lib/admin/product-editor';
+import { normalizeColorRecord } from '@/lib/admin/colors';
 import { useAdminSession } from '@/context/AdminSessionContext';
 
 const INITIAL_FORM = {
@@ -53,6 +56,25 @@ const INITIAL_FORM = {
     subcategoryId: '',
     descriptionLong: '',
 };
+
+function applyCreatedColorToRows(rows, targetIndex, color) {
+    const nextColor = {
+        name: String(color?.name || '').trim(),
+        hex: String(color?.hex || '#111827').trim() || '#111827',
+    };
+
+    if (!nextColor.name) {
+        return rows;
+    }
+
+    if (!Number.isInteger(targetIndex) || targetIndex < 0 || targetIndex >= rows.length) {
+        return [...rows, nextColor];
+    }
+
+    return rows.map((row, index) => (
+        index === targetIndex ? nextColor : row
+    ));
+}
 
 export default function NewProductPage() {
     const router = useRouter();
@@ -73,6 +95,9 @@ export default function NewProductPage() {
     const [imageFile, setImageFile] = useState(null);
     const [imagePreview, setImagePreview] = useState('');
     const [lookupOptions, setLookupOptions] = useState(() => createEmptyProductLookups());
+    const [colorFormOpen, setColorFormOpen] = useState(false);
+    const [colorFormSubmitting, setColorFormSubmitting] = useState(false);
+    const [colorCreateTargetIndex, setColorCreateTargetIndex] = useState(null);
     const [errors, setErrors] = useState({});
 
     useEffect(() => {
@@ -363,6 +388,68 @@ export default function NewProductPage() {
         ));
     }
 
+    function openColorCreateModal(index) {
+        if (!canMutate) {
+            enqueueSnackbar('Only superadmin can create colors.', { variant: 'warning' });
+            return;
+        }
+
+        setColorCreateTargetIndex(index);
+        setColorFormOpen(true);
+    }
+
+    function closeColorCreateModal() {
+        if (colorFormSubmitting) {
+            return;
+        }
+
+        setColorFormOpen(false);
+        setColorCreateTargetIndex(null);
+    }
+
+    async function handleCreateColor(payload) {
+        if (!canMutate) {
+            enqueueSnackbar('Only superadmin can create colors.', { variant: 'warning' });
+            return;
+        }
+
+        const targetIndex = colorCreateTargetIndex;
+
+        try {
+            setColorFormSubmitting(true);
+
+            const response = await fetch('/api/admin/colors', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    role: 'admin',
+                },
+                body: JSON.stringify(payload),
+            });
+            const data = await response.json().catch(() => null);
+
+            if (!response.ok) {
+                throw new Error(data?.error || 'Color could not be created.');
+            }
+
+            const createdColor = normalizeColorRecord(data);
+
+            setLookupOptions((current) => ({
+                ...current,
+                colors: mergeColorLookupOptions(current.colors, createdColor),
+            }));
+            setColors((current) => applyCreatedColorToRows(current, targetIndex, createdColor));
+
+            enqueueSnackbar('Color created and selected.', { variant: 'success' });
+            setColorFormOpen(false);
+            setColorCreateTargetIndex(null);
+        } catch (error) {
+            enqueueSnackbar(error.message || 'Color could not be created.', { variant: 'error' });
+        } finally {
+            setColorFormSubmitting(false);
+        }
+    }
+
     function handleSizeChange(index, value) {
         const matchedSize = findLookupValue(lookupOptions.sizes, value);
 
@@ -579,90 +666,92 @@ export default function NewProductPage() {
     }
 
     return (
-        <form onSubmit={handleSubmit} className="space-y-8 pb-10">
-            <SurfaceCard className="!relative overflow-hidden">
-                <div className="absolute -left-10 top-0 h-40 w-40 rounded-full bg-primary/15 blur-3xl" />
-                <div className="absolute right-0 top-0 h-56 w-56 rounded-full bg-accent/20 blur-3xl" />
-                <div className="absolute bottom-0 left-1/3 h-28 w-28 rounded-full bg-secondary/20 blur-2xl" />
+        <>
+            <form onSubmit={handleSubmit} className="space-y-8 pb-10">
+                <SurfaceCard className="!relative overflow-hidden">
+                    <div className="absolute -left-10 top-0 h-40 w-40 rounded-full bg-primary/15 blur-3xl" />
+                    <div className="absolute right-0 top-0 h-56 w-56 rounded-full bg-accent/20 blur-3xl" />
+                    <div className="absolute bottom-0 left-1/3 h-28 w-28 rounded-full bg-secondary/20 blur-2xl" />
 
-                <div className="relative flex flex-col gap-6 p-6 sm:p-8 xl:flex-row xl:items-end xl:justify-between">
-                    <div className="max-w-3xl">
-                        <h1 className="mt-5 font-display text-4xl font-black tracking-tight text-text-main">
-                            Shape the new product entry before it reaches the storefront
-                        </h1>
-                        <p className="mt-4 max-w-2xl text-sm leading-7 text-text-muted sm:text-base">
-                            This screen is more than data entry. It helps you place the product, gauge variation
-                            depth, and see storefront readiness at the same time so the catalog starts cleaner.
-                        </p>
+                    <div className="relative flex flex-col gap-6 p-6 sm:p-8 xl:flex-row xl:items-end xl:justify-between">
+                        <div className="max-w-3xl">
+                            <h1 className="mt-5 font-display text-4xl font-black tracking-tight text-text-main">
+                                Shape the new product entry before it reaches the storefront
+                            </h1>
+                            <p className="mt-4 max-w-2xl text-sm leading-7 text-text-muted sm:text-base">
+                                This screen is more than data entry. It helps you place the product, gauge variation
+                                depth, and see storefront readiness at the same time so the catalog starts cleaner.
+                            </p>
+                        </div>
+
+                        <div className="flex flex-wrap gap-3">
+                            <Button
+                                type="button"
+                                onClick={handleReset}
+                                startIcon={<RestartAltRoundedIcon />}
+                                className="!rounded-2xl !border !border-primary/10 !bg-white !px-5 !py-3 !font-semibold !normal-case !text-text-main hover:!bg-background-light"
+                            >
+                                Clear Form
+                            </Button>
+                            <Button
+                                type="submit"
+                                disabled={submitting || !selectedSubcategory || !!loadError}
+                                startIcon={<PublishRoundedIcon />}
+                                className="!rounded-2xl !bg-primary !px-5 !py-3 !font-bold !normal-case !text-text-main hover:!bg-primary-dark hover:!text-white disabled:!bg-primary/40 disabled:!text-text-main/70"
+                            >
+                                {submitting ? 'Creating...' : 'Create Product'}
+                            </Button>
+                        </div>
                     </div>
+                </SurfaceCard>
 
-                    <div className="flex flex-wrap gap-3">
-                        <Button
-                            type="button"
-                            onClick={handleReset}
-                            startIcon={<RestartAltRoundedIcon />}
-                            className="!rounded-2xl !border !border-primary/10 !bg-white !px-5 !py-3 !font-semibold !normal-case !text-text-main hover:!bg-background-light"
-                        >
-                            Clear Form
-                        </Button>
-                        <Button
-                            type="submit"
-                            disabled={submitting || !selectedSubcategory || !!loadError}
-                            startIcon={<PublishRoundedIcon />}
-                            className="!rounded-2xl !bg-primary !px-5 !py-3 !font-bold !normal-case !text-text-main hover:!bg-primary-dark hover:!text-white disabled:!bg-primary/40 disabled:!text-text-main/70"
-                        >
-                            {submitting ? 'Creating...' : 'Create Product'}
-                        </Button>
-                    </div>
-                </div>
-            </SurfaceCard>
+                <div className="grid gap-8 xl:grid-cols-[minmax(0,1fr)_360px]">
+                    <div className="space-y-6">
+                        <ProductGeneralInfoSection
+                            values={form}
+                            errors={errors}
+                            onTitleChange={handleTitleChange}
+                            onBrandChange={(event) => updateForm('brand', event.target.value)}
+                            onSkuChange={handleSkuChange}
+                            onPriceChange={(event) => updateForm('price', event.target.value)}
+                            onDescriptionChange={(event) => updateForm('description', event.target.value)}
+                        />
 
-            <div className="grid gap-8 xl:grid-cols-[minmax(0,1fr)_360px]">
-                <div className="space-y-6">
-                    <ProductGeneralInfoSection
-                        values={form}
-                        errors={errors}
-                        onTitleChange={handleTitleChange}
-                        onBrandChange={(event) => updateForm('brand', event.target.value)}
-                        onSkuChange={handleSkuChange}
-                        onPriceChange={(event) => updateForm('price', event.target.value)}
-                        onDescriptionChange={(event) => updateForm('description', event.target.value)}
-                    />
+                        <ProductCategoryFlowSection
+                            loadError={loadError}
+                            categories={categories}
+                            selectedCategory={selectedCategory}
+                            selectedSubcategory={selectedSubcategory}
+                            availableSubcategories={availableSubcategories}
+                            errors={errors}
+                            categoryId={form.categoryId}
+                            subcategoryId={form.subcategoryId}
+                            onCategoryChange={(event) => handleCategorySelect(event.target.value)}
+                            onSubcategoryChange={(event) => handleSubcategorySelect(event.target.value)}
+                        />
 
-                    <ProductCategoryFlowSection
-                        loadError={loadError}
-                        categories={categories}
-                        selectedCategory={selectedCategory}
-                        selectedSubcategory={selectedSubcategory}
-                        availableSubcategories={availableSubcategories}
-                        errors={errors}
-                        categoryId={form.categoryId}
-                        subcategoryId={form.subcategoryId}
-                        onCategoryChange={(event) => handleCategorySelect(event.target.value)}
-                        onSubcategoryChange={(event) => handleSubcategorySelect(event.target.value)}
-                    />
-
-                    <ProductVariationsSection
-                        colors={colors}
-                        colorLookupOptions={lookupOptions.colors}
-                        normalizedColors={normalizedColors}
-                        sizes={sizes}
-                        sizeLookupOptions={lookupOptions.sizes}
-                        normalizedSizes={normalizedSizes}
-                        variants={variants}
-                        normalizedVariants={normalizedVariants}
-                        onAddColor={() => setColors((current) => [...current, createEmptyColor()])}
-                        onColorChange={handleColorChange}
-                        onRemoveColor={handleRemoveColor}
-                        onAddSize={() => setSizes((current) => [...current, createEmptySize()])}
-                        onSizeChange={handleSizeChange}
-                        onRemoveSize={handleRemoveSize}
-                        onAddVariant={() => setVariants((current) => [...current, createEmptyVariant({ price: form.price.trim() })])}
-                        onVariantChange={handleVariantChange}
-                        onRemoveVariant={handleRemoveVariant}
-                        onGenerateVariants={handleGenerateVariants}
-                        onSetDefaultVariant={handleSetDefaultVariant}
-                    />
+                        <ProductVariationsSection
+                            colors={colors}
+                            colorLookupOptions={lookupOptions.colors}
+                            normalizedColors={normalizedColors}
+                            sizes={sizes}
+                            sizeLookupOptions={lookupOptions.sizes}
+                            normalizedSizes={normalizedSizes}
+                            variants={variants}
+                            normalizedVariants={normalizedVariants}
+                            onAddColor={() => setColors((current) => [...current, createEmptyColor()])}
+                            onColorChange={handleColorChange}
+                            onOpenCreateColor={openColorCreateModal}
+                            onRemoveColor={handleRemoveColor}
+                            onAddSize={() => setSizes((current) => [...current, createEmptySize()])}
+                            onSizeChange={handleSizeChange}
+                            onRemoveSize={handleRemoveSize}
+                            onAddVariant={() => setVariants((current) => [...current, createEmptyVariant({ price: form.price.trim() })])}
+                            onVariantChange={handleVariantChange}
+                            onRemoveVariant={handleRemoveVariant}
+                            onGenerateVariants={handleGenerateVariants}
+                            onSetDefaultVariant={handleSetDefaultVariant}
+                        />
 
                     <ProductContentSection
                         materialItems={materialItems}
@@ -910,7 +999,17 @@ export default function NewProductPage() {
                         </div>
                     </SurfaceCard>
                 </aside>
-            </div>
-        </form>
+                </div>
+            </form>
+
+            <ColorForm
+                open={colorFormOpen}
+                mode="create"
+                initialValues={null}
+                submitting={colorFormSubmitting}
+                onClose={closeColorCreateModal}
+                onSubmit={handleCreateColor}
+            />
+        </>
     );
 }
