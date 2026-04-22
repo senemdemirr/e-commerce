@@ -210,8 +210,10 @@ export default function ProductDetailClient({ product }) {
     const activeVariant = variants.length > 0
         ? findMatchingVariant(variants, selectedColor.name, selectedSize)
         : null;
+    const activeStock = variants.length > 0 ? Number(activeVariant?.stock || 0) : null;
     const displayPrice = activeVariant?.price ?? Number(product?.price || 0);
-    const isInStock = variants.length > 0 ? Number(activeVariant?.stock || 0) > 0 : true;
+    const isInStock = variants.length > 0 ? activeStock > 0 : true;
+    const showLowStockMessage = variants.length > 0 && activeStock > 0 && activeStock < 10;
 
     const scrollToReviews = () => {
         setTabValue(1);
@@ -501,6 +503,11 @@ export default function ProductDetailClient({ product }) {
                                     {isInStock ? 'In Stock.' : 'Out of Stock.'} <span className="font-medium text-text-dark dark:text-white">Free shipping</span> (over 1000₺)
                                 </span>
                             </div>
+                            {showLowStockMessage && (
+                                <div className="inline-flex items-center self-start rounded-full bg-[#fff4e8] px-3 py-1 text-sm font-semibold text-[#b45309]">
+                                    Last {activeStock} product{activeStock === 1 ? '' : 's'}
+                                </div>
+                            )}
                         </div>
                     </div>
                 </div>

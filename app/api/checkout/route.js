@@ -38,6 +38,33 @@ function retrieveBankNameFromBin(binNumber, conversationId) {
     });
 }
 
+function getVariantStockIssue(items = []) {
+    for (const item of items) {
+        if (!item?.variant_id) {
+            continue;
+        }
+
+        const requestedQuantity = Number(item.quantity || 0);
+        const availableStock = Number(item.variant_stock || 0);
+
+        if (availableStock <= 0) {
+            return {
+                message: `${item.title} is out of stock for the selected variant.`,
+                status: 400,
+            };
+        }
+
+        if (requestedQuantity > availableStock) {
+            return {
+                message: `${item.title} only has ${availableStock} item(s) left for the selected variant.`,
+                status: 400,
+            };
+        }
+    }
+
+    return null;
+}
+
 // POST - Process checkout and create order
 export async function POST(request) {
     try {
@@ -129,7 +156,7 @@ export async function POST(request) {
 
         // Get cart items
         const itemsResult = await pool.query(
-            `SELECT ci.*, p.title, p.price, p.sku, pv.sku AS variant_sku
+            `SELECT ci.*, p.title, p.price, p.sku, pv.sku AS variant_sku, pv.stock AS variant_stock
              FROM cart_items ci 
              JOIN products p ON ci.product_id = p.id 
              LEFT JOIN product_variants pv ON pv.id = ci.variant_id
@@ -145,6 +172,14 @@ export async function POST(request) {
         }
 
         const items = itemsResult.rows;
+        const stockIssue = getVariantStockIssue(items);
+
+        if (stockIssue) {
+            return NextResponse.json(
+                { message: stockIssue.message },
+                { status: stockIssue.status }
+            );
+        }
 
         // Calculate totals
         const subtotal = items.reduce((acc, item) => acc + (Number(item.unit_price) * item.quantity), 0);
@@ -317,117 +352,153 @@ export async function POST(request) {
                             result.conversationId || orderNumber
                         )
                         || "Unknown";
+                    let client;
 
-                    // Payment successful - Create order in database
-                    const orderResult = await pool.query(
-                        `INSERT INTO orders 
-                         (user_id, order_number, status, subtotal, shipping_cost, total_amount,
-                          shipping_address_id, shipping_full_name, shipping_phone, shipping_address,
-                          shipping_city, shipping_district, shipping_postal_code,
-                          payment_method, payment_status, iyzico_payment_id, iyzico_conversation_id,
-                          card_mask, card_family, card_bank)
-                         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20)
-                         RETURNING *`,
-                        [
-                            user.id,
-                            orderNumber,
-                            8,
-                            subtotal,
-                            shippingCost,
-                            totalAmount,
-                            shipping_address_id,
-                            `${shippingAddress.recipient_first_name} ${shippingAddress.recipient_last_name}`,
-                            shippingAddress.recipient_phone,
-                            shippingAddress.address_line,
-                            shippingAddress.city_name,
-                            shippingAddress.district_name,
-                            "34000",
-                            'credit_card',
-                            'completed',
-                            result.paymentId,
-                            result.conversationId,
-                            `${result.binNumber} **** ${result.lastFourDigits}`,
-                            result.cardFamily || result.cardAssociation,
-                            resolvedCardBankName
-                        ]
-                    );
-
-                    const order = orderResult.rows[0];
-
-                    // Create order items
-                    for (const item of items) {
-                        await pool.query(
-                            `INSERT INTO order_items 
-                             (order_id, product_id, product_title, product_sku, quantity, 
-                              unit_price, total_price, selected_size, selected_color, selected_color_hex, variant_id)
-                             VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)`,
-                            [
-                                order.id,
-                                item.product_id,
-                                item.title,
-                                item.variant_sku || item.sku,
-                                item.quantity,
-                                item.unit_price,
-                                Number(item.unit_price) * item.quantity,
-                                item.selected_size,
-                                item.selected_color,
-                                item.selected_color_hex,
-                                item.variant_id || null
-                            ]
-                        );
-                    }
-
-                    // Save card token if requested
                     if (shouldSaveCard && result.cardToken) {
                         await ensurePaymentCardSchema();
+                    }
 
-                        if (result.cardUserKey) {
-                            await pool.query(
-                                `UPDATE payment_cards
-                                 SET card_user_key = $1
-                                 WHERE user_id = $2
-                                   AND (card_user_key IS NULL OR card_user_key = '')`,
-                                [result.cardUserKey, user.id]
+                    client = await pool.connect();
+
+                    try {
+                        await client.query('BEGIN');
+
+                        for (const item of items) {
+                            if (!item.variant_id) {
+                                continue;
+                            }
+
+                            const stockUpdateResult = await client.query(
+                                `
+                                    UPDATE product_variants
+                                    SET stock = stock - $1
+                                    WHERE id = $2
+                                      AND stock >= $1
+                                    RETURNING id, stock
+                                `,
+                                [item.quantity, item.variant_id]
+                            );
+
+                            if (stockUpdateResult.rowCount === 0) {
+                                throw new Error(`Insufficient stock for variant ${item.variant_id}`);
+                            }
+                        }
+
+                        // Payment successful - Create order in database
+                        const orderResult = await client.query(
+                            `INSERT INTO orders 
+                             (user_id, order_number, status, subtotal, shipping_cost, total_amount,
+                              shipping_address_id, shipping_full_name, shipping_phone, shipping_address,
+                              shipping_city, shipping_district, shipping_postal_code,
+                              payment_method, payment_status, iyzico_payment_id, iyzico_conversation_id,
+                              card_mask, card_family, card_bank)
+                             VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20)
+                             RETURNING *`,
+                            [
+                                user.id,
+                                orderNumber,
+                                8,
+                                subtotal,
+                                shippingCost,
+                                totalAmount,
+                                shipping_address_id,
+                                `${shippingAddress.recipient_first_name} ${shippingAddress.recipient_last_name}`,
+                                shippingAddress.recipient_phone,
+                                shippingAddress.address_line,
+                                shippingAddress.city_name,
+                                shippingAddress.district_name,
+                                "34000",
+                                'credit_card',
+                                'completed',
+                                result.paymentId,
+                                result.conversationId,
+                                `${result.binNumber} **** ${result.lastFourDigits}`,
+                                result.cardFamily || result.cardAssociation,
+                                resolvedCardBankName
+                            ]
+                        );
+
+                        const order = orderResult.rows[0];
+
+                        // Create order items
+                        for (const item of items) {
+                            await client.query(
+                                `INSERT INTO order_items 
+                                 (order_id, product_id, product_title, product_sku, quantity, 
+                                  unit_price, total_price, selected_size, selected_color, selected_color_hex, variant_id)
+                                 VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)`,
+                                [
+                                    order.id,
+                                    item.product_id,
+                                    item.title,
+                                    item.variant_sku || item.sku,
+                                    item.quantity,
+                                    item.unit_price,
+                                    Number(item.unit_price) * item.quantity,
+                                    item.selected_size,
+                                    item.selected_color,
+                                    item.selected_color_hex,
+                                    item.variant_id || null
+                                ]
                             );
                         }
 
-                        const cardMask = result.binNumber && result.lastFourDigits
-                            ? `${result.binNumber} **** ${result.lastFourDigits}`
-                            : `**** **** **** ${sanitizedCardNumber.slice(-4)}`;
-
-                        await pool.query(
-                            `INSERT INTO payment_cards 
-                             (user_id, card_holder_name, card_token, card_user_key, card_alias, card_family, card_bank_name, card_mask, is_default)
-                             VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)`,
-                            [
-                                user.id,
-                                card_holder_name,
-                                result.cardToken,
-                                result.cardUserKey || null,
-                                result.cardAssociation || `Card ending in ${sanitizedCardNumber.slice(-4)}`,
-                                result.cardFamily || 'Unknown',
-                                resolvedCardBankName,
-                                cardMask,
-                                false
-                            ]
-                        );
-                    }
-
-                    // Clear cart
-                    await pool.query("DELETE FROM cart_items WHERE cart_id = $1", [cart.id]);
-                    await pool.query("UPDATE carts SET status = 'completed' WHERE id = $1", [cart.id]);
-
-                    resolve(NextResponse.json(
-                        {
-                            message: "Order placed successfully",
-                            order: order,
-                            payment: {
-                                paymentId: result.paymentId,
-                                status: result.status
+                        // Save card token if requested
+                        if (shouldSaveCard && result.cardToken) {
+                            if (result.cardUserKey) {
+                                await client.query(
+                                    `UPDATE payment_cards
+                                     SET card_user_key = $1
+                                     WHERE user_id = $2
+                                       AND (card_user_key IS NULL OR card_user_key = '')`,
+                                    [result.cardUserKey, user.id]
+                                );
                             }
-                        },
-                        { status: 200 }
-                    ));
+
+                            const cardMask = result.binNumber && result.lastFourDigits
+                                ? `${result.binNumber} **** ${result.lastFourDigits}`
+                                : `**** **** **** ${sanitizedCardNumber.slice(-4)}`;
+
+                            await client.query(
+                                `INSERT INTO payment_cards 
+                                 (user_id, card_holder_name, card_token, card_user_key, card_alias, card_family, card_bank_name, card_mask, is_default)
+                                 VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)`,
+                                [
+                                    user.id,
+                                    card_holder_name,
+                                    result.cardToken,
+                                    result.cardUserKey || null,
+                                    result.cardAssociation || `Card ending in ${sanitizedCardNumber.slice(-4)}`,
+                                    result.cardFamily || 'Unknown',
+                                    resolvedCardBankName,
+                                    cardMask,
+                                    false
+                                ]
+                            );
+                        }
+
+                        // Clear cart
+                        await client.query("DELETE FROM cart_items WHERE cart_id = $1", [cart.id]);
+                        await client.query("UPDATE carts SET status = 'completed' WHERE id = $1", [cart.id]);
+                        await client.query('COMMIT');
+
+                        resolve(NextResponse.json(
+                            {
+                                message: "Order placed successfully",
+                                order: order,
+                                payment: {
+                                    paymentId: result.paymentId,
+                                    status: result.status
+                                }
+                            },
+                            { status: 200 }
+                        ));
+                    } catch (dbError) {
+                        await client.query('ROLLBACK');
+                        throw dbError;
+                    } finally {
+                        client.release();
+                    }
                 } catch (dbError) {
                     console.error("Database error after payment:", dbError);
                     resolve(NextResponse.json(
