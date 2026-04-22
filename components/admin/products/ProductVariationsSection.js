@@ -1,5 +1,6 @@
 import ViewInArRoundedIcon from '@mui/icons-material/ViewInArRounded';
 import AddRoundedIcon from '@mui/icons-material/AddRounded';
+import DeleteRoundedIcon from '@mui/icons-material/DeleteRounded';
 import { Button, Chip } from '@mui/material';
 import {
     Field,
@@ -75,7 +76,7 @@ export default function ProductVariationsSection({
 
             <div className="mt-8 grid gap-8 lg:grid-cols-[1.1fr_0.9fr]">
                 <div>
-                    <div className="flex items-center justify-between gap-4">
+                    <div className="flex flex-wrap items-center justify-between gap-4">
                         <p className="text-sm font-black text-text-main">Color palette</p>
                         <Button
                             type="button"
@@ -91,25 +92,27 @@ export default function ProductVariationsSection({
                         {colors.map((color, index) => (
                             <div
                                 key={`color-${index}`}
-                                className="grid gap-3 rounded-[24px] border border-primary/10 bg-background-light p-4 md:grid-cols-[minmax(0,1fr)_140px_auto]"
+                                className="grid items-end gap-3 rounded-[24px] border border-primary/10 bg-background-light p-4 lg:grid-cols-[minmax(0,1fr)_minmax(120px,140px)_auto]"
                             >
-                                <div className="grid gap-3 md:grid-cols-[minmax(0,1fr)_auto]">
-                                    <Field label="Saved color">
-                                        <Select
-                                            value={color.name}
-                                            onChange={(event) => onColorChange(index, 'name', event.target.value)}
-                                            disabled={disabled || colorLookupOptions.length === 0}
-                                        >
-                                            <option value="">
-                                                {colorLookupOptions.length > 0 ? 'Select color' : 'No saved color'}
-                                            </option>
-                                            {buildAvailableColorOptions(colorLookupOptions, colors, color.name).map((option) => (
-                                                <option key={`${option.name}-${option.hex}`} value={option.name}>
-                                                    {option.name}
+                                <div className="grid min-w-0 gap-3 sm:grid-cols-[minmax(0,1fr)_auto]">
+                                    <div className="min-w-0">
+                                        <Field label="Saved color">
+                                            <Select
+                                                value={color.name}
+                                                onChange={(event) => onColorChange(index, 'name', event.target.value)}
+                                                disabled={disabled || colorLookupOptions.length === 0}
+                                            >
+                                                <option value="">
+                                                    {colorLookupOptions.length > 0 ? 'Select color' : 'No saved color'}
                                                 </option>
-                                            ))}
-                                        </Select>
-                                    </Field>
+                                                {buildAvailableColorOptions(colorLookupOptions, colors, color.name).map((option) => (
+                                                    <option key={`${option.name}-${option.hex}`} value={option.name}>
+                                                        {option.name}
+                                                    </option>
+                                                ))}
+                                            </Select>
+                                        </Field>
+                                    </div>
 
                                     {canQuickCreateColor ? (
                                         <div className="flex items-end">
@@ -126,25 +129,29 @@ export default function ProductVariationsSection({
                                         </div>
                                     ) : null}
                                 </div>
-                                <div className="flex items-end">
-                                    <div className="flex h-12 w-full items-center gap-3 rounded-2xl border border-primary/10 bg-white px-3">
+                                <div className="flex min-w-0 items-end">
+                                    <div className="flex h-12 w-full min-w-0 items-center gap-3 rounded-2xl border border-primary/10 bg-white px-3">
                                         <span
                                             className="h-7 w-7 rounded-full border border-primary/10"
                                             style={{ backgroundColor: color.hex || '#111827' }}
                                         />
-                                        <span className="text-sm font-bold text-text-main">
+                                        <span className="truncate text-sm font-bold text-text-main">
                                             {(color.hex || '#111827').toUpperCase()}
                                         </span>
                                     </div>
                                 </div>
-                                <Button
-                                    type="button"
-                                    onClick={() => onRemoveColor(index)}
-                                    disabled={disabled}
-                                    className="!rounded-2xl !border !border-primary/10 !px-4 !py-2 !text-xs !font-bold !normal-case !text-text-muted hover:!bg-white"
-                                >
-                                    Remove
-                                </Button>
+                                <div className="flex items-end lg:justify-end">
+                                    <Button
+                                        type="button"
+                                        onClick={() => onRemoveColor(index)}
+                                        disabled={disabled}
+                                        title="Delete color row"
+                                        aria-label="Delete color row"
+                                        className="!size-12 !min-w-0 !rounded-2xl !border !border-red-100 !bg-white !p-0 !text-red-500 hover:!bg-red-50"
+                                    >
+                                        <DeleteRoundedIcon className="!text-lg" />
+                                    </Button>
+                                </div>
                             </div>
                         ))}
                     </div>
@@ -157,7 +164,7 @@ export default function ProductVariationsSection({
                 </div>
 
                 <div>
-                    <div className="flex items-center justify-between gap-4">
+                    <div className="flex flex-wrap items-center justify-between gap-4">
                         <p className="text-sm font-black text-text-main">Size set</p>
                         <Button
                             type="button"
@@ -173,32 +180,38 @@ export default function ProductVariationsSection({
                         {sizes.map((size, index) => (
                             <div
                                 key={`size-${index}`}
-                                className="grid gap-3 rounded-[24px] border border-primary/10 bg-background-light p-4 md:grid-cols-[minmax(0,1fr)_auto]"
+                                className="grid items-end gap-3 rounded-[24px] border border-primary/10 bg-background-light p-4 sm:grid-cols-[minmax(0,1fr)_auto]"
                             >
-                                <Field label="Saved size">
-                                    <Select
-                                        value={size}
-                                        onChange={(event) => onSizeChange(index, event.target.value)}
-                                        disabled={disabled || sizeLookupOptions.length === 0}
-                                    >
-                                        <option value="">
-                                            {sizeLookupOptions.length > 0 ? 'Select size' : 'No saved size'}
-                                        </option>
-                                        {buildAvailableStringOptions(sizeLookupOptions, sizes, size).map((option) => (
-                                            <option key={option} value={option}>
-                                                {option}
+                                <div className="min-w-0">
+                                    <Field label="Saved size">
+                                        <Select
+                                            value={size}
+                                            onChange={(event) => onSizeChange(index, event.target.value)}
+                                            disabled={disabled || sizeLookupOptions.length === 0}
+                                        >
+                                            <option value="">
+                                                {sizeLookupOptions.length > 0 ? 'Select size' : 'No saved size'}
                                             </option>
-                                        ))}
-                                    </Select>
-                                </Field>
-                                <Button
-                                    type="button"
-                                    onClick={() => onRemoveSize(index)}
-                                    disabled={disabled}
-                                    className="!rounded-2xl !border !border-primary/10 !px-4 !py-2 !text-xs !font-bold !normal-case !text-text-muted hover:!bg-white"
-                                >
-                                    Remove
-                                </Button>
+                                            {buildAvailableStringOptions(sizeLookupOptions, sizes, size).map((option) => (
+                                                <option key={option} value={option}>
+                                                    {option}
+                                                </option>
+                                            ))}
+                                        </Select>
+                                    </Field>
+                                </div>
+                                <div className="flex items-end sm:justify-end">
+                                    <Button
+                                        type="button"
+                                        onClick={() => onRemoveSize(index)}
+                                        disabled={disabled}
+                                        title="Delete size row"
+                                        aria-label="Delete size row"
+                                        className="!size-12 !min-w-0 !rounded-2xl !border !border-red-100 !bg-white !p-0 !text-red-500 hover:!bg-red-50"
+                                    >
+                                        <DeleteRoundedIcon className="!text-lg" />
+                                    </Button>
+                                </div>
                             </div>
                         ))}
                     </div>
@@ -258,66 +271,76 @@ export default function ProductVariationsSection({
                     {variants.map((variant, index) => (
                         <div
                             key={`variant-${index}`}
-                            className="grid gap-3 rounded-[24px] border border-primary/10 bg-background-light p-4 xl:grid-cols-[180px_140px_minmax(0,1fr)_120px_110px_auto_auto]"
+                            className="grid gap-3 rounded-[24px] border border-primary/10 bg-background-light p-4 md:grid-cols-2 xl:grid-cols-[minmax(0,0.9fr)_minmax(0,0.7fr)_minmax(0,1.2fr)_120px_110px_auto_auto]"
                         >
-                            <Field label="Color">
-                                <Select
-                                    value={variant.colorName}
-                                    onChange={(event) => onVariantChange(index, 'colorName', event.target.value)}
-                                    disabled={disabled}
-                                >
-                                    <option value="">{normalizedColors.length > 0 ? 'Select color' : 'No color option'}</option>
-                                    {normalizedColors.map((color) => (
-                                        <option key={color.name} value={color.name}>
-                                            {color.name}
-                                        </option>
-                                    ))}
-                                </Select>
-                            </Field>
+                            <div className="min-w-0">
+                                <Field label="Color">
+                                    <Select
+                                        value={variant.colorName}
+                                        onChange={(event) => onVariantChange(index, 'colorName', event.target.value)}
+                                        disabled={disabled}
+                                    >
+                                        <option value="">{normalizedColors.length > 0 ? 'Select color' : 'No color option'}</option>
+                                        {normalizedColors.map((color) => (
+                                            <option key={color.name} value={color.name}>
+                                                {color.name}
+                                            </option>
+                                        ))}
+                                    </Select>
+                                </Field>
+                            </div>
 
-                            <Field label="Size">
-                                <Select
-                                    value={variant.sizeLabel}
-                                    onChange={(event) => onVariantChange(index, 'sizeLabel', event.target.value)}
-                                    disabled={disabled}
-                                >
-                                    <option value="">{normalizedSizes.length > 0 ? 'Select size' : 'Single size'}</option>
-                                    {normalizedSizes.map((size) => (
-                                        <option key={size} value={size}>
-                                            {size}
-                                        </option>
-                                    ))}
-                                </Select>
-                            </Field>
+                            <div className="min-w-0">
+                                <Field label="Size">
+                                    <Select
+                                        value={variant.sizeLabel}
+                                        onChange={(event) => onVariantChange(index, 'sizeLabel', event.target.value)}
+                                        disabled={disabled}
+                                    >
+                                        <option value="">{normalizedSizes.length > 0 ? 'Select size' : 'Single size'}</option>
+                                        {normalizedSizes.map((size) => (
+                                            <option key={size} value={size}>
+                                                {size}
+                                            </option>
+                                        ))}
+                                    </Select>
+                                </Field>
+                            </div>
 
-                            <Field label="Variant SKU">
-                                <Input
-                                    value={variant.sku}
-                                    onChange={(event) => onVariantChange(index, 'sku', event.target.value)}
-                                    disabled={disabled}
-                                    placeholder="e.g. HOODIE-BEIGE-M"
-                                />
-                            </Field>
+                            <div className="min-w-0">
+                                <Field label="Variant SKU">
+                                    <Input
+                                        value={variant.sku}
+                                        onChange={(event) => onVariantChange(index, 'sku', event.target.value)}
+                                        disabled={disabled}
+                                        placeholder="e.g. HOODIE-BEIGE-M"
+                                    />
+                                </Field>
+                            </div>
 
-                            <Field label="Price">
-                                <Input
-                                    value={variant.price}
-                                    onChange={(event) => onVariantChange(index, 'price', event.target.value)}
-                                    disabled={disabled}
-                                    inputMode="decimal"
-                                    placeholder="1299.90"
-                                />
-                            </Field>
+                            <div className="min-w-0">
+                                <Field label="Price">
+                                    <Input
+                                        value={variant.price}
+                                        onChange={(event) => onVariantChange(index, 'price', event.target.value)}
+                                        disabled={disabled}
+                                        inputMode="decimal"
+                                        placeholder="1299.90"
+                                    />
+                                </Field>
+                            </div>
 
-                            <Field label="Stock">
-                                <Input
-                                    value={variant.stock}
-                                    onChange={(event) => onVariantChange(index, 'stock', event.target.value)}
-                                    disabled={disabled}
-                                    inputMode="numeric"
-                                    placeholder="0"
-                                />
-                            </Field>
+                            <div className="min-w-0">
+                                <Field label="Stock">
+                                    <Input
+                                        value={variant.stock}
+                                        onChange={(event) => onVariantChange(index, 'stock', event.target.value)}
+                                        disabled={disabled}
+                                        inputMode="numeric"
+                                        placeholder="0"
+                                    />
+                                </Field>
+                            </div>
 
                             <div className="flex items-end">
                                 <Button
@@ -337,9 +360,11 @@ export default function ProductVariationsSection({
                                     type="button"
                                     onClick={() => onRemoveVariant(index)}
                                     disabled={disabled}
-                                    className="!h-12 !rounded-2xl !border !border-red-100 !bg-white !px-4 !text-xs !font-bold !normal-case !text-red-500 hover:!bg-red-50"
+                                    title="Delete variant row"
+                                    aria-label="Delete variant row"
+                                    className="!size-12 !min-w-0 !rounded-2xl !border !border-red-100 !bg-white !p-0 !text-red-500 hover:!bg-red-50"
                                 >
-                                    Remove
+                                    <DeleteRoundedIcon className="!text-lg" />
                                 </Button>
                             </div>
                         </div>

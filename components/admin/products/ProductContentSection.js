@@ -1,4 +1,6 @@
 import AutoAwesomeRoundedIcon from '@mui/icons-material/AutoAwesomeRounded';
+import DeleteRoundedIcon from '@mui/icons-material/DeleteRounded';
+import { IconButton } from '@mui/material';
 import {
     Field,
     Input,
@@ -35,24 +37,29 @@ function DetailRows({
                 {items.map((item, index) => (
                     <div
                         key={`${label}-${index}`}
-                        className="grid gap-3 rounded-[24px] border border-primary/10 bg-background-light p-4 md:grid-cols-[minmax(0,1fr)_auto]"
+                        className="grid items-start gap-3 rounded-[24px] border border-primary/10 bg-background-light p-4 sm:grid-cols-[minmax(0,1fr)_auto]"
                     >
-                        <Field label={`${label} ${index + 1}`}>
-                            <Input
-                                value={item}
-                                onChange={(event) => onChange(index, event.target.value)}
+                        <div className="min-w-0">
+                            <Field label={`${label} ${index + 1}`}>
+                                <Input
+                                    value={item}
+                                    onChange={(event) => onChange(index, event.target.value)}
+                                    disabled={disabled}
+                                    placeholder={placeholder}
+                                />
+                            </Field>
+                        </div>
+                        <div className="flex items-end sm:justify-end">
+                            <IconButton
+                                onClick={() => onRemove(index)}
                                 disabled={disabled}
-                                placeholder={placeholder}
-                            />
-                        </Field>
-                        <button
-                            type="button"
-                            onClick={() => onRemove(index)}
-                            disabled={disabled}
-                            className="rounded-2xl border border-primary/10 bg-white px-4 py-2 text-xs font-bold text-text-muted transition hover:bg-background-light disabled:cursor-not-allowed disabled:opacity-70"
-                        >
-                            Remove
-                        </button>
+                                title={`Delete ${label.toLowerCase()} row`}
+                                aria-label={`Delete ${label.toLowerCase()} row`}
+                                className="!rounded-lg !p-2 !text-slate-400 transition-all hover:!bg-red-50 hover:!text-red-500"
+                            >
+                                <DeleteRoundedIcon className="!text-lg" />
+                            </IconButton>
+                        </div>
                     </div>
                 ))}
             </div>
