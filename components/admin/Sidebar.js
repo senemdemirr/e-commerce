@@ -8,6 +8,7 @@ import PeopleIcon from '@mui/icons-material/People';
 import InventoryIcon from '@mui/icons-material/Inventory';
 import CategoryIcon from '@mui/icons-material/Category';
 import AccountTreeIcon from '@mui/icons-material/AccountTree';
+import CampaignRoundedIcon from '@mui/icons-material/CampaignRounded';
 import PaletteRoundedIcon from '@mui/icons-material/PaletteRounded';
 import StraightenRoundedIcon from '@mui/icons-material/StraightenRounded';
 import SettingsIcon from '@mui/icons-material/Settings';
@@ -20,6 +21,7 @@ const Sidebar = () => {
         { name: 'Dashboard', path: '/admin', icon: <DashboardIcon sx={{ fontSize: 20 }} /> },
         { name: 'Orders', path: '/admin/orders', icon: <ShoppingCartIcon sx={{ fontSize: 20 }} /> },
         { name: 'Products', path: '/admin/products', icon: <InventoryIcon sx={{ fontSize: 20 }} /> },
+        { name: 'Campaigns', path: '/admin/campaigns', icon: <CampaignRoundedIcon sx={{ fontSize: 20 }} /> },
         { name: 'Colors', path: '/admin/colors', icon: <PaletteRoundedIcon sx={{ fontSize: 20 }} /> },
         { name: 'Sizes', path: '/admin/sizes', icon: <StraightenRoundedIcon sx={{ fontSize: 20 }} /> },
         { name: 'Categories', path: '/admin/categories', icon: <CategoryIcon sx={{ fontSize: 20 }} /> },
