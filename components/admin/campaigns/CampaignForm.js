@@ -122,7 +122,7 @@ export default function CampaignForm({
                 className: '!m-4 !w-full !max-w-[760px] !overflow-hidden !rounded-xl !border !border-slate-200 !bg-white !shadow-2xl dark:!border-slate-800 dark:!bg-slate-900',
             }}
         >
-            <form onSubmit={handleSubmit}>
+            <form onSubmit={handleSubmit} className="flex min-h-0 flex-col">
                 <DialogTitle className="!border-b !border-slate-100 !bg-white !p-6 dark:!border-slate-800 dark:!bg-slate-900">
                     <div className="flex items-center justify-between gap-4">
                         <div className="flex items-center gap-3">
@@ -144,7 +144,7 @@ export default function CampaignForm({
                     </div>
                 </DialogTitle>
 
-                <DialogContent className="!p-6">
+                <DialogContent className="!p-6 !overflow-y-auto">
                     <div className="grid gap-5">
                         {error ? (
                             <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm font-semibold text-red-700">
