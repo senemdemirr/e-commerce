@@ -7,7 +7,7 @@ export default function Footer() {
     <footer className="mt-auto w-full border-t border-border-muted bg-border-soft dark:border-gray-800 dark:bg-background-dark">
       <div className="mx-auto grid w-full max-w-[1440px] grid-cols-1 gap-12 px-6 py-16 text-sm leading-6 sm:px-10 md:grid-cols-4">
         <div>
-          <div className="mb-4 text-xl font-bold text-primary">MintShop</div>
+          <div className="mb-4 text-xl font-bold text-primary">IronShop</div>
           <p className="mb-6 text-outline dark:text-gray-400">
             Curating conscious products for a modern, organic lifestyle. Join
             our journey towards sustainability.
