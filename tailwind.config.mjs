@@ -18,6 +18,9 @@ export default {
                 "on-secondary-fixed-variant": "#695548",
                 "accent": "#F0B48C", // Pastel Orange
                 "accent-champagne": "#e8d5c4",
+                "mint-green": "#8dc8a1",
+                "champagne": "#e8d5c4",
+                "soft-green": "#A0C8A0",
                 "surface": "#ffffff",
                 "surface-container-low": "#eef5f0",
                 "surface-container-high": "#eaf1ed",

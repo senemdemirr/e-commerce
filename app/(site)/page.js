@@ -3,44 +3,28 @@ import { Box, Button, Chip, IconButton, Tooltip } from "@mui/material";
 import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 import EnergySavingsLeafIcon from "@mui/icons-material/EnergySavingsLeaf";
+import LocalOfferRoundedIcon from "@mui/icons-material/LocalOfferRounded";
 import PlayCircleOutlineIcon from "@mui/icons-material/PlayCircleOutline";
 import VerifiedUserIcon from "@mui/icons-material/VerifiedUser";
-import { pool } from "@/lib/db";
-import {
-  buildProductRelationsJoins,
-  buildProductRelationsSelect,
-  normalizeProductRow,
-} from "@/lib/products-data";
-import { ensureProductVariantSchema } from "@/lib/productSchema";
+import { fetchHomepageCampaigns, fetchHomepageProducts } from "@/lib/homepage-data";
 
 export const dynamic = "force-dynamic";
-
-async function fetchProducts() {
-  try {
-    await ensureProductVariantSchema();
-
-    const query = `
-      SELECT
-        ${buildProductRelationsSelect("p")},
-        sc.slug AS "subCategorySlug",
-        c.slug AS "categorySlug"
-      FROM products p
-      ${buildProductRelationsJoins("p")}
-      LEFT JOIN sub_categories sc ON p.sub_category_id = sc.id
-      LEFT JOIN categories c ON c.id = sc.category_id
-      ORDER BY p.created_at DESC NULLS LAST, p.id DESC
-    `;
-    const res = await pool.query(query);
-    return res.rows.map((row) => normalizeProductRow(row, { ensureDefaults: false }));
-  } catch (error) {
-    console.error("Failed to fetch homepage products:", error);
-    return [];
-  }
-}
 
 function formatPrice(price) {
   return `${Number(price || 0).toLocaleString("tr-TR", {
     minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  })} TL`;
+}
+
+function formatCampaignDiscount(campaign) {
+  const value = Number(campaign?.discount_value || 0);
+
+  if (campaign?.discount_type === "percent") {
+    return `%${value.toLocaleString("tr-TR", { maximumFractionDigits: 2 })}`;
+  }
+
+  return `${value.toLocaleString("tr-TR", {
     maximumFractionDigits: 2,
   })} TL`;
 }
@@ -134,6 +118,47 @@ function AddProductButton({ product }) {
         <AddCircleOutlineIcon />
       </IconButton>
     </Tooltip>
+  );
+}
+
+function CampaignBar({ campaigns }) {
+  if (!Array.isArray(campaigns) || campaigns.length === 0) {
+    return null;
+  }
+
+  return (
+    <Box component="section" className="-mx-4 border-y border-border-muted bg-white md:-mx-8">
+      <div className="relative mx-auto max-w-[1440px]">
+        <div className="no-scrollbar scrollbar-hide flex items-start gap-9 overflow-x-auto px-4 py-6 sm:px-10">
+          {campaigns.map((campaign) => {
+            const discountLabel = formatCampaignDiscount(campaign);
+
+            return (
+              <Link
+                key={campaign.id || campaign.code}
+                href="#trending-products"
+                prefetch={false}
+                className="group flex min-w-[104px] max-w-[112px] flex-col items-center gap-2.5 text-center"
+                aria-label={`${campaign.title} kampanyası: ${discountLabel} indirim, kod ${campaign.code}`}
+                title={campaign.description || `${discountLabel} indirim - ${campaign.code}`}
+              >
+                <div className="relative flex h-[72px] w-[72px] items-center justify-center rounded-full bg-gradient-to-br from-mint-green to-champagne p-[2px] shadow-[0_8px_18px_rgba(17,24,39,0.10)] transition-transform group-hover:scale-105">
+                  <div className="flex h-full w-full items-center justify-center overflow-hidden rounded-full bg-gradient-to-br from-white to-mint-green/10">
+                    <LocalOfferRoundedIcon className="!text-[34px] text-primary drop-shadow-sm" />
+                  </div>
+                  <span className="absolute -bottom-1 rounded-full bg-primary-container px-2 py-0.5 text-[9px] font-black leading-none text-white shadow-sm">
+                    Aktif
+                  </span>
+                </div>
+                <span className="line-clamp-2 min-h-[32px] text-[13px] font-bold leading-4 text-[#333333]">
+                  {campaign.title}
+                </span>
+              </Link>
+            );
+          })}
+        </div>
+      </div>
+    </Box>
   );
 }
 
@@ -253,22 +278,30 @@ function ProductColorSwatches({ product }) {
 }
 
 export default async function Home() {
-  const products = await fetchProducts();
+  const [products, campaigns] = await Promise.all([
+    fetchHomepageProducts(),
+    fetchHomepageCampaigns(),
+  ]);
   const { heroProduct, campaignProduct, editorProduct, trendingProducts, arrivals } =
     pickHomepageProducts(products);
 
   if (!heroProduct) {
     return (
-      <Box component="section" className="mx-auto max-w-[1440px] px-4 py-20 sm:px-6 lg:px-10">
-        <div className="rounded-3xl bg-white p-12 text-center text-outline">
-          No products found in the catalog.
-        </div>
-      </Box>
+      <>
+        <CampaignBar campaigns={campaigns} />
+        <Box component="section" className="mx-auto max-w-[1440px] px-4 py-20 sm:px-6 lg:px-10">
+          <div className="rounded-3xl bg-white p-12 text-center text-outline">
+            No products found in the catalog.
+          </div>
+        </Box>
+      </>
     );
   }
 
   return (
     <>
+      <CampaignBar campaigns={campaigns} />
+
       <Box component="section" className="mx-auto max-w-[1440px] px-4 py-10 sm:px-6 lg:px-10">
         <div className="group relative min-h-[560px] overflow-hidden rounded-3xl bg-surface-container-low lg:h-[600px]">
           <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/20 to-transparent" />

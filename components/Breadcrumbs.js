@@ -23,7 +23,10 @@ export default function Breadcrumbs() {
         return null;
     }
 
-    let hideHome = pathname === "/" ? true : false;
+    if (pathname === "/") {
+        return null;
+    }
+
     const homeLabel = "Home";
     const segments = pathname.split("/").filter(Boolean);
 
@@ -35,16 +38,14 @@ export default function Breadcrumbs() {
 
     return (
         <MuiBreadcrumbs separator="›" aria-label="breadcrumb" className="!container !mt-4 !mx-auto">
-            {!hideHome && (
-                <Link
-                    component={NextLink}
-                    href="/"
-                    underline="hover"
-                    color="inherit"
-                >
-                    {homeLabel}
-                </Link>
-            )}
+            <Link
+                component={NextLink}
+                href="/"
+                underline="hover"
+                color="inherit"
+            >
+                {homeLabel}
+            </Link>
 
             {crumbs.map((crumb, index) => {
                 const isLast = index === crumbs.length - 1;
