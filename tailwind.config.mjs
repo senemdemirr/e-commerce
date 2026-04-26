@@ -10,9 +10,21 @@ export default {
             colors: {
                 "primary": "#8dc8a1", // Mint Green
                 "primary-dark": "#7ab38e",
+                "primary-container": "#6fa981",
+                "on-primary-container": "#173526",
                 "secondary": "#A0C8A0", // Soft Green
+                "secondary-fixed": "#e8d5c4",
+                "on-secondary-container": "#3b2a20",
+                "on-secondary-fixed-variant": "#695548",
                 "accent": "#F0B48C", // Pastel Orange
                 "accent-champagne": "#e8d5c4",
+                "surface": "#ffffff",
+                "surface-container-low": "#eef5f0",
+                "surface-container-high": "#eaf1ed",
+                "on-surface": "#131614",
+                "outline": "#6d7e73",
+                "border-soft": "#f1f3f2",
+                "border-muted": "#e2e4e3",
                 "text-dark": "#131614",
                 "background-light": "#f8f9fa",
                 "background-light-admin": "#f6f7f7",
@@ -51,6 +63,9 @@ export default {
             boxShadow: {
                 'invoice': '0 25px 50px -12px rgba(0, 0, 0, 0.25)', // Explicit rgba for PDF
                 'primary-glow': '0 10px 15px -3px rgba(141, 200, 161, 0.2)' // Explicit rgba
+            },
+            spacing: {
+                "gutter": "1.5rem",
             },
         },
     },
