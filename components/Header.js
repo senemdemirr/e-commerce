@@ -24,6 +24,7 @@ export default async function Header() {
                             width={100}
                             height={40}
                             className="cursor-pointer"
+                            style={{ width: "auto", height: "auto" }}
                             priority
                         />
                     </Link>
@@ -38,6 +39,7 @@ export default async function Header() {
                             width={130}
                             height={50}
                             className="cursor-pointer"
+                            style={{ width: "auto", height: "auto" }}
                             priority
                         />
                     </Link>

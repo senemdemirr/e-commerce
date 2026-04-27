@@ -127,37 +127,36 @@ function CampaignBar({ campaigns }) {
   }
 
   return (
-    <Box component="section" className="-mx-4 border-y border-border-muted bg-white md:-mx-8">
-      <div className="relative mx-auto max-w-[1440px]">
-        <div className="no-scrollbar scrollbar-hide flex items-start gap-9 overflow-x-auto px-4 py-6 sm:px-10">
-          {campaigns.map((campaign) => {
-            const discountLabel = formatCampaignDiscount(campaign);
+    <Box component="section" className="container mx-auto pt-4">
+      <div className="no-scrollbar scrollbar-hide flex items-start gap-9 overflow-x-auto">
+        {campaigns.map((campaign) => {
+          const discountLabel = formatCampaignDiscount(campaign);
 
-            return (
-              <Link
-                key={campaign.id || campaign.code}
-                href="#trending-products"
-                prefetch={false}
-                className="group flex min-w-[104px] max-w-[112px] flex-col items-center gap-2.5 text-center"
-                aria-label={`${campaign.title} kampanyası: ${discountLabel} indirim, kod ${campaign.code}`}
-                title={campaign.description || `${discountLabel} indirim - ${campaign.code}`}
-              >
-                <div className="relative flex h-[72px] w-[72px] items-center justify-center rounded-full bg-gradient-to-br from-mint-green to-champagne p-[2px] shadow-[0_8px_18px_rgba(17,24,39,0.10)] transition-transform group-hover:scale-105">
-                  <div className="flex h-full w-full items-center justify-center overflow-hidden rounded-full bg-gradient-to-br from-white to-mint-green/10">
-                    <LocalOfferRoundedIcon className="!text-[34px] text-primary drop-shadow-sm" />
-                  </div>
-                  <span className="absolute -bottom-1 rounded-full bg-primary-container px-2 py-0.5 text-[9px] font-black leading-none text-white shadow-sm">
-                    Aktif
-                  </span>
+          return (
+            <Link
+              key={campaign.id || campaign.code}
+              href="#trending-products"
+              prefetch={false}
+              className="group flex min-w-[104px] max-w-[112px] flex-col items-center gap-2.5 text-center"
+              aria-label={`${campaign.title} kampanyası: ${discountLabel} indirim, kod ${campaign.code}`}
+              title={campaign.description || `${discountLabel} indirim - ${campaign.code}`}
+            >
+              <div className="relative flex h-[72px] w-[72px] items-center justify-center rounded-full bg-gradient-to-br from-mint-green to-champagne p-[2px] shadow-[0_8px_18px_rgba(17,24,39,0.10)] transition-transform group-hover:scale-105">
+                <div className="flex h-full w-full items-center justify-center overflow-hidden rounded-full bg-gradient-to-br from-white to-mint-green/10">
+                  <LocalOfferRoundedIcon className="!text-[34px] text-primary drop-shadow-sm" />
                 </div>
-                <span className="line-clamp-2 min-h-[32px] text-[13px] font-bold leading-4 text-[#333333]">
-                  {campaign.title}
+                <span className="absolute -bottom-1 rounded-full bg-primary-container px-2 py-0.5 text-[9px] font-black leading-none text-white shadow-sm">
+                  Aktif
                 </span>
-              </Link>
-            );
-          })}
-        </div>
+              </div>
+              <span className="line-clamp-2 min-h-[32px] text-[13px] font-bold leading-4 text-[#333333]">
+                {campaign.title}
+              </span>
+            </Link>
+          );
+        })}
       </div>
+
     </Box>
   );
 }
