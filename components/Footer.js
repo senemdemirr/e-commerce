@@ -4,8 +4,8 @@ import PublicIcon from "@mui/icons-material/Public";
 
 export default function Footer() {
   return (
-    <footer className="mt-auto w-full border-t border-border-muted bg-border-soft dark:border-gray-800 dark:bg-background-dark">
-      <div className="mx-auto grid w-full max-w-[1440px] grid-cols-1 gap-12 px-6 py-16 text-sm leading-6 sm:px-10 md:grid-cols-4">
+    <footer className="w-full border-t border-border-muted bg-border-soft dark:border-gray-800 dark:bg-background-dark">
+      <div className="container mx-auto grid w-full grid-cols-1 gap-12 px-6 py-16 text-sm leading-6 sm:px-10 md:grid-cols-4">
         <div>
           <div className="mb-4 text-xl font-bold text-primary">IronShop</div>
           <p className="mb-6 text-outline dark:text-gray-400">
@@ -94,7 +94,7 @@ export default function Footer() {
           </div>
         </div>
       </div>
-      <div className="mx-auto flex max-w-[1440px] flex-col items-center justify-between gap-4 border-t border-border-muted px-6 py-8 sm:px-10 md:flex-row">
+      <div className="flex flex-col items-center justify-between gap-4 border-t border-border-muted px-6 py-8 sm:px-10 md:flex-row">
         <p className="text-xs text-outline">
           © 2026 IronEcommerce. Conscious Living. All Rights Reserved.
         </p>
