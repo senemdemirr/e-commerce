@@ -5,7 +5,7 @@ import ChevronLeftRoundedIcon from '@mui/icons-material/ChevronLeftRounded';
 import ChevronRightRoundedIcon from '@mui/icons-material/ChevronRightRounded';
 import DeleteRoundedIcon from '@mui/icons-material/DeleteRounded';
 import EditRoundedIcon from '@mui/icons-material/EditRounded';
-import { formatCampaignDateTime } from '@/lib/admin/campaigns';
+import { formatCampaignDateTime, getCampaignUsageSummary } from '@/lib/admin/campaigns';
 
 function formatNumber(value) {
     return Number(value || 0).toLocaleString('en-US');
@@ -117,93 +117,102 @@ export default function CampaignsTable({
                                             </div>
                                         </td>
                                     </tr>
-                                ) : visibleCampaigns.map((campaign) => (
-                                    <tr
-                                        key={campaign.id}
-                                        className="group transition-colors hover:bg-slate-50/80 dark:hover:bg-slate-800/30"
-                                    >
-                                        <td className="min-w-[260px] px-6 py-5">
-                                            <div>
-                                                <div className="text-base font-bold text-slate-900 dark:text-white">
-                                                    {campaign.title}
-                                                </div>
-                                                <div className="mt-1 font-mono text-xs font-bold text-primary">
-                                                    {campaign.code}
-                                                </div>
-                                                {campaign.description ? (
-                                                    <div className="mt-2 max-w-md text-sm text-slate-500">
-                                                        {campaign.description}
+                                ) : visibleCampaigns.map((campaign) => {
+                                    const usage = getCampaignUsageSummary(campaign);
+
+                                    return (
+                                        <tr
+                                            key={campaign.id}
+                                            className="group transition-colors hover:bg-slate-50/80 dark:hover:bg-slate-800/30"
+                                        >
+                                            <td className="min-w-[260px] px-6 py-5">
+                                                <div>
+                                                    <div className="text-base font-bold text-slate-900 dark:text-white">
+                                                        {campaign.title}
                                                     </div>
-                                                ) : null}
-                                            </div>
-                                        </td>
+                                                    <div className="mt-1 font-mono text-xs font-bold text-primary">
+                                                        {campaign.code}
+                                                    </div>
+                                                    {campaign.description ? (
+                                                        <div className="mt-2 max-w-md text-sm text-slate-500">
+                                                            {campaign.description}
+                                                        </div>
+                                                    ) : null}
+                                                </div>
+                                            </td>
 
-                                        <td className="px-6 py-5">
-                                            <div className="text-sm font-black text-slate-900 dark:text-white">
-                                                {formatDiscount(campaign)}
-                                            </div>
-                                            <div className="mt-1 text-xs font-semibold uppercase tracking-wider text-slate-400">
-                                                {campaign.discount_type === 'percent' ? 'Percent' : 'Fixed Amount'}
-                                            </div>
-                                        </td>
+                                            <td className="px-6 py-5">
+                                                <div className="text-sm font-black text-slate-900 dark:text-white">
+                                                    {formatDiscount(campaign)}
+                                                </div>
+                                                <div className="mt-1 text-xs font-semibold uppercase tracking-wider text-slate-400">
+                                                    {campaign.discount_type === 'percent' ? 'Percent' : 'Fixed Amount'}
+                                                </div>
+                                            </td>
 
-                                        <td className="min-w-[220px] px-6 py-5">
-                                            <div className="text-xs font-semibold text-slate-600 dark:text-slate-400">
-                                                Starts: {formatCampaignDateTime(campaign.starts_at)}
-                                            </div>
-                                            <div className="mt-1 text-xs font-semibold text-slate-600 dark:text-slate-400">
-                                                Ends: {formatCampaignDateTime(campaign.ends_at)}
-                                            </div>
-                                        </td>
+                                            <td className="min-w-[220px] px-6 py-5">
+                                                <div className="text-xs font-semibold text-slate-600 dark:text-slate-400">
+                                                    Starts: {formatCampaignDateTime(campaign.starts_at)}
+                                                </div>
+                                                <div className="mt-1 text-xs font-semibold text-slate-600 dark:text-slate-400">
+                                                    Ends: {formatCampaignDateTime(campaign.ends_at)}
+                                                </div>
+                                            </td>
 
-                                        <td className="px-6 py-5">
-                                            <div className="text-sm font-bold text-slate-700 dark:text-slate-300">
-                                                {formatNumber(campaign.used_count)}
-                                                {campaign.usage_limit ? ` / ${formatNumber(campaign.usage_limit)}` : ''}
-                                            </div>
-                                            <div className="mt-1 text-xs font-semibold text-slate-400">
-                                                redemptions
-                                            </div>
-                                        </td>
+                                            <td className="px-6 py-5">
+                                                <div className="text-sm font-bold text-slate-700 dark:text-slate-300">
+                                                    {usage.hasLimit
+                                                        ? `${formatNumber(usage.usedCount)} / ${formatNumber(usage.usageLimit)}`
+                                                        : formatNumber(usage.usedCount)}
+                                                </div>
+                                                <div className="mt-1 text-xs font-semibold text-slate-400">
+                                                    {usage.hasLimit
+                                                        ? (usage.remainingCount === 0
+                                                            ? 'Limit reached'
+                                                            : `${formatNumber(usage.remainingCount)} left`)
+                                                        : 'Unlimited usage'}
+                                                </div>
+                                            </td>
 
-                                        <td className="px-6 py-5">
-                                            <div className="flex justify-center">
-                                                <span className={`flex items-center gap-1 rounded-full px-3 py-1 text-[10px] font-black uppercase tracking-wider ${statusClassName(campaign.status)}`}>
-                                                    <span className={`size-1.5 rounded-full ${statusDotClassName(campaign.status)}`} />
-                                                    {campaign.status}
-                                                </span>
-                                            </div>
-                                        </td>
-
-                                        <td className="px-6 py-5 text-right">
-                                            <div className="flex justify-end gap-2">
-                                                {canMutate ? (
-                                                    <>
-                                                        <IconButton
-                                                            onClick={() => onEdit(campaign)}
-                                                            title="Edit"
-                                                            className="!rounded-lg !p-2 !text-slate-400 transition-all hover:!bg-primary/5 hover:!text-primary"
-                                                        >
-                                                            <EditRoundedIcon className="!text-lg" />
-                                                        </IconButton>
-
-                                                        <IconButton
-                                                            onClick={() => onDelete(campaign)}
-                                                            title={campaign.is_used ? 'This campaign has redemptions' : 'Delete'}
-                                                            className="!rounded-lg !p-2 !text-slate-400 transition-all hover:!bg-red-50 hover:!text-red-500"
-                                                        >
-                                                            <DeleteRoundedIcon className="!text-lg" />
-                                                        </IconButton>
-                                                    </>
-                                                ) : (
-                                                    <span className="text-xs font-bold uppercase tracking-wider text-slate-400">
-                                                        Read only
+                                            <td className="px-6 py-5">
+                                                <div className="flex justify-center">
+                                                    <span className={`flex items-center gap-1 rounded-full px-3 py-1 text-[10px] font-black uppercase tracking-wider ${statusClassName(campaign.status)}`}>
+                                                        <span className={`size-1.5 rounded-full ${statusDotClassName(campaign.status)}`} />
+                                                        {campaign.status}
                                                     </span>
-                                                )}
-                                            </div>
-                                        </td>
-                                    </tr>
-                                ))}
+                                                </div>
+                                            </td>
+
+                                            <td className="px-6 py-5 text-right">
+                                                <div className="flex justify-end gap-2">
+                                                    {canMutate ? (
+                                                        <>
+                                                            <IconButton
+                                                                onClick={() => onEdit(campaign)}
+                                                                title="Edit"
+                                                                className="!rounded-lg !p-2 !text-slate-400 transition-all hover:!bg-primary/5 hover:!text-primary"
+                                                            >
+                                                                <EditRoundedIcon className="!text-lg" />
+                                                            </IconButton>
+
+                                                            <IconButton
+                                                                onClick={() => onDelete(campaign)}
+                                                                title={campaign.is_used ? 'This campaign has redemptions' : 'Delete'}
+                                                                className="!rounded-lg !p-2 !text-slate-400 transition-all hover:!bg-red-50 hover:!text-red-500"
+                                                            >
+                                                                <DeleteRoundedIcon className="!text-lg" />
+                                                            </IconButton>
+                                                        </>
+                                                    ) : (
+                                                        <span className="text-xs font-bold uppercase tracking-wider text-slate-400">
+                                                            Read only
+                                                        </span>
+                                                    )}
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    );
+                                })}
                             </tbody>
                         </table>
                     </div>

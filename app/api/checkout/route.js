@@ -14,7 +14,11 @@ import {
     normalizeCampaignRecord,
     roundMoney,
 } from "@/lib/admin/campaigns";
-import { isAdminTestMode, listFallbackCampaignRecords } from "@/lib/admin/test-data";
+import {
+    incrementFallbackCampaignUsage,
+    isAdminTestMode,
+    listFallbackCampaignRecords,
+} from "@/lib/admin/test-data";
 
 function retrieveBankNameFromBin(binNumber, conversationId) {
     return new Promise((resolve) => {
@@ -530,6 +534,36 @@ export async function POST(request) {
                         );
 
                         const order = orderResult.rows[0];
+                        let updatedCampaignUsage = null;
+
+                        if (campaign) {
+                            if (isAdminTestMode()) {
+                                updatedCampaignUsage = incrementFallbackCampaignUsage(campaign.id, 1);
+                            } else {
+                                const campaignUsageResult = await client.query(
+                                    `
+                                        UPDATE campaigns
+                                        SET used_count = CASE
+                                                WHEN usage_limit IS NULL THEN used_count + 1
+                                                ELSE LEAST(usage_limit, used_count + 1)
+                                            END,
+                                            updated_at = CURRENT_TIMESTAMP
+                                        WHERE id = $1
+                                        RETURNING *
+                                    `,
+                                    [campaign.id]
+                                );
+
+                                updatedCampaignUsage = campaignUsageResult.rows[0]
+                                    ? normalizeCampaignRecord(campaignUsageResult.rows[0])
+                                    : null;
+                            }
+                        }
+
+                        if (campaign && !updatedCampaignUsage) {
+                            throw new Error("Campaign usage could not be updated");
+                        }
+
                         const responseOrder = {
                             ...order,
                             discount_amount: discountAmount,
@@ -604,16 +638,18 @@ export async function POST(request) {
                                 message: "Order placed successfully",
                                 order: responseOrder,
                                 pricing: {
-                                    subtotal,
-                                    discount_amount: discountAmount,
-                                    discounted_subtotal: discountedSubtotal,
-                                    shipping_cost: shippingCost,
-                                    total_amount: totalAmount,
-                                    campaign_code: campaign?.code || null,
-                                },
-                                payment: {
-                                    paymentId: result.paymentId,
-                                    status: result.status
+                                subtotal,
+                                discount_amount: discountAmount,
+                                discounted_subtotal: discountedSubtotal,
+                                shipping_cost: shippingCost,
+                                total_amount: totalAmount,
+                                campaign_code: campaign?.code || null,
+                                campaign_used_count: updatedCampaignUsage?.used_count ?? campaign?.used_count ?? null,
+                                campaign_usage_limit: updatedCampaignUsage?.usage_limit ?? campaign?.usage_limit ?? null,
+                            },
+                            payment: {
+                                paymentId: result.paymentId,
+                                status: result.status
                                 }
                             },
                             { status: 200 }
