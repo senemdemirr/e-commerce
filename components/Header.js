@@ -39,7 +39,6 @@ export default async function Header() {
                             width={130}
                             height={50}
                             className="cursor-pointer"
-                            style={{ width: "auto", height: "auto" }}
                             priority
                         />
                     </Link>
