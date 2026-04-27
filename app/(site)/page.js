@@ -329,7 +329,7 @@ export default async function Home() {
     return (
       <>
         <HomeCampaignBar campaigns={campaigns} />
-        <Box component="section" className="mx-auto max-w-[1440px] px-4 py-20 sm:px-6 lg:px-10">
+        <Box component="section" className="px-4 py-20 sm:px-6 lg:px-10">
           <div className="rounded-3xl bg-white p-12 text-center text-outline">
             No products found in the catalog.
           </div>
@@ -342,7 +342,7 @@ export default async function Home() {
     <>
       <HomeCampaignBar campaigns={campaigns} />
 
-      <Box component="section" className="mx-auto max-w-[1440px] px-4 py-10 sm:px-6 lg:px-10">
+      <Box component="section" className="px-4 py-10 sm:px-6 lg:px-10">
         <div className="group relative min-h-[560px] overflow-hidden rounded-3xl bg-surface-container-low lg:h-[600px]">
           <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/20 to-transparent" />
           <img
@@ -389,7 +389,7 @@ export default async function Home() {
       <Box
         id="trending-products"
         component="section"
-        className="mx-auto max-w-[1440px] px-4 py-10 sm:px-6 lg:px-10"
+        className="mx-auto px-4 py-10 sm:px-6 lg:px-10"
       >
         <div className="mb-8 flex items-end justify-between gap-4">
           <div>
@@ -413,7 +413,7 @@ export default async function Home() {
         </div>
       </Box>
 
-      <Box component="section" className="mx-auto max-w-[1440px] px-4 py-10 sm:px-6 lg:px-10">
+      <Box component="section" className="px-4 py-10 sm:px-6 lg:px-10">
         <div className="relative flex flex-col items-center justify-between overflow-hidden rounded-3xl bg-secondary-fixed px-6 py-16 sm:px-10 md:flex-row lg:px-16 lg:py-20">
           <div className="z-10 md:max-w-xl">
             <span className="mb-3 block text-xs font-bold uppercase text-on-secondary-container">
@@ -456,7 +456,7 @@ export default async function Home() {
         </div>
       </Box>
 
-      <Box component="section" className="mx-auto max-w-[1440px] rounded-t-[3rem] bg-surface-container-low px-4 py-20 sm:px-6 lg:px-10">
+      <Box component="section" className="rounded-t-[3rem] bg-surface-container-low px-4 py-20 sm:px-6 lg:px-10">
         <div className="mb-16 text-center">
           <span className="text-xs font-bold uppercase text-primary">
             Fresh Picks
@@ -472,7 +472,7 @@ export default async function Home() {
         </div>
       </Box>
 
-      <Box component="section" className="mx-auto max-w-[1440px] px-4 py-20 sm:px-6 lg:px-10">
+      <Box component="section" className="px-4 py-20 sm:px-6 lg:px-10">
         <div className="grid grid-cols-1 items-center gap-gutter md:grid-cols-12">
           <div className="md:col-span-7">
             <div className="relative h-[500px] overflow-hidden rounded-3xl bg-white">
