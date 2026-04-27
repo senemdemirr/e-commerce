@@ -3,9 +3,9 @@ import { Box, Button, Chip, IconButton, Tooltip } from "@mui/material";
 import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 import EnergySavingsLeafIcon from "@mui/icons-material/EnergySavingsLeaf";
-import LocalOfferRoundedIcon from "@mui/icons-material/LocalOfferRounded";
 import PlayCircleOutlineIcon from "@mui/icons-material/PlayCircleOutline";
 import VerifiedUserIcon from "@mui/icons-material/VerifiedUser";
+import HomeCampaignBar from "@/components/HomeCampaignBar";
 import { fetchHomepageCampaigns, fetchHomepageProducts } from "@/lib/homepage-data";
 
 export const dynamic = "force-dynamic";
@@ -13,18 +13,6 @@ export const dynamic = "force-dynamic";
 function formatPrice(price) {
   return `${Number(price || 0).toLocaleString("tr-TR", {
     minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
-  })} TL`;
-}
-
-function formatCampaignDiscount(campaign) {
-  const value = Number(campaign?.discount_value || 0);
-
-  if (campaign?.discount_type === "percent") {
-    return `%${value.toLocaleString("tr-TR", { maximumFractionDigits: 2 })}`;
-  }
-
-  return `${value.toLocaleString("tr-TR", {
     maximumFractionDigits: 2,
   })} TL`;
 }
@@ -50,59 +38,152 @@ function productSummary(product) {
   return bullet || product?.description || "Premium product from the current catalog.";
 }
 
-function byTitle(products, value) {
-  const normalizedValue = value.toLocaleLowerCase("tr-TR");
-  return products.find((product) =>
-    String(product.title || "").toLocaleLowerCase("tr-TR").includes(normalizedValue)
+function toTimestamp(value) {
+  const timestamp = new Date(value || 0).getTime();
+  return Number.isNaN(timestamp) ? 0 : timestamp;
+}
+
+function countList(value) {
+  return Array.isArray(value) ? value.length : 0;
+}
+
+function productRichnessScore(product) {
+  const variantCount = Number(product?.variant_count || product?.variants?.length || 0);
+  const colorCount = countList(product?.colors);
+  const sizeCount = countList(product?.sizes);
+  const materialCount = countList(product?.details?.material);
+  const bulletPointCount = countList(product?.details?.bullet_point);
+  const longDescriptionCount = countList(product?.details?.description_long);
+
+  return (
+    (variantCount * 4)
+    + (colorCount * 2)
+    + sizeCount
+    + (materialCount * 2)
+    + (bulletPointCount * 3)
+    + (longDescriptionCount * 2)
+    + (product?.description ? 1 : 0)
+    + (product?.image ? 1 : 0)
   );
 }
 
-function byExactTitle(products, value) {
-  const normalizedValue = value.toLocaleLowerCase("tr-TR");
-  return products.find(
-    (product) =>
-      String(product.title || "").toLocaleLowerCase("tr-TR") === normalizedValue
-  );
+function productFreshnessScore(product) {
+  const timestamp = toTimestamp(product?.created_at);
+
+  if (!timestamp) {
+    return 0;
+  }
+
+  const ageInDays = (Date.now() - timestamp) / (1000 * 60 * 60 * 24);
+  return Math.max(0, 30 - ageInDays);
 }
 
-const designProductTitles = [
-  "Essential Linen Set",
-  "Artisan Ceramic Vase",
-  "Botanical Glow Oil",
-  "PureSound Headset",
-  "Cloud Runner Eco",
-  "Luxury Soap Duo",
-  "Performance Trainers",
-  "Heritage Wristwatch",
-  "Sienna Sunglasses",
-  "Geo Table Lamp",
-];
+function productShowcaseScore(product) {
+  return (productRichnessScore(product) * 3) + (productFreshnessScore(product) * 2) + Math.log10(Number(product?.price || 0) + 10);
+}
+
+function productCampaignScore(product) {
+  return (Math.log10(Number(product?.price || 0) + 10) * 6) + (productRichnessScore(product) * 2) + productFreshnessScore(product);
+}
+
+function productEditorialScore(product) {
+  return (productRichnessScore(product) * 4) + (countList(product?.details?.bullet_point) * 2) + (countList(product?.details?.description_long) * 2) + (product?.description ? 1 : 0);
+}
+
+function sortProductsByScore(products, scoreFn) {
+  return [...products].sort((left, right) => {
+    const scoreDiff = scoreFn(right) - scoreFn(left);
+
+    if (scoreDiff !== 0) {
+      return scoreDiff;
+    }
+
+    const dateDiff = toTimestamp(right.created_at) - toTimestamp(left.created_at);
+    if (dateDiff !== 0) {
+      return dateDiff;
+    }
+
+    return Number(right.id || 0) - Number(left.id || 0);
+  });
+}
+
+function takeDistinctFromLists(lists, limit, excludedIds = []) {
+  const excluded = new Set(excludedIds.filter(Boolean).map((value) => String(value)));
+  const selected = [];
+
+  for (const list of lists) {
+    for (const product of list || []) {
+      const id = String(product?.id || "");
+
+      if (!id || excluded.has(id)) {
+        continue;
+      }
+
+      excluded.add(id);
+      selected.push(product);
+
+      if (selected.length === limit) {
+        return selected;
+      }
+    }
+  }
+
+  return selected;
+}
+
+function pickFirstDistinct(products, excludedIds = []) {
+  const excluded = new Set(excludedIds.filter(Boolean).map((value) => String(value)));
+
+  return products.find((product) => {
+    const id = String(product?.id || "");
+    return id && !excluded.has(id);
+  }) || null;
+}
 
 function pickHomepageProducts(products) {
-  const sortedByPrice = [...products].sort(
-    (left, right) => Number(right.price || 0) - Number(left.price || 0)
-  );
-  const designProducts = designProductTitles
-    .map((title) => byExactTitle(products, title))
-    .filter(Boolean);
-  const heroProduct =
-    byExactTitle(products, "Essential Linen Set") || designProducts[0] || products[0] || null;
-  const campaignProduct =
-    byExactTitle(products, "Geo Table Lamp") || designProducts[9] || products[1] || heroProduct;
+  const normalizedProducts = Array.isArray(products) ? products.filter(Boolean) : [];
+
+  if (normalizedProducts.length === 0) {
+    return {
+      heroProduct: null,
+      campaignProduct: null,
+      editorProduct: null,
+      trendingProducts: [],
+      arrivals: [],
+    };
+  }
+
+  const recentProducts = sortProductsByScore(normalizedProducts, (product) => toTimestamp(product?.created_at));
+  const showcaseProducts = sortProductsByScore(normalizedProducts, productShowcaseScore);
+  const campaignProducts = sortProductsByScore(normalizedProducts, productCampaignScore);
+  const editorialProducts = sortProductsByScore(normalizedProducts, productEditorialScore);
+
+  const heroProduct = showcaseProducts[0] || recentProducts[0] || normalizedProducts[0];
+  const campaignProduct = pickFirstDistinct(campaignProducts, [heroProduct?.id]) || heroProduct;
   const editorProduct =
-    byExactTitle(products, "Essential Linen Set") ||
-    products.find((product) =>
-      product?.details?.material?.some((item) =>
-        String(item).toLocaleLowerCase("tr-TR").includes("organic")
-      )
-    ) || byTitle(products, "Oversize") || products[products.length - 1] || heroProduct;
+    pickFirstDistinct(editorialProducts, [heroProduct?.id, campaignProduct?.id]) ||
+    pickFirstDistinct(recentProducts, [heroProduct?.id, campaignProduct?.id]) ||
+    heroProduct;
+
+  const trendingProducts = takeDistinctFromLists(
+    [showcaseProducts, recentProducts, campaignProducts],
+    5,
+    [heroProduct?.id, campaignProduct?.id, editorProduct?.id]
+  );
+
+  const arrivals = takeDistinctFromLists(
+    [recentProducts, showcaseProducts, editorialProducts],
+    5,
+    [heroProduct?.id, campaignProduct?.id, editorProduct?.id, ...trendingProducts.map((product) => product.id)]
+  );
+  const fallbackProducts = recentProducts.slice(0, 5);
 
   return {
     heroProduct,
     campaignProduct,
     editorProduct,
-    trendingProducts: designProducts.length >= 5 ? designProducts.slice(0, 5) : sortedByPrice.slice(0, 5),
-    arrivals: designProducts.length >= 10 ? designProducts.slice(5, 10) : products.slice(0, 5),
+    trendingProducts: trendingProducts.length > 0 ? trendingProducts : fallbackProducts,
+    arrivals: arrivals.length > 0 ? arrivals : fallbackProducts,
   };
 }
 
@@ -118,46 +199,6 @@ function AddProductButton({ product }) {
         <AddCircleOutlineIcon />
       </IconButton>
     </Tooltip>
-  );
-}
-
-function CampaignBar({ campaigns }) {
-  if (!Array.isArray(campaigns) || campaigns.length === 0) {
-    return null;
-  }
-
-  return (
-    <Box component="section" className="container mx-auto pt-4">
-      <div className="no-scrollbar scrollbar-hide flex items-start gap-9 overflow-x-auto">
-        {campaigns.map((campaign) => {
-          const discountLabel = formatCampaignDiscount(campaign);
-
-          return (
-            <Link
-              key={campaign.id || campaign.code}
-              href="#trending-products"
-              prefetch={false}
-              className="group flex min-w-[104px] max-w-[112px] flex-col items-center gap-2.5 text-center"
-              aria-label={`${campaign.title} kampanyası: ${discountLabel} indirim, kod ${campaign.code}`}
-              title={campaign.description || `${discountLabel} indirim - ${campaign.code}`}
-            >
-              <div className="relative flex h-[72px] w-[72px] items-center justify-center rounded-full bg-gradient-to-br from-mint-green to-champagne p-[2px] shadow-[0_8px_18px_rgba(17,24,39,0.10)] transition-transform group-hover:scale-105">
-                <div className="flex h-full w-full items-center justify-center overflow-hidden rounded-full bg-gradient-to-br from-white to-mint-green/10">
-                  <LocalOfferRoundedIcon className="!text-[34px] text-primary drop-shadow-sm" />
-                </div>
-                <span className="absolute -bottom-1 rounded-full bg-primary-container px-2 py-0.5 text-[9px] font-black leading-none text-white shadow-sm">
-                  Aktif
-                </span>
-              </div>
-              <span className="line-clamp-2 min-h-[32px] text-[13px] font-bold leading-4 text-[#333333]">
-                {campaign.title}
-              </span>
-            </Link>
-          );
-        })}
-      </div>
-
-    </Box>
   );
 }
 
@@ -287,7 +328,7 @@ export default async function Home() {
   if (!heroProduct) {
     return (
       <>
-        <CampaignBar campaigns={campaigns} />
+        <HomeCampaignBar campaigns={campaigns} />
         <Box component="section" className="mx-auto max-w-[1440px] px-4 py-20 sm:px-6 lg:px-10">
           <div className="rounded-3xl bg-white p-12 text-center text-outline">
             No products found in the catalog.
@@ -299,7 +340,7 @@ export default async function Home() {
 
   return (
     <>
-      <CampaignBar campaigns={campaigns} />
+      <HomeCampaignBar campaigns={campaigns} />
 
       <Box component="section" className="mx-auto max-w-[1440px] px-4 py-10 sm:px-6 lg:px-10">
         <div className="group relative min-h-[560px] overflow-hidden rounded-3xl bg-surface-container-low lg:h-[600px]">
