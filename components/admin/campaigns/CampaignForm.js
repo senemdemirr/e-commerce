@@ -12,7 +12,11 @@ import {
 import CampaignRoundedIcon from '@mui/icons-material/CampaignRounded';
 import CloseRoundedIcon from '@mui/icons-material/CloseRounded';
 import DriveFileRenameOutlineRoundedIcon from '@mui/icons-material/DriveFileRenameOutlineRounded';
-import { normalizeCampaignPayload, validateCampaignPayload } from '@/lib/admin/campaigns';
+import {
+    formatCampaignDateTime,
+    normalizeCampaignPayload,
+    validateCampaignPayload,
+} from '@/lib/admin/campaigns';
 
 function toDateTimeInputValue(value) {
     if (!value) {
@@ -251,6 +255,9 @@ export default function CampaignForm({
                                     onChange={(event) => updateValue('starts_at', event.target.value)}
                                     className="h-12 w-full rounded-lg border border-slate-200 bg-white px-4 text-slate-900 outline-none transition-all focus:border-primary focus:ring-2 focus:ring-primary/50 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100"
                                 />
+                                <p className="text-xs font-semibold text-slate-400 dark:text-slate-500">
+                                    Display: {formatCampaignDateTime(values.starts_at)}
+                                </p>
                             </label>
 
                             <label className="space-y-2">
@@ -263,6 +270,9 @@ export default function CampaignForm({
                                     onChange={(event) => updateValue('ends_at', event.target.value)}
                                     className="h-12 w-full rounded-lg border border-slate-200 bg-white px-4 text-slate-900 outline-none transition-all focus:border-primary focus:ring-2 focus:ring-primary/50 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100"
                                 />
+                                <p className="text-xs font-semibold text-slate-400 dark:text-slate-500">
+                                    Display: {formatCampaignDateTime(values.ends_at)}
+                                </p>
                             </label>
                         </div>
 

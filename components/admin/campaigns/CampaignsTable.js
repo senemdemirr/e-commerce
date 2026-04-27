@@ -5,23 +5,10 @@ import ChevronLeftRoundedIcon from '@mui/icons-material/ChevronLeftRounded';
 import ChevronRightRoundedIcon from '@mui/icons-material/ChevronRightRounded';
 import DeleteRoundedIcon from '@mui/icons-material/DeleteRounded';
 import EditRoundedIcon from '@mui/icons-material/EditRounded';
+import { formatCampaignDateTime } from '@/lib/admin/campaigns';
 
 function formatNumber(value) {
     return Number(value || 0).toLocaleString('en-US');
-}
-
-function formatDate(value) {
-    if (!value) {
-        return 'No date';
-    }
-
-    return new Intl.DateTimeFormat('en-US', {
-        day: '2-digit',
-        month: 'short',
-        year: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit',
-    }).format(new Date(value));
 }
 
 function formatDiscount(campaign) {
@@ -162,10 +149,10 @@ export default function CampaignsTable({
 
                                         <td className="min-w-[220px] px-6 py-5">
                                             <div className="text-xs font-semibold text-slate-600 dark:text-slate-400">
-                                                Starts: {formatDate(campaign.starts_at)}
+                                                Starts: {formatCampaignDateTime(campaign.starts_at)}
                                             </div>
                                             <div className="mt-1 text-xs font-semibold text-slate-600 dark:text-slate-400">
-                                                Ends: {formatDate(campaign.ends_at)}
+                                                Ends: {formatCampaignDateTime(campaign.ends_at)}
                                             </div>
                                         </td>
 
