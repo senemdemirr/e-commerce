@@ -60,12 +60,10 @@ export default function OrderSummaryCard({
                         onChange={(event) => onCampaignCodeChange(event.target.value)}
                         placeholder="Enter code"
                         disabled={processing || campaignLoading}
-                        helperText={campaignError || "Enter a valid active campaign code."}
                         error={Boolean(campaignError)}
                         inputProps={{
                             autoComplete: "off",
                             spellCheck: "false",
-                            className: "font-mono !font-bold !tracking-[0.14em] uppercase",
                         }}
                         sx={{
                             "& .MuiOutlinedInput-root": {
@@ -97,7 +95,7 @@ export default function OrderSummaryCard({
                         disabled={processing || campaignLoading || !campaignCode.trim()}
                         variant="contained"
                         disableElevation
-                        className="!min-w-[92px] !rounded-xl !bg-text-main !px-4 !py-3 !text-sm !font-bold !normal-case !text-white hover:!bg-text-main/90 disabled:!cursor-not-allowed disabled:!opacity-50 dark:!bg-white dark:!text-text-main dark:hover:!bg-white/90"
+                        className="!min-w-[92px] !rounded-xl !bg-text-main !text-sm !font-bold !normal-case !text-white hover:!bg-text-main/90 disabled:!cursor-not-allowed disabled:!opacity-50 dark:!bg-white dark:!text-text-main dark:hover:!bg-white/90"
                     >
                         {campaignLoading ? "Applying..." : "Apply"}
                     </Button>
