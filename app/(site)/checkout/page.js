@@ -7,6 +7,7 @@ import { useCart } from "@/context/CartContext";
 import { useUser } from "@/context/UserContext";
 import NewAdresForm from "@/app/(site)/my-profile/components/UserAdresses/NewAdresForm";
 import { useSnackbar } from "notistack";
+import { calculateCampaignDiscountAmount, roundMoney } from "@/lib/admin/campaigns";
 import AddressCard from "./components/AddressCard";
 import PaymentCard from "./components/PaymentCard";
 import OrderSummaryCard from "./components/OrderSummaryCard";
@@ -21,7 +22,7 @@ export default function CheckoutPage() {
     const [processing, setProcessing] = useState(false);
     const [addresses, setAddresses] = useState([]);
     const [savedCards, setSavedCards] = useState([]);
-    const [cartSummary, setCartSummary] = useState({ subtotal: 0, shipping: 0, total: 0 });
+    const [cartSummary, setCartSummary] = useState({ subtotal: 0, shipping: 0, discount: 0, total: 0 });
 
     const [selectedAddressId, setSelectedAddressId] = useState(null);
     const [selectedSavedCardId, setSelectedSavedCardId] = useState(null);
@@ -33,6 +34,10 @@ export default function CheckoutPage() {
     const [cvc, setCvc] = useState("");
     const [saveCard, setSaveCard] = useState(false);
     const [agreedToTerms, setAgreedToTerms] = useState(false);
+    const [campaignCode, setCampaignCode] = useState("");
+    const [appliedCampaign, setAppliedCampaign] = useState(null);
+    const [campaignLoading, setCampaignLoading] = useState(false);
+    const [campaignError, setCampaignError] = useState("");
 
     const [openAddressDialog, setOpenAddressDialog] = useState(false);
     const previousSavedCardsCountRef = useRef(0);
@@ -41,12 +46,36 @@ export default function CheckoutPage() {
     const hasRedirectedToBasketRef = useRef(false);
     const [accessState, setAccessState] = useState("checking");
 
-    const calculateSummary = useCallback((items) => {
-        const subtotal = items.reduce((acc, item) => acc + (Number(item.unit_price) * item.quantity), 0);
+    const normalizeCampaignCodeInput = useCallback((value) => (
+        String(value || "").toUpperCase().replace(/[^A-Z0-9_-]/g, "")
+    ), []);
+
+    const calculateSummary = useCallback((items, campaign = null) => {
+        const subtotal = roundMoney(items.reduce((acc, item) => acc + (Number(item.unit_price) * item.quantity), 0));
         const shipping = subtotal >= 1000 ? 0 : 49.90;
-        const total = subtotal + shipping;
-        setCartSummary({ subtotal, shipping, total });
+        const discount = campaign ? calculateCampaignDiscountAmount(campaign, subtotal) : 0;
+        const total = roundMoney(Math.max(0, subtotal - discount + shipping));
+        setCartSummary({ subtotal, shipping, discount, total });
     }, []);
+
+    const resolveCampaignByCode = useCallback(async (value) => {
+        const normalizedCode = normalizeCampaignCodeInput(value);
+
+        if (!normalizedCode) {
+            throw new Error("Please enter a campaign code.");
+        }
+
+        const campaigns = await apiFetch("/api/campaigns");
+        const matchedCampaign = Array.isArray(campaigns)
+            ? campaigns.filter(Boolean).find((campaign) => campaign.code === normalizedCode)
+            : null;
+
+        if (!matchedCampaign) {
+            throw new Error("Campaign code is invalid or expired.");
+        }
+
+        return matchedCampaign;
+    }, [normalizeCampaignCodeInput]);
 
     const fetchData = useCallback(async () => {
         try {
@@ -78,8 +107,8 @@ export default function CheckoutPage() {
     }, [enqueueSnackbar, router]);
 
     useEffect(() => {
-        calculateSummary(cartItems);
-    }, [cartItems, calculateSummary]);
+        calculateSummary(cartItems, appliedCampaign);
+    }, [appliedCampaign, calculateSummary, cartItems]);
 
     useLayoutEffect(() => {
         if (!isCartReady) {
@@ -148,6 +177,41 @@ export default function CheckoutPage() {
         fetchData();
     };
 
+    const handleCampaignCodeChange = (value) => {
+        const normalizedValue = normalizeCampaignCodeInput(value);
+        setCampaignCode(normalizedValue);
+        setCampaignError("");
+
+        if (appliedCampaign && normalizedValue !== appliedCampaign.code) {
+            setAppliedCampaign(null);
+        }
+    };
+
+    const handleApplyCampaign = async () => {
+        try {
+            setCampaignLoading(true);
+            const campaign = await resolveCampaignByCode(campaignCode);
+            setAppliedCampaign(campaign);
+            setCampaignCode(campaign.code);
+            setCampaignError("");
+            calculateSummary(cartItems, campaign);
+            enqueueSnackbar(`Campaign ${campaign.code} applied.`, { variant: "success" });
+        } catch (err) {
+            setAppliedCampaign(null);
+            setCampaignError(err.message || "Campaign code is invalid or expired.");
+            enqueueSnackbar(err.message || "Campaign code is invalid or expired.", { variant: "error" });
+        } finally {
+            setCampaignLoading(false);
+        }
+    };
+
+    const handleClearCampaign = () => {
+        setCampaignCode("");
+        setAppliedCampaign(null);
+        setCampaignError("");
+        calculateSummary(cartItems, null);
+    };
+
     const handleSubmitOrder = async () => {
         const isUsingSavedCard = paymentMethod === "saved" && Boolean(selectedSavedCardId);
 
@@ -172,8 +236,30 @@ export default function CheckoutPage() {
         try {
             setProcessing(true);
 
+            let campaignToUse = appliedCampaign;
+            const normalizedCampaignCode = normalizeCampaignCodeInput(campaignCode);
+
+            if (normalizedCampaignCode && campaignToUse?.code !== normalizedCampaignCode) {
+                try {
+                    setCampaignLoading(true);
+                    campaignToUse = await resolveCampaignByCode(normalizedCampaignCode);
+                    setAppliedCampaign(campaignToUse);
+                    setCampaignCode(campaignToUse.code);
+                    setCampaignError("");
+                    calculateSummary(cartItems, campaignToUse);
+                } catch (campaignErr) {
+                    setAppliedCampaign(null);
+                    setCampaignError(campaignErr.message || "Campaign code is invalid or expired.");
+                    enqueueSnackbar(campaignErr.message || "Campaign code is invalid or expired.", { variant: "error" });
+                    return;
+                } finally {
+                    setCampaignLoading(false);
+                }
+            }
+
             const checkoutData = {
                 shipping_address_id: selectedAddressId,
+                campaign_code: campaignToUse?.code || null,
                 ...(isUsingSavedCard
                     ? {
                         payment_card_id: selectedSavedCardId,
@@ -194,9 +280,25 @@ export default function CheckoutPage() {
             });
 
             if (res.order) {
-                const { order_number, total_amount, subtotal, shipping_cost } = res.order;
+                const pricing = res.pricing || {};
+                const { order_number } = res.order;
+                const successParams = new URLSearchParams({
+                    orderNumber: order_number,
+                    total: String(pricing.total_amount ?? res.order.total_amount ?? 0),
+                    subtotal: String(pricing.subtotal ?? cartSummary.subtotal),
+                    shipping: String(pricing.shipping_cost ?? res.order.shipping_cost ?? 0),
+                });
+
+                if (Number(pricing.discount_amount || 0) > 0) {
+                    successParams.set("discount", String(pricing.discount_amount));
+                }
+
+                if (pricing.campaign_code) {
+                    successParams.set("campaign", pricing.campaign_code);
+                }
+
                 fetchCart();
-                router.push(`/checkout/success?orderNumber=${order_number}&total=${total_amount}&subtotal=${subtotal}&shipping=${shipping_cost}`);
+                router.push(`/checkout/success?${successParams.toString()}`);
             } else {
                 enqueueSnackbar(res.message || res.error || "Payment failed. Please try again.", { variant: "error" });
             }
@@ -210,6 +312,7 @@ export default function CheckoutPage() {
             enqueueSnackbar(err.message || "An error occurred during checkout.", { variant: "error" });
         } finally {
             setProcessing(false);
+            setCampaignLoading(false);
         }
     };
 
@@ -269,10 +372,17 @@ export default function CheckoutPage() {
                     <OrderSummaryCard
                         cartItems={cartItems}
                         cartSummary={cartSummary}
+                        campaignCode={campaignCode}
+                        campaignError={campaignError}
+                        campaignLoading={campaignLoading}
+                        appliedCampaign={appliedCampaign}
                         agreedToTerms={agreedToTerms}
                         setAgreedToTerms={setAgreedToTerms}
                         processing={processing}
                         onSubmitOrder={handleSubmitOrder}
+                        onCampaignCodeChange={handleCampaignCodeChange}
+                        onApplyCampaign={handleApplyCampaign}
+                        onClearCampaign={handleClearCampaign}
                     />
                 </div>
             </div>

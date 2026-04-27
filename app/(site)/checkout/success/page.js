@@ -3,11 +3,9 @@ import { useEffect, useState, Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import HomeIcon from '@mui/icons-material/Home';
 import ReceiptLongIcon from '@mui/icons-material/ReceiptLong';
-import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import LocalShippingIcon from '@mui/icons-material/LocalShipping';
 import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
-import AutoAwesomeIcon from '@mui/icons-material/AutoAwesome';
-import CelebrationIcon from '@mui/icons-material/Celebration';
+import { formatCurrency } from '@/lib/admin/order-display';
 
 function OrderSuccessContent() {
     const searchParams = useSearchParams();
@@ -17,6 +15,8 @@ function OrderSuccessContent() {
     const total = searchParams.get("total") || "0.00";
     const subtotal = searchParams.get("subtotal") || "0.00";
     const shipping = searchParams.get("shipping") || "0.00";
+    const discount = searchParams.get("discount") || "0.00";
+    const campaign = searchParams.get("campaign") || "";
 
     // Format estimate date (3-5 days from now)
     const [estimateDate, setEstimateDate] = useState("");
@@ -55,6 +55,11 @@ function OrderSuccessContent() {
                                 Order Summary
                             </p>
                             <p className="text-primary font-bold text-sm mt-1">{orderNumber}</p>
+                            {campaign ? (
+                                <p className="mt-1 text-xs font-bold uppercase tracking-[0.2em] text-accent">
+                                    Campaign Applied: {campaign}
+                                </p>
+                            ) : null}
                         </div>
                         <div className="text-left sm:text-right">
                             <p className="text-text-muted dark:text-gray-400 text-[10px] font-bold uppercase tracking-widest">
@@ -69,17 +74,25 @@ function OrderSuccessContent() {
                     <div className="flex flex-col gap-2">
                         <div className="flex justify-between text-sm">
                             <span className="text-text-muted dark:text-gray-400">Products</span>
-                            <span className="font-semibold text-text-dark dark:text-white">₺{parseFloat(subtotal).toLocaleString('tr-TR', { minimumFractionDigits: 2 })}</span>
+                            <span className="font-semibold text-text-dark dark:text-white">{formatCurrency(subtotal)}</span>
                         </div>
+                        {Number(discount) > 0 ? (
+                            <div className="flex justify-between text-sm">
+                                <span className="text-text-muted dark:text-gray-400">Discount</span>
+                                <span className="font-semibold text-accent">
+                                    -{formatCurrency(discount)}
+                                </span>
+                            </div>
+                        ) : null}
                         <div className="flex justify-between text-sm">
                             <span className="text-text-muted dark:text-gray-400">Shipping</span>
                             <span className={`font-semibold ${parseFloat(shipping) === 0 ? 'text-primary' : 'text-text-dark dark:text-white'}`}>
-                                {parseFloat(shipping) === 0 ? 'Free' : `₺${parseFloat(shipping).toLocaleString('tr-TR', { minimumFractionDigits: 2 })}`}
+                                {parseFloat(shipping) === 0 ? 'Free' : formatCurrency(shipping)}
                             </span>
                         </div>
                         <div className="flex justify-between text-lg font-black pt-2 border-t border-gray-100 dark:border-gray-800 mt-2">
                             <span className="text-text-dark dark:text-white">Total</span>
-                            <span className="text-text-dark dark:text-white text-2xl">₺{parseFloat(total).toLocaleString('tr-TR', { minimumFractionDigits: 2 })}</span>
+                            <span className="text-text-dark dark:text-white text-2xl">{formatCurrency(total)}</span>
                         </div>
                     </div>
                 </div>

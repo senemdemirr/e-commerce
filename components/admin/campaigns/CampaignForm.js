@@ -9,9 +9,7 @@ import {
     DialogTitle,
     IconButton,
 } from '@mui/material';
-import CampaignRoundedIcon from '@mui/icons-material/CampaignRounded';
 import CloseRoundedIcon from '@mui/icons-material/CloseRounded';
-import DriveFileRenameOutlineRoundedIcon from '@mui/icons-material/DriveFileRenameOutlineRounded';
 import {
     formatCampaignDateTime,
     normalizeCampaignPayload,
@@ -111,7 +109,6 @@ export default function CampaignForm({
     const submitLabel = submitting
         ? 'Saving...'
         : isEditMode ? 'Save Changes' : 'Create Campaign';
-    const HeaderIcon = isEditMode ? DriveFileRenameOutlineRoundedIcon : CampaignRoundedIcon;
 
     return (
         <Dialog
@@ -131,7 +128,7 @@ export default function CampaignForm({
                     <div className="flex items-center justify-between gap-4">
                         <div className="flex items-center gap-3">
                             <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/20 text-primary">
-                                <HeaderIcon />
+                                {isEditMode ? 'E' : 'C'}
                             </div>
                             <h2 className="text-xl font-bold tracking-tight text-slate-900 dark:text-slate-100">
                                 {title}

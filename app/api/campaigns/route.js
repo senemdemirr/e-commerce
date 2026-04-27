@@ -1,13 +1,16 @@
 import { pool } from '@/lib/db.js';
 import { ensureCampaignSchema } from '@/lib/admin/campaignSchema.js';
-import { normalizeCampaignRecord } from '@/lib/admin/campaigns.js';
+import {
+    isCampaignRedeemable,
+    normalizeCampaignRecord,
+} from '@/lib/admin/campaigns.js';
 import { isAdminTestMode, listFallbackCampaignRecords } from '@/lib/admin/test-data.js';
 
 export async function GET(req) {
     if (isAdminTestMode()) {
         const fallbacks = listFallbackCampaignRecords()
             .map(normalizeCampaignRecord)
-            .filter(c => c.status === 'active');
+            .filter(c => isCampaignRedeemable(c));
         return Response.json(fallbacks, { status: 200 });
     }
 
@@ -37,7 +40,7 @@ export async function GET(req) {
 
         const campaigns = result.rows
             .map(normalizeCampaignRecord)
-            .filter(c => c.status === 'active');
+            .filter(c => isCampaignRedeemable(c));
 
         return Response.json(campaigns, { status: 200 });
     } catch {

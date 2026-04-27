@@ -1,11 +1,20 @@
 export const runtime = "nodejs";
 import { pool } from "@/lib/db";
+import { ensureCampaignSchema } from "@/lib/admin/campaignSchema";
 import { ensurePaymentCardSchema } from "@/lib/paymentCards";
 import { ensureProductVariantSchema } from "@/lib/productSchema";
 import { getOrCreateUserFromSession } from "@/lib/users";
 import { NextResponse } from "next/server";
 import iyzipay from "@/lib/iyzipay";
 import Iyzipay from "iyzipay";
+import {
+    calculateCampaignDiscountAmount,
+    isCampaignRedeemable,
+    normalizeCampaignCode,
+    normalizeCampaignRecord,
+    roundMoney,
+} from "@/lib/admin/campaigns";
+import { isAdminTestMode, listFallbackCampaignRecords } from "@/lib/admin/test-data";
 
 function retrieveBankNameFromBin(binNumber, conversationId) {
     return new Promise((resolve) => {
@@ -65,6 +74,109 @@ function getVariantStockIssue(items = []) {
     return null;
 }
 
+function toCents(value) {
+    return Math.round(Number(value || 0) * 100);
+}
+
+function fromCents(value) {
+    return Number((Number(value || 0) / 100).toFixed(2));
+}
+
+function buildDiscountedBasketItems(items = [], discountAmount = 0, shippingCost = 0) {
+    const productTotalsCents = items.map((item) => (
+        toCents(Number(item.unit_price || 0) * Number(item.quantity || 0))
+    ));
+    const productSubtotalCents = productTotalsCents.reduce((acc, value) => acc + value, 0);
+    const discountCents = Math.min(Math.max(0, toCents(discountAmount)), productSubtotalCents);
+    let allocatedDiscountCents = 0;
+
+    const basketItems = items.map((item, index) => {
+        const originalCents = productTotalsCents[index] || 0;
+        let itemDiscountCents = 0;
+
+        if (discountCents > 0 && productSubtotalCents > 0) {
+            if (index === items.length - 1) {
+                itemDiscountCents = Math.max(0, discountCents - allocatedDiscountCents);
+            } else {
+                itemDiscountCents = Math.floor((discountCents * originalCents) / productSubtotalCents);
+                allocatedDiscountCents += itemDiscountCents;
+            }
+        }
+
+        const adjustedCents = Math.max(0, originalCents - itemDiscountCents);
+
+        return {
+            id: item.product_id.toString(),
+            name: item.title.substring(0, 100),
+            category1: "Product",
+            itemType: Iyzipay.BASKET_ITEM_TYPE.PHYSICAL,
+            price: (adjustedCents / 100).toFixed(2),
+        };
+    });
+
+    if (shippingCost > 0) {
+        basketItems.push({
+            id: "SHIPPING",
+            name: "Shipping Cost",
+            category1: "Shipping",
+            itemType: Iyzipay.BASKET_ITEM_TYPE.PHYSICAL,
+            price: shippingCost.toFixed(2),
+        });
+    }
+
+    const discountedSubtotalCents = Math.max(0, productSubtotalCents - discountCents);
+    const shippingCents = toCents(shippingCost);
+    const finalPaidPriceCents = discountedSubtotalCents + shippingCents;
+
+    return {
+        basketItems,
+        discountedSubtotal: fromCents(discountedSubtotalCents),
+        finalPaidPrice: fromCents(finalPaidPriceCents),
+    };
+}
+
+async function findRedeemableCampaignByCode(code) {
+    const normalizedCode = normalizeCampaignCode(code);
+
+    if (!normalizedCode) {
+        return null;
+    }
+
+    if (isAdminTestMode()) {
+        return listFallbackCampaignRecords()
+            .map((campaign) => normalizeCampaignRecord(campaign))
+            .find((campaign) => campaign.code === normalizedCode && isCampaignRedeemable(campaign)) || null;
+    }
+
+    await ensureCampaignSchema();
+
+    const result = await pool.query(
+        `
+            SELECT
+                id,
+                title,
+                code,
+                description,
+                discount_type,
+                discount_value,
+                starts_at,
+                ends_at,
+                is_active,
+                usage_limit,
+                used_count,
+                created_at,
+                updated_at
+            FROM campaigns
+            WHERE UPPER(code) = UPPER($1)
+            LIMIT 1
+        `,
+        [normalizedCode]
+    );
+
+    const campaign = result.rows[0] ? normalizeCampaignRecord(result.rows[0]) : null;
+    return campaign && isCampaignRedeemable(campaign) ? campaign : null;
+}
+
 // POST - Process checkout and create order
 export async function POST(request) {
     try {
@@ -82,6 +194,7 @@ export async function POST(request) {
         const {
             shipping_address_id,
             payment_card_id,
+            campaign_code,
             card_holder_name,
             card_number,
             expire_month,
@@ -182,9 +295,22 @@ export async function POST(request) {
         }
 
         // Calculate totals
-        const subtotal = items.reduce((acc, item) => acc + (Number(item.unit_price) * item.quantity), 0);
+        const subtotal = roundMoney(items.reduce((acc, item) => acc + (Number(item.unit_price) * item.quantity), 0));
         const shippingCost = subtotal >= 1000 ? 0 : 49.90;
-        const totalAmount = subtotal + shippingCost;
+        const campaign = campaign_code ? await findRedeemableCampaignByCode(campaign_code) : null;
+
+        if (campaign_code && !campaign) {
+            return NextResponse.json(
+                { message: "Invalid or expired campaign code" },
+                { status: 400 }
+            );
+        }
+
+        const discountAmount = campaign ? calculateCampaignDiscountAmount(campaign, subtotal) : 0;
+        const discountedSubtotal = roundMoney(Math.max(0, subtotal - discountAmount));
+        const totalAmount = roundMoney(discountedSubtotal + shippingCost);
+
+        const { basketItems, finalPaidPrice } = buildDiscountedBasketItems(items, discountAmount, shippingCost);
 
         // Generate unique order number
         const orderNumber = `ORD-${Date.now()}-${user.id}`;
@@ -285,33 +411,18 @@ export async function POST(request) {
 
         const billingAddress = { ...shippingAddressData };
 
-        const basketItems = items.map(item => ({
-            id: item.product_id.toString(),
-            name: item.title.substring(0, 100), // Iyzico has character limits
-            category1: "Product",
-            itemType: Iyzipay.BASKET_ITEM_TYPE.PHYSICAL,
-            price: (Number(item.unit_price) * item.quantity).toFixed(2)
-        }));
-
-        // Add shipping as basket item if applicable
-        if (shippingCost > 0) {
-            basketItems.push({
-                id: "SHIPPING",
-                name: "Shipping Cost",
-                category1: "Shipping",
-                itemType: Iyzipay.BASKET_ITEM_TYPE.PHYSICAL,
-                price: shippingCost.toFixed(2)
-            });
+        if (finalPaidPrice <= 0) {
+            return NextResponse.json(
+                { message: "The order total must be greater than zero after applying the campaign" },
+                { status: 400 }
+            );
         }
-
-        // Calculate final paid price from basket items to avoid mismatch errors
-        const finalPaidPrice = basketItems.reduce((acc, item) => acc + parseFloat(item.price), 0).toFixed(2);
 
         const paymentRequest = {
             locale: Iyzipay.LOCALE.EN,
             conversationId: orderNumber,
-            price: finalPaidPrice, // subtotal including shipping
-            paidPrice: finalPaidPrice,
+            price: finalPaidPrice.toFixed(2), // subtotal including shipping after campaign discount
+            paidPrice: finalPaidPrice.toFixed(2),
             currency: Iyzipay.CURRENCY.TRY,
             installment: '1',
             basketId: cart.id.toString(),
@@ -386,7 +497,7 @@ export async function POST(request) {
 
                         // Payment successful - Create order in database
                         const orderResult = await client.query(
-                            `INSERT INTO orders 
+                                `INSERT INTO orders 
                              (user_id, order_number, status, subtotal, shipping_cost, total_amount,
                               shipping_address_id, shipping_full_name, shipping_phone, shipping_address,
                               shipping_city, shipping_district, shipping_postal_code,
@@ -398,7 +509,7 @@ export async function POST(request) {
                                 user.id,
                                 orderNumber,
                                 8,
-                                subtotal,
+                                discountedSubtotal,
                                 shippingCost,
                                 totalAmount,
                                 shipping_address_id,
@@ -419,6 +530,12 @@ export async function POST(request) {
                         );
 
                         const order = orderResult.rows[0];
+                        const responseOrder = {
+                            ...order,
+                            discount_amount: discountAmount,
+                            campaign_code: campaign?.code || null,
+                            original_subtotal: subtotal,
+                        };
 
                         // Create order items
                         for (const item of items) {
@@ -485,7 +602,15 @@ export async function POST(request) {
                         resolve(NextResponse.json(
                             {
                                 message: "Order placed successfully",
-                                order: order,
+                                order: responseOrder,
+                                pricing: {
+                                    subtotal,
+                                    discount_amount: discountAmount,
+                                    discounted_subtotal: discountedSubtotal,
+                                    shipping_cost: shippingCost,
+                                    total_amount: totalAmount,
+                                    campaign_code: campaign?.code || null,
+                                },
                                 payment: {
                                     paymentId: result.paymentId,
                                     status: result.status

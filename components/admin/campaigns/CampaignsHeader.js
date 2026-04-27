@@ -1,7 +1,6 @@
 'use client';
 
 import { Button } from '@mui/material';
-import CampaignRoundedIcon from '@mui/icons-material/CampaignRounded';
 
 export default function CampaignsHeader({ onCreate, canMutate }) {
     return (
@@ -19,7 +18,6 @@ export default function CampaignsHeader({ onCreate, canMutate }) {
                 <Button
                     variant="contained"
                     disableElevation
-                    startIcon={<CampaignRoundedIcon className="!text-xl" />}
                     onClick={onCreate}
                     sx={{ textTransform: 'none' }}
                     className="!rounded-xl !bg-primary !px-6 !py-3 !font-extrabold !text-slate-900 !shadow-lg !shadow-primary/20 transition-all hover:!-translate-y-0.5 hover:!bg-primary-dark active:!translate-y-0"
