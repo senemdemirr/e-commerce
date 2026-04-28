@@ -61,6 +61,7 @@ export default function OrderSummaryCard({
                         placeholder="Enter code"
                         disabled={processing || campaignLoading}
                         error={Boolean(campaignError)}
+                        helperText={campaignError || " "}
                         inputProps={{
                             autoComplete: "off",
                             spellCheck: "false",

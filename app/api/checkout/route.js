@@ -9,7 +9,7 @@ import iyzipay from "@/lib/iyzipay";
 import Iyzipay from "iyzipay";
 import {
     calculateCampaignDiscountAmount,
-    isCampaignRedeemable,
+    getCampaignAvailabilityMessage,
     normalizeCampaignCode,
     normalizeCampaignRecord,
     roundMoney,
@@ -139,7 +139,7 @@ function buildDiscountedBasketItems(items = [], discountAmount = 0, shippingCost
     };
 }
 
-async function findRedeemableCampaignByCode(code) {
+async function findCampaignByCode(code) {
     const normalizedCode = normalizeCampaignCode(code);
 
     if (!normalizedCode) {
@@ -149,7 +149,7 @@ async function findRedeemableCampaignByCode(code) {
     if (isAdminTestMode()) {
         return listFallbackCampaignRecords()
             .map((campaign) => normalizeCampaignRecord(campaign))
-            .find((campaign) => campaign.code === normalizedCode && isCampaignRedeemable(campaign)) || null;
+            .find((campaign) => campaign.code === normalizedCode) || null;
     }
 
     await ensureCampaignSchema();
@@ -178,7 +178,7 @@ async function findRedeemableCampaignByCode(code) {
     );
 
     const campaign = result.rows[0] ? normalizeCampaignRecord(result.rows[0]) : null;
-    return campaign && isCampaignRedeemable(campaign) ? campaign : null;
+    return campaign;
 }
 
 // POST - Process checkout and create order
@@ -301,11 +301,20 @@ export async function POST(request) {
         // Calculate totals
         const subtotal = roundMoney(items.reduce((acc, item) => acc + (Number(item.unit_price) * item.quantity), 0));
         const shippingCost = subtotal >= 1000 ? 0 : 49.90;
-        const campaign = campaign_code ? await findRedeemableCampaignByCode(campaign_code) : null;
+        const campaign = campaign_code ? await findCampaignByCode(campaign_code) : null;
 
         if (campaign_code && !campaign) {
             return NextResponse.json(
-                { message: "Invalid or expired campaign code" },
+                { message: "Campaign code was not found." },
+                { status: 400 }
+            );
+        }
+
+        const campaignAvailabilityMessage = campaign ? getCampaignAvailabilityMessage(campaign) : "";
+
+        if (campaign_code && campaignAvailabilityMessage) {
+            return NextResponse.json(
+                { message: campaignAvailabilityMessage },
                 { status: 400 }
             );
         }

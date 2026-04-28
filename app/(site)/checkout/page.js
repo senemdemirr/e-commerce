@@ -7,7 +7,11 @@ import { useCart } from "@/context/CartContext";
 import { useUser } from "@/context/UserContext";
 import NewAdresForm from "@/app/(site)/my-profile/components/UserAdresses/NewAdresForm";
 import { useSnackbar } from "notistack";
-import { calculateCampaignDiscountAmount, roundMoney } from "@/lib/admin/campaigns";
+import {
+    calculateCampaignDiscountAmount,
+    getCampaignAvailabilityMessage,
+    roundMoney,
+} from "@/lib/admin/campaigns";
 import AddressCard from "./components/AddressCard";
 import PaymentCard from "./components/PaymentCard";
 import OrderSummaryCard from "./components/OrderSummaryCard";
@@ -65,13 +69,19 @@ export default function CheckoutPage() {
             throw new Error("Please enter a campaign code.");
         }
 
-        const campaigns = await apiFetch("/api/campaigns");
+        const campaigns = await apiFetch(`/api/campaigns?code=${encodeURIComponent(normalizedCode)}`);
         const matchedCampaign = Array.isArray(campaigns)
-            ? campaigns.filter(Boolean).find((campaign) => campaign.code === normalizedCode)
+            ? campaigns.filter(Boolean)[0] || null
             : null;
 
         if (!matchedCampaign) {
-            throw new Error("Campaign code is invalid or expired.");
+            throw new Error("Campaign code was not found.");
+        }
+
+        const availabilityMessage = getCampaignAvailabilityMessage(matchedCampaign);
+
+        if (availabilityMessage) {
+            throw new Error(availabilityMessage);
         }
 
         return matchedCampaign;
@@ -198,8 +208,8 @@ export default function CheckoutPage() {
             enqueueSnackbar(`Campaign ${campaign.code} applied.`, { variant: "success" });
         } catch (err) {
             setAppliedCampaign(null);
-            setCampaignError(err.message || "Campaign code is invalid or expired.");
-            enqueueSnackbar(err.message || "Campaign code is invalid or expired.", { variant: "error" });
+            setCampaignError(err.message || "Campaign code could not be applied.");
+            enqueueSnackbar(err.message || "Campaign code could not be applied.", { variant: "error" });
         } finally {
             setCampaignLoading(false);
         }
@@ -249,8 +259,8 @@ export default function CheckoutPage() {
                     calculateSummary(cartItems, campaignToUse);
                 } catch (campaignErr) {
                     setAppliedCampaign(null);
-                    setCampaignError(campaignErr.message || "Campaign code is invalid or expired.");
-                    enqueueSnackbar(campaignErr.message || "Campaign code is invalid or expired.", { variant: "error" });
+                    setCampaignError(campaignErr.message || "Campaign code could not be applied.");
+                    enqueueSnackbar(campaignErr.message || "Campaign code could not be applied.", { variant: "error" });
                     return;
                 } finally {
                     setCampaignLoading(false);
