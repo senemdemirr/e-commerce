@@ -1,18 +1,8 @@
-import { pool } from '../../../../lib/db.js';
-import {
-    requireAdminReadAccess,
-    requireAdminWriteAccess,
-} from '../../../../lib/admin/auth.js';
-import { ensureCampaignSchema } from '../../../../lib/admin/campaignSchema.js';
-import {
-    normalizeCampaignPayload,
-    normalizeCampaignRecord,
-    validateCampaignPayload,
-} from '../../../../lib/admin/campaigns.js';
-import {
-    isAdminTestMode,
-    listFallbackCampaignRecords,
-} from '../../../../lib/admin/test-data.js';
+import { pool } from '@/lib/db.js';
+import { requireAdminReadAccess, requireAdminWriteAccess } from '@/lib/admin/auth.js';
+import { ensureCampaignSchema } from '@/lib/admin/campaignSchema.js';
+import { normalizeCampaignPayload, normalizeCampaignRecord, validateCampaignPayload, } from '@/lib/admin/campaigns.js';
+import { isAdminTestMode, listFallbackCampaignRecords } from '@/lib/admin/test-data.js';
 
 function invalidFieldResponse(message) {
     return Response.json({ error: message }, { status: 400 });

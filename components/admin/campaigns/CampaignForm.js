@@ -93,6 +93,8 @@ export default function CampaignForm({
             starts_at: values.starts_at,
             ends_at: values.ends_at,
             usage_limit: values.usage_limit,
+        }, {
+            preserveDateTimeOffset: true,
         });
         const validationError = validateCampaignPayload(payload);
 
