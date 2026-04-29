@@ -7,6 +7,7 @@ import StatsCards from '@/components/admin/Dashboard/StatsCards';
 import SalesChart from '@/components/admin/Dashboard/SalesChart';
 import TopCategories from '@/components/admin/Dashboard/TopCategories';
 import OrderTable from '@/components/admin/OrderTable';
+import { apiFetch } from '@/lib/apiFetch/fetch';
 
 export default function DashboardPage() {
     const { enqueueSnackbar } = useSnackbar();
@@ -18,9 +19,7 @@ export default function DashboardPage() {
         const fetchDashboard = async () => {
             setLoading(true);
             try {
-                const res = await fetch(`/api/admin/dashboard?filter=${filter}`, { headers: { role: 'admin' } });
-                if (!res.ok) throw new Error('Dashboard data could not be loaded');
-                const data = await res.json();
+                const data = await apiFetch(`/api/admin/dashboard?filter=${filter}`, { headers: { role: 'admin' } });
                 setStats(data);
             } catch (error) {
                 enqueueSnackbar(error.message, { variant: 'error' });

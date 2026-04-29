@@ -50,3 +50,19 @@ test('apiFetch throws parsed error body when response is not ok', async () => {
   });
   expect(consoleErrorSpy).toHaveBeenCalledWith('API Fetch failed: 400 Bad Request');
 });
+
+test('apiFetch uses error field when response has no message', async () => {
+  const errBody = { error: 'admin error' };
+  global.fetch = jest.fn().mockResolvedValue({
+    ok: false,
+    status: 403,
+    statusText: 'Forbidden',
+    json: async () => errBody,
+  });
+
+  await expect(apiFetch('/api/test')).rejects.toMatchObject({
+    message: 'admin error',
+    status: 403,
+    data: errBody,
+  });
+});

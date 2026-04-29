@@ -10,6 +10,7 @@ import ConfirmDialog from '@/components/admin/ConfirmDialog';
 import ReadOnlyNotice from '@/components/admin/ReadOnlyNotice';
 import { useAdminSession } from '@/context/AdminSessionContext';
 import { normalizeCampaignRecord } from '@/lib/admin/campaigns';
+import { apiFetch } from '@/lib/apiFetch/fetch';
 
 const PAGE_SIZE = 8;
 
@@ -65,14 +66,9 @@ export default function CampaignsPage() {
             try {
                 setLoading(true);
 
-                const response = await fetch('/api/admin/campaigns', {
+                const data = await apiFetch('/api/admin/campaigns', {
                     headers: { role: 'admin' },
                 });
-                const data = await response.json().catch(() => []);
-
-                if (!response.ok) {
-                    throw new Error(data?.error || 'Campaigns could not be loaded');
-                }
 
                 if (!active) {
                     return;
@@ -197,7 +193,7 @@ export default function CampaignsPage() {
         try {
             setSubmitting(true);
 
-            const response = await fetch(endpoint, {
+            const data = await apiFetch(endpoint, {
                 method: isEditMode ? 'PUT' : 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -205,11 +201,6 @@ export default function CampaignsPage() {
                 },
                 body: JSON.stringify(payload),
             });
-            const data = await response.json().catch(() => null);
-
-            if (!response.ok) {
-                throw new Error(data?.error || 'Campaign could not be saved');
-            }
 
             const normalizedCampaign = normalizeCampaignRecord(data);
 
@@ -240,15 +231,10 @@ export default function CampaignsPage() {
         try {
             setDeleteLoading(true);
 
-            const response = await fetch(`/api/admin/campaigns/${deleteTarget.id}`, {
+            await apiFetch(`/api/admin/campaigns/${deleteTarget.id}`, {
                 method: 'DELETE',
                 headers: { role: 'admin' },
             });
-            const data = await response.json().catch(() => null);
-
-            if (!response.ok) {
-                throw new Error(data?.error || 'Campaign could not be deleted');
-            }
 
             setCampaigns((current) => current.filter((campaign) => campaign.id !== deleteTarget.id));
             enqueueSnackbar('Campaign deleted', { variant: 'success' });

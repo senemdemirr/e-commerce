@@ -10,6 +10,7 @@ import SizesStatsCards from '@/components/admin/sizes/SizesStatsCards';
 import SizesTable from '@/components/admin/sizes/SizesTable';
 import { useAdminSession } from '@/context/AdminSessionContext';
 import { normalizeSizeRecord } from '@/lib/admin/sizes';
+import { apiFetch } from '@/lib/apiFetch/fetch';
 
 const PAGE_SIZE = 6;
 
@@ -42,14 +43,9 @@ export default function SizesPage() {
             try {
                 setLoading(true);
 
-                const response = await fetch('/api/admin/sizes', {
+                const data = await apiFetch('/api/admin/sizes', {
                     headers: { role: 'admin' },
                 });
-                const data = await response.json().catch(() => []);
-
-                if (!response.ok) {
-                    throw new Error(data?.error || 'Sizes could not be loaded');
-                }
 
                 if (!active) {
                     return;
@@ -159,7 +155,7 @@ export default function SizesPage() {
         try {
             setSubmitting(true);
 
-            const response = await fetch(endpoint, {
+            const data = await apiFetch(endpoint, {
                 method: isEditMode ? 'PUT' : 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -167,11 +163,6 @@ export default function SizesPage() {
                 },
                 body: JSON.stringify(payload),
             });
-            const data = await response.json().catch(() => null);
-
-            if (!response.ok) {
-                throw new Error(data?.error || 'Size could not be saved');
-            }
 
             const normalizedSize = normalizeSizeRecord(data);
 
@@ -209,15 +200,10 @@ export default function SizesPage() {
         try {
             setDeleteLoading(true);
 
-            const response = await fetch(`/api/admin/sizes/${deleteTarget.id}`, {
+            await apiFetch(`/api/admin/sizes/${deleteTarget.id}`, {
                 method: 'DELETE',
                 headers: { role: 'admin' },
             });
-            const data = await response.json().catch(() => null);
-
-            if (!response.ok) {
-                throw new Error(data?.error || 'Size could not be deleted');
-            }
 
             setSizes((current) => current.filter((size) => size.id !== deleteTarget.id));
             enqueueSnackbar('Size deleted', { variant: 'success' });

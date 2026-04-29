@@ -14,6 +14,7 @@ import ReadOnlyNotice from '@/components/admin/ReadOnlyNotice';
 import ProductsSummaryCard from '@/components/admin/products/ProductsSummaryCard';
 import { PAGE_SIZE, PRICE_OPTIONS, SORT_OPTIONS,buildCategoryLookup, buildPaginationItems, exportProductsToCsv, formatNumber, formatCurrency, formatSlugLabel, getCatalogScore, getFilledDetailCount, getPriceBand, getReadinessMeta, matchesPriceRange, normalizeDetails, normalizeList } from '@/components/admin/products/productsPageHelpers';
 import { useAdminSession } from '@/context/AdminSessionContext';
+import { apiFetch } from '@/lib/apiFetch/fetch';
 
 export default function ProductsPage() {
     const { canMutate, loading: adminLoading } = useAdminSession();
@@ -50,21 +51,12 @@ export default function ProductsPage() {
                 setLoading(true);
                 setLoadError('');
 
-                const [productsResponse, categoriesResponse] = await Promise.all([
-                    fetch('/api/products'),
-                    fetch('/api/categories').catch(() => null),
+                const [nextProducts, nextCategoriesResult] = await Promise.all([
+                    apiFetch('/api/products'),
+                    apiFetch('/api/categories').catch(() => []),
                 ]);
 
-                if (!productsResponse.ok) {
-                    throw new Error('Products could not be loaded.');
-                }
-
-                const nextProducts = await productsResponse.json();
-                let nextCategories = [];
-
-                if (categoriesResponse?.ok) {
-                    nextCategories = await categoriesResponse.json();
-                }
+                const nextCategories = Array.isArray(nextCategoriesResult) ? nextCategoriesResult : [];
 
                 if (!active) {
                     return;
@@ -286,17 +278,12 @@ export default function ProductsPage() {
         try {
             setDeleteLoading(true);
 
-            const response = await fetch(`/api/admin/products/${deleteTarget.id}`, {
+            await apiFetch(`/api/admin/products/${deleteTarget.id}`, {
                 method: 'DELETE',
                 headers: {
                     role: 'admin',
                 },
             });
-            const data = await response.json().catch(() => null);
-
-            if (!response.ok) {
-                throw new Error(data?.error || 'Product could not be deleted.');
-            }
 
             setProducts((current) => current.filter(
                 (product) => Number(product.id) !== Number(deleteTarget.id)

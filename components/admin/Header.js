@@ -6,6 +6,7 @@ import SearchIcon from '@mui/icons-material/Search';
 import LogoutOutlinedIcon from '@mui/icons-material/LogoutOutlined';
 import { useSnackbar } from 'notistack';
 import { useAdminSession } from '@/context/AdminSessionContext';
+import { apiFetch } from '@/lib/apiFetch/fetch';
 
 const Header = () => {
     const router = useRouter();
@@ -32,20 +33,20 @@ const Header = () => {
         try {
             setIsLoggingOut(true);
 
-            const response = await fetch('/api/admin/logout', {
+            await apiFetch('/api/admin/logout', {
                 method: 'POST',
             });
-
-            if (!response.ok) {
-                enqueueSnackbar('Çıkış işlemi tamamlanamadı.', { variant: 'error' });
-                return;
-            }
 
             await refreshAdmin();
             router.replace('/admin/login');
             router.refresh();
-        } catch {
-            enqueueSnackbar('Çıkış sırasında bağlantı hatası oluştu.', { variant: 'error' });
+        } catch (error) {
+            enqueueSnackbar(
+                error.status
+                    ? (error.message || 'Çıkış işlemi tamamlanamadı.')
+                    : 'Çıkış sırasında bağlantı hatası oluştu.',
+                { variant: 'error' }
+            );
         } finally {
             setIsLoggingOut(false);
         }

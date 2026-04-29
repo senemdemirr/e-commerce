@@ -10,6 +10,7 @@ import SubcategoriesHeader from '@/components/admin/subcategories/SubcategoriesH
 import SubcategoriesStatsCards from '@/components/admin/subcategories/SubcategoriesStatsCards';
 import SubcategoriesTable from '@/components/admin/subcategories/SubcategoriesTable';
 import { useAdminSession } from '@/context/AdminSessionContext';
+import { apiFetch } from '@/lib/apiFetch/fetch';
 
 const PAGE_SIZE = 5;
 
@@ -90,27 +91,14 @@ export default function SubcategoriesPage() {
                try {
                    setLoading(true);
    
-                   const [subcategoriesResponse, categoriesResponse] = await Promise.all([
-                       fetch('/api/admin/subcategories', {
-                           headers: { role: 'admin' },
-                       }),
-                       fetch('/api/admin/categories', {
-                           headers: { role: 'admin' },
-                       }),
-                   ]);
-   
                    const [subcategoriesData, categoriesData] = await Promise.all([
-                       subcategoriesResponse.json().catch(() => []),
-                       categoriesResponse.json().catch(() => []),
+                       apiFetch('/api/admin/subcategories', {
+                           headers: { role: 'admin' },
+                       }),
+                       apiFetch('/api/admin/categories', {
+                           headers: { role: 'admin' },
+                       }),
                    ]);
-   
-                   if (!subcategoriesResponse.ok) {
-                       throw new Error(subcategoriesData?.error || 'Sub-categories could not be loaded');
-                   }
-   
-                   if (!categoriesResponse.ok) {
-                       throw new Error(categoriesData?.error || 'Categories could not be loaded');
-                   }
    
                    if (!active) {
                        return;
@@ -241,7 +229,7 @@ export default function SubcategoriesPage() {
            try {
                setSubmitting(true);
    
-               const response = await fetch(endpoint, {
+               const data = await apiFetch(endpoint, {
                    method: isEditMode ? 'PUT' : 'POST',
                    headers: {
                        'Content-Type': 'application/json',
@@ -249,12 +237,6 @@ export default function SubcategoriesPage() {
                    },
                    body: JSON.stringify(payload),
                });
-   
-               const data = await response.json().catch(() => null);
-   
-               if (!response.ok) {
-                   throw new Error(data?.error || 'Sub-category could not be saved');
-               }
    
                const normalizedSubcategory = normalizeSubcategory(data);
    
@@ -299,15 +281,10 @@ export default function SubcategoriesPage() {
            try {
                setDeleteLoading(true);
    
-               const response = await fetch(`/api/admin/subcategories/${deleteTarget.id}`, {
+               await apiFetch(`/api/admin/subcategories/${deleteTarget.id}`, {
                    method: 'DELETE',
                    headers: { role: 'admin' },
                });
-               const data = await response.json().catch(() => null);
-   
-               if (!response.ok) {
-                   throw new Error(data?.error || 'Sub-category could not be deleted');
-               }
    
                setSubcategories((current) => current.filter(
                    (subcategory) => subcategory.id !== deleteTarget.id

@@ -51,6 +51,7 @@ import {
 } from '@/lib/admin/product-editor';
 import { normalizeColorRecord } from '@/lib/admin/colors';
 import { useAdminSession } from '@/context/AdminSessionContext';
+import { apiFetch } from '@/lib/apiFetch/fetch';
 
 const INITIAL_FORM = {
     title: '',
@@ -200,35 +201,17 @@ export default function ProductDetailPage() {
                 setLoading(true);
                 setLoadError('');
 
-                const [productResponse, categoriesResponse, subcategoriesResponse] = await Promise.all([
-                    fetch(`/api/admin/products/${productId}`, {
-                        headers: { role: 'admin' },
-                    }),
-                    fetch('/api/admin/categories', {
-                        headers: { role: 'admin' },
-                    }),
-                    fetch('/api/admin/subcategories', {
-                        headers: { role: 'admin' },
-                    }),
-                ]);
-
                 const [productData, categoriesData, subcategoriesData] = await Promise.all([
-                    productResponse.json().catch(() => null),
-                    categoriesResponse.json().catch(() => []),
-                    subcategoriesResponse.json().catch(() => []),
+                    apiFetch(`/api/admin/products/${productId}`, {
+                        headers: { role: 'admin' },
+                    }),
+                    apiFetch('/api/admin/categories', {
+                        headers: { role: 'admin' },
+                    }),
+                    apiFetch('/api/admin/subcategories', {
+                        headers: { role: 'admin' },
+                    }),
                 ]);
-
-                if (!productResponse.ok) {
-                    throw new Error(productData?.error || 'Product details could not be loaded.');
-                }
-
-                if (!categoriesResponse.ok) {
-                    throw new Error(categoriesData?.error || 'Categories could not be loaded.');
-                }
-
-                if (!subcategoriesResponse.ok) {
-                    throw new Error(subcategoriesData?.error || 'Subcategories could not be loaded.');
-                }
 
                 if (!active) {
                     return;
@@ -291,17 +274,12 @@ export default function ProductDetailPage() {
 
         async function loadLookupOptions() {
             try {
-                const response = await fetch('/api/admin/products/lookups', {
+                const data = await apiFetch('/api/admin/products/lookups', {
                     headers: { role: 'admin' },
                 });
-                const data = await response.json().catch(() => createEmptyProductLookups());
 
                 if (!active) {
                     return;
-                }
-
-                if (!response.ok) {
-                    throw new Error(data?.error || 'Product lookups could not be loaded.');
                 }
 
                 setLookupOptions(normalizeProductLookups(data));
@@ -521,7 +499,7 @@ export default function ProductDetailPage() {
         try {
             setColorFormSubmitting(true);
 
-            const response = await fetch('/api/admin/colors', {
+            const data = await apiFetch('/api/admin/colors', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -529,11 +507,6 @@ export default function ProductDetailPage() {
                 },
                 body: JSON.stringify(payload),
             });
-            const data = await response.json().catch(() => null);
-
-            if (!response.ok) {
-                throw new Error(data?.error || 'Color could not be created.');
-            }
 
             const createdColor = normalizeColorRecord(data);
 
@@ -743,18 +716,13 @@ export default function ProductDetailPage() {
             payload.set('variants', JSON.stringify(normalizedVariants));
             payload.set('image', submitImage);
 
-            const response = await fetch(`/api/admin/products/${productId}`, {
+            const data = await apiFetch(`/api/admin/products/${productId}`, {
                 method: 'PUT',
                 headers: {
                     role: 'admin',
                 },
                 body: payload,
             });
-            const data = await response.json().catch(() => null);
-
-            if (!response.ok) {
-                throw new Error(data?.error || 'Product could not be updated.');
-            }
 
             const nextStoredImagePreview = data?.image || imagePreview;
             const nextDraft = {
@@ -814,17 +782,12 @@ export default function ProductDetailPage() {
         try {
             setDeleting(true);
 
-            const response = await fetch(`/api/admin/products/${productId}`, {
+            await apiFetch(`/api/admin/products/${productId}`, {
                 method: 'DELETE',
                 headers: {
                     role: 'admin',
                 },
             });
-            const data = await response.json().catch(() => null);
-
-            if (!response.ok) {
-                throw new Error(data?.error || 'Product could not be deleted.');
-            }
 
             setDeleteDialogOpen(false);
             enqueueSnackbar('Product deleted.', { variant: 'success' });

@@ -12,6 +12,7 @@ import VisibilityOffOutlinedIcon from '@mui/icons-material/VisibilityOffOutlined
 import LoginOutlinedIcon from '@mui/icons-material/LoginOutlined';
 import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
 import DescriptionOutlinedIcon from '@mui/icons-material/DescriptionOutlined';
+import { apiFetch } from '@/lib/apiFetch/fetch';
 
 export default function AdminLoginPage() {
     const [email, setEmail] = useState('');
@@ -27,21 +28,16 @@ export default function AdminLoginPage() {
         setIsLoading(true);
 
         try {
-            const res = await fetch('/api/admin/login', {
+            await apiFetch('/api/admin/login', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ email, password })
             });
 
-            if (res.ok) {
-                enqueueSnackbar('Login successful, redirecting...', { variant: 'success' });
-                router.push('/admin');
-            } else {
-                const data = await res.json();
-                enqueueSnackbar(data.error || 'Login failed', { variant: 'error' });
-            }
+            enqueueSnackbar('Login successful, redirecting...', { variant: 'success' });
+            router.push('/admin');
         } catch (error) {
-            enqueueSnackbar('Server connection error', { variant: 'error' });
+            enqueueSnackbar(error.message || 'Server connection error', { variant: 'error' });
         } finally {
             setIsLoading(false);
         }

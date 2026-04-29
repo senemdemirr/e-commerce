@@ -9,6 +9,7 @@ import CategoriesHeader from '@/components/admin/categories/CategoriesHeader';
 import CategoriesStatsCards from '@/components/admin/categories/CategoriesStatsCards';
 import CategoriesTable from '@/components/admin/categories/CategoriesTable';
 import { useAdminSession } from '@/context/AdminSessionContext';
+import { apiFetch } from '@/lib/apiFetch/fetch';
 
 const PAGE_SIZE = 4;
 
@@ -50,14 +51,9 @@ export default function CategoriesPage() {
             try {
                 setLoading(true);
 
-                const response = await fetch('/api/admin/categories', {
+                const data = await apiFetch('/api/admin/categories', {
                     headers: { role: 'admin' },
                 });
-                const data = await response.json().catch(() => []);
-
-                if (!response.ok) {
-                    throw new Error(data?.error || 'Categories could not be loaded');
-                }
 
                 if (!active) {
                     return;
@@ -142,7 +138,7 @@ export default function CategoriesPage() {
         try {
             setSubmitting(true);
 
-            const response = await fetch(endpoint, {
+            const data = await apiFetch(endpoint, {
                 method: isEditMode ? 'PUT' : 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -150,11 +146,6 @@ export default function CategoriesPage() {
                 },
                 body: JSON.stringify(payload),
             });
-            const data = await response.json().catch(() => null);
-
-            if (!response.ok) {
-                throw new Error(data?.error || 'Category could not be saved');
-            }
 
             if (isEditMode) {
                 setCategories((current) => current.map((category) => {
@@ -197,15 +188,10 @@ export default function CategoriesPage() {
         try {
             setDeleteLoading(true);
 
-            const response = await fetch(`/api/admin/categories/${deleteTarget.id}`, {
+            await apiFetch(`/api/admin/categories/${deleteTarget.id}`, {
                 method: 'DELETE',
                 headers: { role: 'admin' },
             });
-            const data = await response.json().catch(() => null);
-
-            if (!response.ok) {
-                throw new Error(data?.error || 'Category could not be deleted');
-            }
 
             setCategories((current) => current.filter((category) => category.id !== deleteTarget.id));
             enqueueSnackbar('Category deleted', { variant: 'success' });

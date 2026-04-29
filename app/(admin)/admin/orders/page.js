@@ -13,6 +13,7 @@ import ReceiptLongOutlinedIcon from '@mui/icons-material/ReceiptLongOutlined';
 import SearchRoundedIcon from '@mui/icons-material/SearchRounded';
 import OrderTable from '@/components/admin/OrderTable';
 import { formatOrderStatusLabel } from '@/lib/admin/order-display';
+import { apiFetch } from '@/lib/apiFetch/fetch';
 
 const STAT_CARDS = [
     {
@@ -88,11 +89,9 @@ export default function OrdersPage() {
             if (status) query.append('status', status);
             if (search) query.append('search', search);
 
-            const res = await fetch(`/api/admin/orders?${query.toString()}`, {
+            const data = await apiFetch(`/api/admin/orders?${query.toString()}`, {
                 headers: { role: 'admin' },
             });
-            if (!res.ok) throw new Error('Orders could not be loaded');
-            const data = await res.json();
             
             setOrders(data.orders || []);
             setPagination(data.pagination || { page: 1, total: 0, totalPages: 1 });
@@ -114,11 +113,9 @@ export default function OrdersPage() {
     useEffect(() => {
         const fetchStatuses = async () => {
             try {
-                const res = await fetch('/api/admin/order-statuses', {
+                const data = await apiFetch('/api/admin/order-statuses', {
                     headers: { role: 'admin' },
                 });
-                if (!res.ok) throw new Error('Order statuses could not be loaded');
-                const data = await res.json();
                 setStatusOptions(data.statuses || []);
                 setSummary(data.summary || {
                     total: data.totalOrders || 0,

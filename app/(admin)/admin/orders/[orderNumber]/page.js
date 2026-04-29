@@ -19,6 +19,7 @@ import {
     isCancelledStatus,
     isDeliveredStatus,
 } from '@/lib/admin/order-display';
+import { apiFetch } from '@/lib/apiFetch/fetch';
 
 export default function OrderDetailPage() {
     const { orderNumber } = useParams();
@@ -40,25 +41,14 @@ export default function OrderDetailPage() {
             try {
                 setLoading(true);
 
-                const [orderRes, statusesRes] = await Promise.all([
-                    fetch(`/api/admin/orders/${encodeURIComponent(orderNumber)}`, {
+                const [orderData, statusesData] = await Promise.all([
+                    apiFetch(`/api/admin/orders/${encodeURIComponent(orderNumber)}`, {
                         headers: { role: 'admin' },
                     }),
-                    fetch('/api/admin/order-statuses', {
+                    apiFetch('/api/admin/order-statuses', {
                         headers: { role: 'admin' },
                     }),
                 ]);
-
-                const orderData = await orderRes.json();
-                const statusesData = await statusesRes.json();
-
-                if (!orderRes.ok) {
-                    throw new Error(orderData.error || 'Order details could not be loaded');
-                }
-
-                if (!statusesRes.ok) {
-                    throw new Error(statusesData.error || 'Order statuses could not be loaded');
-                }
 
                 if (!active) {
                     return;
@@ -126,7 +116,7 @@ export default function OrderDetailPage() {
 
         try {
             setSaving(true);
-            const res = await fetch(`/api/admin/orders/${encodeURIComponent(orderNumber)}`, {
+            const data = await apiFetch(`/api/admin/orders/${encodeURIComponent(orderNumber)}`, {
                 method: 'PATCH',
                 headers: {
                     'Content-Type': 'application/json',
@@ -137,12 +127,6 @@ export default function OrderDetailPage() {
                     statusUpdateNote: normalizedNextNote,
                 }),
             });
-
-            const data = await res.json();
-
-            if (!res.ok) {
-                throw new Error(data.error || 'Order could not be updated');
-            }
 
             const nextTitle = data.status_title
                 || statusOptions.find((item) => String(item.id) === String(data.status ?? nextStatus))?.title

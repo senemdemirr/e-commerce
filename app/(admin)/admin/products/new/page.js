@@ -45,6 +45,7 @@ import {
 } from '@/lib/admin/product-editor';
 import { normalizeColorRecord } from '@/lib/admin/colors';
 import { useAdminSession } from '@/context/AdminSessionContext';
+import { apiFetch } from '@/lib/apiFetch/fetch';
 
 const INITIAL_FORM = {
     title: '',
@@ -108,26 +109,14 @@ export default function NewProductPage() {
                 setLoading(true);
                 setLoadError('');
 
-                const [categoriesResponse, subcategoriesResponse] = await Promise.all([
-                    fetch('/api/admin/categories', {
-                        headers: { role: 'admin' },
-                    }),
-                    fetch('/api/admin/subcategories', {
-                        headers: { role: 'admin' },
-                    }),
-                ]);
                 const [categoriesData, subcategoriesData] = await Promise.all([
-                    categoriesResponse.json().catch(() => []),
-                    subcategoriesResponse.json().catch(() => []),
+                    apiFetch('/api/admin/categories', {
+                        headers: { role: 'admin' },
+                    }),
+                    apiFetch('/api/admin/subcategories', {
+                        headers: { role: 'admin' },
+                    }),
                 ]);
-
-                if (!categoriesResponse.ok) {
-                    throw new Error(categoriesData?.error || 'Categories could not be loaded.');
-                }
-
-                if (!subcategoriesResponse.ok) {
-                    throw new Error(subcategoriesData?.error || 'Subcategories could not be loaded.');
-                }
 
                 if (!active) {
                     return;
@@ -195,17 +184,12 @@ export default function NewProductPage() {
 
         async function loadLookupOptions() {
             try {
-                const response = await fetch('/api/admin/products/lookups', {
+                const data = await apiFetch('/api/admin/products/lookups', {
                     headers: { role: 'admin' },
                 });
-                const data = await response.json().catch(() => createEmptyProductLookups());
 
                 if (!active) {
                     return;
-                }
-
-                if (!response.ok) {
-                    throw new Error(data?.error || 'Product lookups could not be loaded.');
                 }
 
                 setLookupOptions(normalizeProductLookups(data));
@@ -424,7 +408,7 @@ export default function NewProductPage() {
         try {
             setColorFormSubmitting(true);
 
-            const response = await fetch('/api/admin/colors', {
+            const data = await apiFetch('/api/admin/colors', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -432,11 +416,6 @@ export default function NewProductPage() {
                 },
                 body: JSON.stringify(payload),
             });
-            const data = await response.json().catch(() => null);
-
-            if (!response.ok) {
-                throw new Error(data?.error || 'Color could not be created.');
-            }
 
             const createdColor = normalizeColorRecord(data);
 
@@ -616,18 +595,13 @@ export default function NewProductPage() {
             payload.set('variants', JSON.stringify(normalizedVariants));
             payload.set('image', imageFile);
 
-            const response = await fetch('/api/admin/products', {
+            await apiFetch('/api/admin/products', {
                 method: 'POST',
                 headers: {
                     role: 'admin',
                 },
                 body: payload,
             });
-            const data = await response.json().catch(() => null);
-
-            if (!response.ok) {
-                throw new Error(data?.error || 'Product could not be created.');
-            }
 
             enqueueSnackbar('Product created successfully.', { variant: 'success' });
             router.push('/admin/products');

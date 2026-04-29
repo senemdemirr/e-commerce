@@ -10,6 +10,7 @@ import ColorsStatsCards from '@/components/admin/colors/ColorsStatsCards';
 import ColorsTable from '@/components/admin/colors/ColorsTable';
 import { normalizeColorRecord } from '@/lib/admin/colors';
 import { useAdminSession } from '@/context/AdminSessionContext';
+import { apiFetch } from '@/lib/apiFetch/fetch';
 
 const PAGE_SIZE = 6;
 
@@ -42,14 +43,9 @@ export default function ColorsPage() {
             try {
                 setLoading(true);
 
-                const response = await fetch('/api/admin/colors', {
+                const data = await apiFetch('/api/admin/colors', {
                     headers: { role: 'admin' },
                 });
-                const data = await response.json().catch(() => []);
-
-                if (!response.ok) {
-                    throw new Error(data?.error || 'Colors could not be loaded');
-                }
 
                 if (!active) {
                     return;
@@ -159,7 +155,7 @@ export default function ColorsPage() {
         try {
             setSubmitting(true);
 
-            const response = await fetch(endpoint, {
+            const data = await apiFetch(endpoint, {
                 method: isEditMode ? 'PUT' : 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -167,11 +163,6 @@ export default function ColorsPage() {
                 },
                 body: JSON.stringify(payload),
             });
-            const data = await response.json().catch(() => null);
-
-            if (!response.ok) {
-                throw new Error(data?.error || 'Color could not be saved');
-            }
 
             const normalizedColor = normalizeColorRecord(data);
 
@@ -209,15 +200,10 @@ export default function ColorsPage() {
         try {
             setDeleteLoading(true);
 
-            const response = await fetch(`/api/admin/colors/${deleteTarget.id}`, {
+            await apiFetch(`/api/admin/colors/${deleteTarget.id}`, {
                 method: 'DELETE',
                 headers: { role: 'admin' },
             });
-            const data = await response.json().catch(() => null);
-
-            if (!response.ok) {
-                throw new Error(data?.error || 'Color could not be deleted');
-            }
 
             setColors((current) => current.filter((color) => color.id !== deleteTarget.id));
             enqueueSnackbar('Color deleted', { variant: 'success' });

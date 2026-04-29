@@ -10,6 +10,7 @@ import CustomersStatsCards from '@/components/admin/customers/CustomersStatsCard
 import CustomerDetailModal from '@/components/admin/customers/CustomerDetailModal';
 import CustomersTable from '@/components/admin/customers/CustomersTable';
 import { useAdminSession } from '@/context/AdminSessionContext';
+import { apiFetch } from '@/lib/apiFetch/fetch';
 
 function formatDate(value, options = {}) {
     if (!value) return 'Not specified';
@@ -97,11 +98,9 @@ export default function CustomersPage() {
             if (segment && segment !== 'all') query.append('segment', segment);
             if (search) query.append('search', search);
 
-            const res = await fetch(`/api/admin/customers?${query.toString()}`, {
+            const data = await apiFetch(`/api/admin/customers?${query.toString()}`, {
                 headers: { role: 'admin' },
             });
-            if (!res.ok) throw new Error('Customers could not be loaded');
-            const data = await res.json();
 
             setCustomers(data.customers || []);
             setSummary(data.summary || {
@@ -148,7 +147,7 @@ export default function CustomersPage() {
         try {
             setDetailUpdating(true);
 
-            const res = await fetch(`/api/admin/customers/${selectedCustomer.id}`, {
+            const data = await apiFetch(`/api/admin/customers/${selectedCustomer.id}`, {
                 method: 'PATCH',
                 headers: {
                     'Content-Type': 'application/json',
@@ -156,9 +155,6 @@ export default function CustomersPage() {
                 },
                 body: JSON.stringify({ activate: checked ? 1 : 0 }),
             });
-            const data = await res.json();
-
-            if (!res.ok) throw new Error(data.error || 'Customer status could not be updated');
 
             setSelectedCustomer((current) => (
                 current && current.id === data.id

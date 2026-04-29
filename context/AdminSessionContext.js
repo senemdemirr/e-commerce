@@ -1,6 +1,7 @@
 'use client';
 
 import { createContext, useContext, useEffect, useState } from 'react';
+import { apiFetch } from '@/lib/apiFetch/fetch';
 
 const AdminSessionContext = createContext({
     admin: null,
@@ -23,14 +24,7 @@ export function AdminSessionProvider({ children }) {
         try {
             setLoading(true);
 
-            const response = await fetch('/api/admin/me');
-
-            if (!response.ok) {
-                setAdmin(null);
-                return;
-            }
-
-            const data = await response.json();
+            const data = await apiFetch('/api/admin/me');
             setAdmin(data);
         } catch {
             setAdmin(null);
