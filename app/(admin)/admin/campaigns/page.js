@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useSnackbar } from 'notistack';
 import CampaignForm from '@/components/admin/campaigns/CampaignForm';
 import CampaignsHeader from '@/components/admin/campaigns/CampaignsHeader';
@@ -41,6 +41,7 @@ function campaignMatchesSearch(campaign, search) {
 export default function CampaignsPage() {
     const { enqueueSnackbar } = useSnackbar();
     const { canMutate, loading: adminLoading } = useAdminSession();
+    const enqueueSnackbarRef = useRef(enqueueSnackbar);
     const [campaigns, setCampaigns] = useState([]);
     const [loading, setLoading] = useState(true);
     const [page, setPage] = useState(1);
@@ -52,6 +53,10 @@ export default function CampaignsPage() {
     const [submitting, setSubmitting] = useState(false);
     const [deleteTarget, setDeleteTarget] = useState(null);
     const [deleteLoading, setDeleteLoading] = useState(false);
+
+    useEffect(() => {
+        enqueueSnackbarRef.current = enqueueSnackbar;
+    }, [enqueueSnackbar]);
 
     useEffect(() => {
         let active = true;
@@ -76,7 +81,7 @@ export default function CampaignsPage() {
                 setCampaigns(Array.isArray(data) ? data.map((campaign) => normalizeCampaignRecord(campaign)) : []);
             } catch (error) {
                 if (active) {
-                    enqueueSnackbar(error.message || 'Campaigns could not be loaded', { variant: 'error' });
+                    enqueueSnackbarRef.current(error.message || 'Campaigns could not be loaded', { variant: 'error' });
                 }
             } finally {
                 if (active) {
@@ -90,7 +95,7 @@ export default function CampaignsPage() {
         return () => {
             active = false;
         };
-    }, [enqueueSnackbar]);
+    }, []);
 
     const filteredCampaigns = useMemo(() => (
         campaigns.filter((campaign) => {
