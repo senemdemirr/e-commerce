@@ -1,32 +1,21 @@
 import {
+    areCampaignDateValuesEqual,
+    formatCampaignDateTime,
     normalizeCampaignPayload,
     normalizeDateTimeLocalWithOffset,
+    toCampaignDateTimeInputValue,
 } from '../../lib/admin/campaigns.js';
 
-function expectedLocalOffset(value) {
-    const [datePart, timePart] = value.split('T');
-    const [year, month, day] = datePart.split('-').map(Number);
-    const [hour, minute] = timePart.split(':').map(Number);
-    const date = new Date(year, month - 1, day, hour, minute);
-    const offsetMinutes = -date.getTimezoneOffset();
-    const sign = offsetMinutes >= 0 ? '+' : '-';
-    const absoluteOffsetMinutes = Math.abs(offsetMinutes);
-    const offsetHours = String(Math.floor(absoluteOffsetMinutes / 60)).padStart(2, '0');
-    const offsetRemainderMinutes = String(absoluteOffsetMinutes % 60).padStart(2, '0');
-
-    return `${sign}${offsetHours}:${offsetRemainderMinutes}`;
-}
-
 describe('Admin campaign date normalization', () => {
-    test('normalizes datetime-local values with the local offset', () => {
+    test('normalizes datetime-local values with the campaign timezone offset', () => {
         const startsAt = '2026-04-28T02:00';
         const endsAt = '2026-04-29T08:00';
 
         expect(normalizeDateTimeLocalWithOffset(startsAt)).toBe(
-            `2026-04-28T02:00:00.000${expectedLocalOffset(startsAt)}`
+            '2026-04-28T02:00:00.000+03:00'
         );
         expect(normalizeDateTimeLocalWithOffset(endsAt)).toBe(
-            `2026-04-29T08:00:00.000${expectedLocalOffset(endsAt)}`
+            '2026-04-29T08:00:00.000+03:00'
         );
     });
 
@@ -46,9 +35,35 @@ describe('Admin campaign date normalization', () => {
             preserveDateTimeOffset: true,
         });
 
-        expect(payload.starts_at).toBe(`2026-04-28T02:00:00.000${expectedLocalOffset(startsAt)}`);
-        expect(payload.ends_at).toBe(`2026-04-29T08:00:00.000${expectedLocalOffset(endsAt)}`);
+        expect(payload.starts_at).toBe('2026-04-28T02:00:00.000+03:00');
+        expect(payload.ends_at).toBe('2026-04-29T08:00:00.000+03:00');
         expect(payload.starts_at).not.toBe(new Date(startsAt).toISOString());
         expect(payload.ends_at).not.toBe(new Date(endsAt).toISOString());
+    });
+
+    test('formats campaign dates in the campaign timezone', () => {
+        expect(formatCampaignDateTime('2026-04-27T23:00:00.000Z')).toBe('28.04.2026 02.00');
+        expect(formatCampaignDateTime('2026-04-28T02:00:00.000+03:00')).toBe('28.04.2026 02.00');
+        expect(formatCampaignDateTime('2026-04-28T02:00')).toBe('28.04.2026 02.00');
+    });
+
+    test('builds datetime-local values in the campaign timezone', () => {
+        expect(toCampaignDateTimeInputValue('2026-04-27T23:00:00.000Z')).toBe('2026-04-28T02:00');
+        expect(toCampaignDateTimeInputValue('2026-04-28T02:00:00.000+03:00')).toBe('2026-04-28T02:00');
+    });
+
+    test('compares equivalent stored and submitted campaign dates', () => {
+        expect(areCampaignDateValuesEqual(
+            '2026-04-27T23:00:00.000Z',
+            '2026-04-28T02:00:00.000+03:00'
+        )).toBe(true);
+        expect(areCampaignDateValuesEqual(
+            new Date('2026-04-27T23:00:00.000Z'),
+            '2026-04-28T02:00:00.000+03:00'
+        )).toBe(true);
+        expect(areCampaignDateValuesEqual(
+            '2026-04-27T23:00:00.000Z',
+            '2026-04-28T03:00:00.000+03:00'
+        )).toBe(false);
     });
 });

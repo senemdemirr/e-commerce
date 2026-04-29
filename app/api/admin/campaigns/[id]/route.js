@@ -1,7 +1,12 @@
 import { pool } from '@/lib/db.js';
 import { requireAdminWriteAccess } from '@/lib/admin/auth.js';
 import { ensureCampaignSchema } from '@/lib/admin/campaignSchema.js';
-import { normalizeCampaignPayload, normalizeCampaignRecord, validateCampaignPayload } from '@/lib/admin/campaigns.js';
+import {
+    areCampaignDateValuesEqual,
+    normalizeCampaignPayload,
+    normalizeCampaignRecord,
+    validateCampaignPayload,
+} from '@/lib/admin/campaigns.js';
 import { isAdminTestMode, listFallbackCampaignRecords } from '@/lib/admin/test-data.js';
 
 function invalidFieldResponse(message) {
@@ -38,8 +43,8 @@ function updateFallbackCampaign(id, payload) {
         && currentCampaign.description === payload.description
         && currentCampaign.discount_type === payload.discount_type
         && Number(currentCampaign.discount_value) === Number(payload.discount_value)
-        && (currentCampaign.starts_at || null) === (payload.starts_at || null)
-        && (currentCampaign.ends_at || null) === (payload.ends_at || null)
+        && areCampaignDateValuesEqual(currentCampaign.starts_at, payload.starts_at)
+        && areCampaignDateValuesEqual(currentCampaign.ends_at, payload.ends_at)
         && currentCampaign.is_active === payload.is_active
         && (currentCampaign.usage_limit || null) === (payload.usage_limit || null)
     );
@@ -50,7 +55,7 @@ function updateFallbackCampaign(id, payload) {
             ...payload,
             used_count: currentCampaign.used_count,
             created_at: currentCampaign.created_at,
-            updated_at: new Date().toISOString(),
+            updated_at: updated ? new Date().toISOString() : currentCampaign.updated_at,
         }),
         updated,
     };
@@ -107,8 +112,8 @@ export async function PUT(req, { params } = {}) {
             && currentCampaign.description === payload.description
             && currentCampaign.discount_type === payload.discount_type
             && Number(currentCampaign.discount_value) === Number(payload.discount_value)
-            && (currentCampaign.starts_at || null) === (payload.starts_at || null)
-            && (currentCampaign.ends_at || null) === (payload.ends_at || null)
+            && areCampaignDateValuesEqual(currentCampaign.starts_at, payload.starts_at)
+            && areCampaignDateValuesEqual(currentCampaign.ends_at, payload.ends_at)
             && currentCampaign.is_active === payload.is_active
             && (currentCampaign.usage_limit || null) === (payload.usage_limit || null)
         );

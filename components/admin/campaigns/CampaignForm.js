@@ -13,23 +13,9 @@ import CloseRoundedIcon from '@mui/icons-material/CloseRounded';
 import {
     formatCampaignDateTime,
     normalizeCampaignPayload,
+    toCampaignDateTimeInputValue,
     validateCampaignPayload,
 } from '@/lib/admin/campaigns';
-
-function toDateTimeInputValue(value) {
-    if (!value) {
-        return '';
-    }
-
-    const date = new Date(value);
-
-    if (Number.isNaN(date.getTime())) {
-        return '';
-    }
-
-    const offsetDate = new Date(date.getTime() - date.getTimezoneOffset() * 60000);
-    return offsetDate.toISOString().slice(0, 16);
-}
 
 function normalizeCodeInput(value) {
     return String(value || '').trim().toUpperCase().replace(/[^A-Z0-9_-]/g, '');
@@ -69,8 +55,8 @@ export default function CampaignForm({
             description: initialValues?.description || '',
             discount_type: initialValues?.discount_type || 'percent',
             discount_value: initialValues?.discount_value ? String(initialValues.discount_value) : '',
-            starts_at: toDateTimeInputValue(initialValues?.starts_at),
-            ends_at: toDateTimeInputValue(initialValues?.ends_at),
+            starts_at: toCampaignDateTimeInputValue(initialValues?.starts_at),
+            ends_at: toCampaignDateTimeInputValue(initialValues?.ends_at),
             is_active: initialValues?.is_active ?? true,
             usage_limit: initialValues?.usage_limit ? String(initialValues.usage_limit) : '',
         });
