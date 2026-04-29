@@ -15,11 +15,20 @@ export async function GET(request) {
         SELECT
             ${buildProductRelationsSelect('p')},
             sc.slug AS "subCategorySlug",
-            c.slug AS "categorySlug"
+            c.slug AS "categorySlug",
+            COALESCE(review_stats.review_count, 0) AS review_count,
+            COALESCE(review_stats.average_rating, 0) AS average_rating
         FROM products p
         ${buildProductRelationsJoins('p')}
         LEFT JOIN sub_categories sc ON p.sub_category_id = sc.id
         LEFT JOIN categories c ON c.id = sc.category_id
+        LEFT JOIN LATERAL (
+            SELECT
+                COUNT(*)::int AS review_count,
+                COALESCE(AVG(pr.rating), 0)::float AS average_rating
+            FROM product_reviews pr
+            WHERE pr.product_id = p.id
+        ) review_stats ON TRUE
         WHERE 1=1
     `;
 

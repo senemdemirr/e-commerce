@@ -5,9 +5,47 @@ export async function GET(request) {
     const userId = searchParams.get("userId");
 
     try {
-        const res = await pool.query(`SELECT p.id AS id, f.id AS favorite_id,p.title AS title, p.description AS description, p.image AS image, p.sku AS sku, p.brand AS brand,p.price AS price, sc.slug AS "subCategorySlug", c.slug AS "categorySlug" FROM favorites f LEFT JOIN products p ON p.id = f.product_id LEFT JOIN sub_categories sc ON sc.id = p.sub_category_id LEFT JOIN categories c ON c.id = sc.category_id WHERE user_id= $1 ORDER BY f.id DESC`, [userId]);
+        const res = await pool.query(
+            `
+                SELECT
+                    p.id AS id,
+                    f.id AS favorite_id,
+                    p.title AS title,
+                    p.description AS description,
+                    p.image AS image,
+                    p.sku AS sku,
+                    p.brand AS brand,
+                    p.price AS price,
+                    p.created_at AS created_at,
+                    sc.slug AS "subCategorySlug",
+                    c.slug AS "categorySlug",
+                    COALESCE(review_stats.review_count, 0) AS review_count,
+                    COALESCE(review_stats.average_rating, 0) AS average_rating
+                FROM favorites f
+                LEFT JOIN products p ON p.id = f.product_id
+                LEFT JOIN sub_categories sc ON sc.id = p.sub_category_id
+                LEFT JOIN categories c ON c.id = sc.category_id
+                LEFT JOIN LATERAL (
+                    SELECT
+                        COUNT(*)::int AS review_count,
+                        COALESCE(AVG(pr.rating), 0)::float AS average_rating
+                    FROM product_reviews pr
+                    WHERE pr.product_id = p.id
+                ) review_stats ON TRUE
+                WHERE f.user_id = $1
+                ORDER BY f.id DESC
+            `,
+            [userId]
+        );
         return Response.json(
-            res?.rows,
+            (res?.rows || []).map((row) => ({
+                ...row,
+                id: row.id ? Number(row.id) : row.id,
+                favorite_id: row.favorite_id ? Number(row.favorite_id) : row.favorite_id,
+                price: Number(row.price || 0),
+                review_count: Number(row.review_count || 0),
+                average_rating: Number(row.average_rating || 0),
+            })),
             { status: 200 }
         )
 
