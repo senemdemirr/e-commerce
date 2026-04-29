@@ -1,24 +1,14 @@
 "use client";
 
-import React, { useEffect, useState, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
+import { Box } from '@mui/material';
 import { useCart } from "@/context/CartContext";
 import { useUser } from "@/context/UserContext";
 import { useSnackbar } from "notistack";
 import { apiFetch } from "@/lib/apiFetch/fetch";
-import { Tabs, Tab, Box } from '@mui/material';
-
-// MUI Icons
-import RemoveIcon from '@mui/icons-material/Remove';
-import AddIcon from '@mui/icons-material/Add';
-import ShoppingBagIcon from '@mui/icons-material/ShoppingBag';
-import CheckCircleIcon from '@mui/icons-material/CheckCircle';
-import LocalLaundryServiceIcon from '@mui/icons-material/LocalLaundryService';
-import IronIcon from '@mui/icons-material/Iron';
-import DryCleaningIcon from '@mui/icons-material/DryCleaning';
-import StarIcon from '@mui/icons-material/Star';
-import StarHalfIcon from '@mui/icons-material/StarHalf';
-import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
-import FavoriteIcon from '@mui/icons-material/Favorite';
+import ProductImageSection from './ProductImageSection';
+import ProductPurchasePanel from './ProductPurchasePanel';
+import ProductDetailTabs from './ProductDetailTabs';
 
 function normalizeColorItem(color) {
     if (color && typeof color === 'object' && !Array.isArray(color)) {
@@ -202,7 +192,7 @@ export default function ProductDetailClient({ product }) {
         setSelectedSize(nextSelections.size);
         setQuantity(1);
         setTabValue(0);
-    }, [product?.id, product?.sku]);
+    }, [product]);
 
     const availableSizes = variants.length > 0
         ? uniqueSizesFromVariants(variants, selectedColor.name)
@@ -214,6 +204,7 @@ export default function ProductDetailClient({ product }) {
     const displayPrice = activeVariant?.price ?? Number(product?.price || 0);
     const isInStock = variants.length > 0 ? activeStock > 0 : true;
     const showLowStockMessage = variants.length > 0 && activeStock > 0 && activeStock < 10;
+    const hasMissingVariant = variants.length > 0 && !activeVariant;
 
     const scrollToReviews = () => {
         setTabValue(1);
@@ -222,8 +213,20 @@ export default function ProductDetailClient({ product }) {
         }
     };
 
+    const handleColorChange = (color) => {
+        const nextSizes = variants.length > 0
+            ? uniqueSizesFromVariants(variants, color.name)
+            : availableSizes;
+        const nextSize = nextSizes.includes(selectedSize)
+            ? selectedSize
+            : (nextSizes[0] || "");
+
+        setSelectedColor(color);
+        setSelectedSize(nextSize);
+    };
+
     const handleAddToCart = () => {
-        if (variants.length > 0 && !activeVariant) {
+        if (hasMissingVariant) {
             enqueueSnackbar("Please select an available variant.", { variant: "warning" });
             return;
         }
@@ -246,37 +249,55 @@ export default function ProductDetailClient({ product }) {
         if (!user || !product?.id) {
             return;
         }
+
         let active = true;
+
         const fetchFavorites = async () => {
             try {
                 const res = await apiFetch(`/api/favorites?userId=${user.id}`);
-                if (!active) return;
+                if (!active) {
+                    return;
+                }
+
                 const ids = Array.isArray(res) ? res.map((item) => item.id) : [];
                 setFavoriteIds(ids);
             } catch (error) {
-                if (!active) return;
+                if (!active) {
+                    return;
+                }
+
                 if (error?.status === 401) {
                     enqueueSnackbar("You need to sign in to view favorites.", { variant: "info" });
                     return;
                 }
+
                 console.log(error);
             }
         };
+
         fetchFavorites();
+
         return () => {
             active = false;
         };
-    }, [user, product?.id]);
+    }, [enqueueSnackbar, user, product?.id]);
+
     const isFavorite = favoriteIds.includes(product?.id);
+
     const handleToggleFavorite = async () => {
         if (!user) {
             enqueueSnackbar("You need to sign in to manage favorites.", { variant: "info" });
             return;
         }
-        if (!product?.id || favoritePending) return;
+
+        if (!product?.id || favoritePending) {
+            return;
+        }
+
         const isCurrentlyFavorite = favoriteIds.includes(product.id);
         const nextFavoriteValue = !isCurrentlyFavorite;
         setFavoritePending(true);
+
         try {
             await apiFetch(`/api/favorites`, {
                 method: 'POST',
@@ -286,16 +307,19 @@ export default function ProductDetailClient({ product }) {
                 body: JSON.stringify({
                     product_id: product.id,
                     user_id: user.id,
-                    favorite: nextFavoriteValue
-                })
+                    favorite: nextFavoriteValue,
+                }),
             });
-            setFavoriteIds((prev) =>
-            nextFavoriteValue
-                ? [...prev, product.id]
-                : prev.filter((id) => id !== product.id)
-        );
-            enqueueSnackbar(nextFavoriteValue ? "Product added to favorites." : "Product removed from favorites.", { variant: "success" });
-        } catch (error) {
+            setFavoriteIds((prev) => (
+                nextFavoriteValue
+                    ? [...prev, product.id]
+                    : prev.filter((id) => id !== product.id)
+            ));
+            enqueueSnackbar(
+                nextFavoriteValue ? "Product added to favorites." : "Product removed from favorites.",
+                { variant: "success" }
+            );
+        } catch {
             enqueueSnackbar("Failed to update favorite status.", { variant: "error" });
         } finally {
             setFavoritePending(false);
@@ -312,331 +336,51 @@ export default function ProductDetailClient({ product }) {
         ? (details.description_long[0] || '')
         : String(details.description_long || '').trim();
 
-    const renderStars = (rating, size = 20) => {
-        return [1, 2, 3, 4, 5].map((star) => {
-            const fullStars = Math.floor(rating);
-            const hasHalfStar = rating % 1 >= 0.5;
-
-            if (star <= fullStars) {
-                return (
-                    <StarIcon
-                        key={star}
-                        sx={{ fontSize: size, color: '#F0B48C' }}
-                    />
-                );
-            } else if (star === fullStars + 1 && hasHalfStar) {
-                return (
-                    <StarHalfIcon
-                        key={star}
-                        sx={{ fontSize: size, color: '#F0B48C' }}
-                    />
-                );
-            } else {
-                return (
-                    <StarIcon
-                        key={star}
-                        sx={{ fontSize: size, color: 'rgba(156, 163, 175, 0.2)' }}
-                    />
-                );
-            }
-        });
-    };
-
     return (
-        <div className="container py-8 mx-auto">
-            <div className="flex flex-col w-full">
-                <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-16">
-                    <div className="lg:col-span-7 flex flex-col gap-4">
-                        <div className="w-full aspect-[3/4] md:aspect-[4/3] lg:aspect-[1/1] bg-gray-100 dark:bg-gray-800 rounded-2xl overflow-hidden relative group">
-                            <div
-                                className="w-full h-full bg-center bg-no-repeat bg-cover transition-transform duration-500 group-hover:scale-105"
-                                style={{ backgroundImage: `url("${product.image}")` }}
-                            >
-                            </div>
-                            <div className="absolute top-4 left-4">
-                                <span className="bg-primary text-white text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider">
-                                    New Season
-                                </span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div className="lg:col-span-5 flex flex-col pt-2">
-                        <div className="mb-4 border-b border-[#f1f3f2] dark:border-[#2a362f] pb-6">
-                            <div className="flex justify-between items-start mb-2 gap-4">
-                                <h1 className="text-3xl md:text-4xl font-bold text-text-dark dark:text-white leading-tight">
-                                    {product.title}
-                                </h1>
-                                <button
-                                    type="button"
-                                    onClick={handleToggleFavorite}
-                                    disabled={favoritePending}
-                                    aria-pressed={isFavorite}
-                                    aria-label={isFavorite ? "Remove from favorites" : "Add to favorites"}
-                                    className={`shrink-0 h-10 w-10 rounded-full border flex items-center justify-center transition-colors disabled:opacity-60 disabled:cursor-not-allowed ${isFavorite
-                                        ? "border-primary text-primary bg-primary/10"
-                                        : "border-[#e5e7eb] dark:border-[#2a362f] text-[#6d7e73] hover:border-primary hover:text-primary"
-                                        }`}
-                                >
-                                    {isFavorite ? (
-                                        <FavoriteIcon className="text-primary" sx={{ fontSize: 22 }} />
-                                    ) : (
-                                        <FavoriteBorderIcon className="text-current" sx={{ fontSize: 22 }} />
-                                    )}
-                                </button>
-                            </div>
-
-                            <div className="flex items-center gap-4 mb-4">
-                                <div className="flex items-center gap-0.5">
-                                    {renderStars(product.average_rating || 0)}
-                                </div>
-                                <span
-                                    onClick={scrollToReviews}
-                                    className="text-sm text-[#6d7e73] underline cursor-pointer hover:text-primary"
-                                >
-                                    {product.review_count || 0} Değerlendirme
-                                </span>
-                            </div>
-
-                            <div className="flex items-end gap-3">
-                                <span className="text-3xl font-bold text-primary">₺{displayPrice}</span>
-                            </div>
-                        </div>
-                        <div className="mb-8">
-                            <p className="text-[#6d7e73] dark:text-[#a0aead] leading-relaxed">
-                                {product.description}
-                            </p>
-                        </div>
-
-                        {colorOptions.length > 0 && (
-                            <div className="mb-6">
-                                <h3 className="text-sm font-bold text-text-dark dark:text-white uppercase tracking-wider mb-3">
-                                    Color: <span className="font-normal text-[#6d7e73]">{selectedColor.name}</span>
-                                </h3>
-                                <div className="flex gap-3">
-                                    {colorOptions.map((color, index) => {
-                                        return (
-                                            <button
-                                                key={index}
-                                                aria-label={`Color ${color.name}`}
-                                                onClick={() => {
-                                                    const nextSizes = variants.length > 0
-                                                        ? uniqueSizesFromVariants(variants, color.name)
-                                                        : availableSizes;
-                                                    const nextSize = nextSizes.includes(selectedSize)
-                                                        ? selectedSize
-                                                        : (nextSizes[0] || "");
-
-                                                    setSelectedColor(color);
-                                                    setSelectedSize(nextSize);
-                                                }}
-                                                className={`w-10 h-10 rounded-full border-2 transition-all focus:outline-none ${selectedColor.hex === color.hex
-                                                    ? "border-white ring-2 ring-primary shadow-sm"
-                                                    : "border-transparent hover:border-white hover:ring-2 hover:ring-gray-200"
-                                                    }`}
-                                                style={{ backgroundColor: color.hex }}
-                                            ></button>
-                                        );
-                                    })}
-                                </div>
-                            </div>
-                        )}
-
-                        {availableSizes.length > 0 && (
-                            <div className="mb-8">
-                                <div className="flex justify-between items-center mb-3">
-                                    <h3 className="text-sm font-bold text-text-dark dark:text-white uppercase tracking-wider">
-                                        {availableSizes[0] === 'Standard' ? 'Option:' : 'Size:'} <span className="font-normal text-[#6d7e73]">{selectedSize}</span>
-                                    </h3>
-                                </div>
-                                <div className="flex flex-wrap gap-3">
-                                    {availableSizes.map((size, index) => (
-                                        <button
-                                            key={index}
-                                            onClick={() => setSelectedSize(size)}
-                                            className={`h-10 min-w-[3rem] px-2 rounded-lg border transition-all ${selectedSize === size
-                                                ? "border-2 border-primary bg-primary/10 text-primary font-bold"
-                                                : "border-[#e5e7eb] dark:border-[#2a362f] text-text-dark dark:text-white hover:border-primary hover:text-primary"
-                                                }`}
-                                        >
-                                            {size}
-                                        </button>
-                                    ))}
-                                </div>
-                            </div>
-                        )}
-
-                        <div className="flex flex-col gap-4 mt-auto">
-                            <div className="flex gap-4 h-12">
-                                <div className="flex items-center border border-[#e5e7eb] dark:border-[#2a362f] rounded-lg bg-white dark:bg-[#1e2823] px-2">
-                                    <button
-                                        onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                                        className="w-8 h-full text-[#6d7e73] hover:text-primary transition-colors flex items-center justify-center p-0"
-                                    >
-                                        <RemoveIcon sx={{ fontSize: 18 }} />
-                                    </button>
-                                    <input
-                                        className="w-10 text-center border-none focus:ring-0 p-0 text-text-dark dark:text-white font-medium bg-transparent"
-                                        readOnly
-                                        type="text"
-                                        value={quantity}
-                                    />
-                                    <button
-                                        onClick={() => setQuantity(quantity + 1)}
-                                        className="w-8 h-full text-[#6d7e73] hover:text-primary transition-colors flex items-center justify-center p-0"
-                                    >
-                                        <AddIcon sx={{ fontSize: 18 }} />
-                                    </button>
-                                </div>
-                                <button
-                                    onClick={handleAddToCart}
-                                    disabled={loading || (variants.length > 0 && !activeVariant) || !isInStock}
-                                    className="flex-1 bg-primary hover:bg-primary-dark text-white font-bold rounded-lg transition-colors flex items-center justify-center gap-2 shadow-lg shadow-primary/30 disabled:cursor-not-allowed disabled:bg-primary/40 disabled:shadow-none"
-                                >
-                                    <ShoppingBagIcon sx={{ fontSize: 20 }} />
-                                    {loading ? "Adding..." : isInStock ? "Add to Cart" : "Out of Stock"}
-                                </button>
-                            </div>
-                            <div className="flex items-center gap-2 text-sm text-[#6d7e73] mt-2">
-                                <CheckCircleIcon sx={{ fontSize: 18, color: isInStock ? '#8dc8a1' : '#ef4444' }} />
-                                <span>
-                                    {isInStock ? 'In Stock.' : 'Out of Stock.'} <span className="font-medium text-text-dark dark:text-white">Free shipping</span> (over 1000₺)
-                                </span>
-                            </div>
-                            {showLowStockMessage && (
-                                <div className="inline-flex items-center self-start rounded-full bg-[#fff4e8] px-3 py-1 text-sm font-semibold text-[#b45309]">
-                                    Last {activeStock} product{activeStock === 1 ? '' : 's'}
-                                </div>
-                            )}
-                        </div>
-                    </div>
-                </div>
-
-                <div className="mt-20 border-t border-[#f1f3f2] dark:border-[#2a362f] pt-10" ref={reviewsRef}>
-                    <Box sx={{ borderBottom: 1, borderColor: 'divider', mb: 4 }}>
-                        <Tabs
-                            value={tabValue}
-                            onChange={(e, v) => setTabValue(v)}
-                            textColor="inherit"
-                            indicatorColor="primary"
-                            sx={{
-                                '& .MuiTab-root': {
-                                    textTransform: 'none',
-                                    fontWeight: 'bold',
-                                    fontSize: '1.125rem',
-                                    color: '#6d7e73',
-                                    '&.Mui-selected': {
-                                        color: '#8dc8a1',
-                                    },
-                                },
-                                '& .MuiTabs-indicator': {
-                                    backgroundColor: '#8dc8a1',
-                                }
-                            }}
-                        >
-                            <Tab label="Product Details" />
-                            <Tab label={`Reviews (${product.review_count || 0})`} />
-                            <Tab label="Delivery & Returns" />
-                        </Tabs>
+        <Box className="container py-8 mx-auto">
+            <Box className="flex flex-col w-full">
+                <Box className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-16">
+                    <Box className="lg:col-span-7 flex flex-col gap-4">
+                        <ProductImageSection image={product.image} title={product.title} />
                     </Box>
 
-                    {tabValue === 0 && (
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
-                            <div className="text-[#6d7e73] dark:text-[#a0aead] space-y-4">
-                                <p>{longDescription || product.description}</p>
-                                {bulletPoints.length > 0 && (
-                                    <ul className="list-disc pl-5 space-y-2 mt-4">
-                                        {bulletPoints.map((point, i) => (
-                                            <li key={i}>{point}</li>
-                                        ))}
-                                    </ul>
-                                )}
-                            </div>
-                            <div className="bg-primary/5 dark:bg-primary/10 p-6 rounded-xl">
-                                <h4 className="font-bold text-lg mb-4 text-text-dark dark:text-white">Material & Care</h4>
-                                {(materialItems.length > 0 || careItems.length > 0) && (
-                                    <div className="mb-6 space-y-4 text-sm text-[#6d7e73] dark:text-[#a0aead]">
-                                        {materialItems.length > 0 && (
-                                            <div>
-                                                <p className="font-semibold text-text-dark dark:text-white">Material</p>
-                                                <p className="mt-1">{materialItems.join(', ')}</p>
-                                            </div>
-                                        )}
-                                        {careItems.length > 0 && (
-                                            <div>
-                                                <p className="font-semibold text-text-dark dark:text-white">Care</p>
-                                                <ul className="mt-2 list-disc pl-5 space-y-1">
-                                                    {careItems.map((item, index) => (
-                                                        <li key={`${item}-${index}`}>{item}</li>
-                                                    ))}
-                                                </ul>
-                                            </div>
-                                        )}
-                                    </div>
-                                )}
-                                <div className="flex gap-6 mb-6">
-                                    <div className="flex flex-col items-center gap-2 text-center w-20">
-                                        <div className="w-12 h-12 rounded-full bg-white dark:bg-[#2a362f] flex items-center justify-center text-primary shadow-sm">
-                                            <LocalLaundryServiceIcon />
-                                        </div>
-                                        <span className="text-xs text-[#6d7e73]">30° Wash</span>
-                                    </div>
-                                    <div className="flex flex-col items-center gap-2 text-center w-20">
-                                        <div className="w-12 h-12 rounded-full bg-white dark:bg-[#2a362f] flex items-center justify-center text-primary shadow-sm">
-                                            <IronIcon />
-                                        </div>
-                                        <span className="text-xs text-[#6d7e73]">Low Heat</span>
-                                    </div>
-                                    <div className="flex flex-col items-center gap-2 text-center w-20">
-                                        <div className="w-12 h-12 rounded-full bg-white dark:bg-[#2a362f] flex items-center justify-center text-primary shadow-sm">
-                                            <DryCleaningIcon />
-                                        </div>
-                                        <span className="text-xs text-[#6d7e73]">Dry Clean</span>
-                                    </div>
-                                </div>
-                                <div className="text-xs text-[#6d7e73] dark:text-[#a0aead]">
-                                    *Product color may vary slightly due to photographic lighting sources.
-                                </div>
-                            </div>
-                        </div>
-                    )}
-                    {tabValue === 1 && (
-                        <div className="py-5">
-                            {product.reviews && product.reviews.length > 0 ? (
-                                <div className="space-y-8">
-                                    {product.reviews.map((review, idx) => (
-                                        <div key={idx} className="border-b border-gray-100 dark:border-gray-800 pb-6">
-                                            <div className="flex justify-between items-start mb-2">
-                                                <div>
-                                                    <div className="flex items-center text-accent-champagne gap-0.5 mb-1">
-                                                        {renderStars(review.rating)}
-                                                    </div>
-                                                    <p className="font-bold text-text-dark dark:text-white">{review.user_name}</p>
-                                                </div>
-                                                <span className="text-xs text-text-muted">
-                                                    {new Date(review.created_at).toLocaleDateString()}
-                                                </span>
-                                            </div>
-                                            <p className="text-text-muted dark:text-gray-400">
-                                                {review.comment}
-                                            </p>
-                                        </div>
-                                    ))}
-                                </div>
-                            ) : (
-                                <div className="py-10 text-center text-[#6d7e73]">
-                                    No reviews yet.
-                                </div>
-                            )}
-                        </div>
-                    )}
-                    {tabValue === 2 && (
-                        <div className="py-10 text-[#6d7e73]">
-                            <p>Standard delivery time is 2-4 business days. You have the right to free return within 14 days.</p>
-                        </div>
-                    )}
-                </div>
-            </div>
-        </div>
+                    <Box className="lg:col-span-5 flex flex-col pt-2">
+                        <ProductPurchasePanel
+                            product={product}
+                            displayPrice={displayPrice}
+                            isFavorite={isFavorite}
+                            favoritePending={favoritePending}
+                            onToggleFavorite={handleToggleFavorite}
+                            onReviewsClick={scrollToReviews}
+                            colorOptions={colorOptions}
+                            selectedColor={selectedColor}
+                            onColorChange={handleColorChange}
+                            availableSizes={availableSizes}
+                            selectedSize={selectedSize}
+                            onSizeChange={setSelectedSize}
+                            quantity={quantity}
+                            onQuantityChange={setQuantity}
+                            onAddToCart={handleAddToCart}
+                            loading={loading}
+                            isInStock={isInStock}
+                            hasMissingVariant={hasMissingVariant}
+                            activeStock={activeStock}
+                            showLowStockMessage={showLowStockMessage}
+                        />
+                    </Box>
+                </Box>
+
+                <ProductDetailTabs
+                    product={product}
+                    longDescription={longDescription}
+                    bulletPoints={bulletPoints}
+                    materialItems={materialItems}
+                    careItems={careItems}
+                    tabValue={tabValue}
+                    onTabChange={setTabValue}
+                    reviewsRef={reviewsRef}
+                />
+            </Box>
+        </Box>
     );
 }

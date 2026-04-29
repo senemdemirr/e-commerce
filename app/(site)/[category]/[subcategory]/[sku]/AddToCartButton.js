@@ -1,23 +1,24 @@
 "use client";
-import { useCart } from "@/context/CartContext";
-import AddShoppingCartIcon from '@mui/icons-material/AddShoppingCart';
-import { Button } from "@mui/material";
 
-export default function AddToCartButton({ product, quantity }) {
-    const { addToCart, loading } = useCart();
+import { Box } from '@mui/material';
+import ShoppingBagIcon from '@mui/icons-material/ShoppingBag';
 
-    const handleClick = () => {
-        addToCart(product, quantity);
-    }
-
+export default function AddToCartButton({
+    loading = false,
+    disabled = false,
+    isInStock = true,
+    onClick,
+}) {
     return (
-        <Button
-            onClick={handleClick}
-            disabled={loading}
-            startIcon={<AddShoppingCartIcon/>}
-            className={`${loading ? "!bg-green-500" : "!bg-orange-500"} !text-white !px-6 py-2 rounded-lg hover:!bg-orange-600 transition`}
+        <Box
+            component="button"
+            type="button"
+            onClick={onClick}
+            disabled={disabled}
+            className="flex-1 bg-primary hover:bg-primary-dark text-white font-bold rounded-lg transition-colors flex items-center justify-center gap-2 shadow-lg shadow-primary/30 disabled:cursor-not-allowed disabled:bg-primary/40 disabled:shadow-none"
         >
-            {loading ? "Adding..." : "Add To Cart"}
-        </Button>
-    )
+            <ShoppingBagIcon sx={{ fontSize: 20 }} />
+            {loading ? "Adding..." : isInStock ? "Add to Cart" : "Out of Stock"}
+        </Box>
+    );
 }
