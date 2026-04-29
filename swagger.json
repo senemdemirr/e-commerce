@@ -889,6 +889,84 @@
                 ]
             }
         },
+        "/api/campaigns": {
+            "get": {
+                "summary": "Get active campaigns",
+                "description": "Returns active redeemable campaigns, optionally filtered by campaign code",
+                "tags": [
+                    "Campaigns"
+                ],
+                "parameters": [
+                    {
+                        "in": "query",
+                        "name": "code",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "Campaign code to look up"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/Campaign"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Campaigns could not be loaded"
+                    }
+                }
+            }
+        },
+        "/api/payment-cards": {
+            "get": {
+                "summary": "Get saved payment cards",
+                "description": "Returns saved payment cards for the authenticated user",
+                "tags": [
+                    "Payment"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "cards": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/PaymentCard"
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    },
+                    "500": {
+                        "description": "Server Error"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
         "/api/orders": {
             "get": {
                 "summary": "Get all orders",
@@ -1483,6 +1561,105 @@
                         "type": "integer",
                         "description": "Quantity to add (default: 1)",
                         "default": 1
+                    }
+                }
+            },
+            "Campaign": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "integer"
+                    },
+                    "title": {
+                        "type": "string"
+                    },
+                    "code": {
+                        "type": "string"
+                    },
+                    "description": {
+                        "type": "string"
+                    },
+                    "discount_type": {
+                        "type": "string",
+                        "enum": [
+                            "percent",
+                            "fixed"
+                        ]
+                    },
+                    "discount_value": {
+                        "type": "number"
+                    },
+                    "starts_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "nullable": true
+                    },
+                    "ends_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "nullable": true
+                    },
+                    "is_active": {
+                        "type": "boolean"
+                    },
+                    "usage_limit": {
+                        "type": "integer",
+                        "nullable": true
+                    },
+                    "used_count": {
+                        "type": "integer"
+                    },
+                    "status": {
+                        "type": "string"
+                    },
+                    "is_used": {
+                        "type": "boolean"
+                    },
+                    "created_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "nullable": true
+                    },
+                    "updated_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "nullable": true
+                    }
+                }
+            },
+            "PaymentCard": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "integer"
+                    },
+                    "user_id": {
+                        "type": "integer"
+                    },
+                    "card_holder_name": {
+                        "type": "string"
+                    },
+                    "card_alias": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "card_family": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "card_bank_name": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "card_mask": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "is_default": {
+                        "type": "boolean"
+                    },
+                    "can_charge": {
+                        "type": "boolean"
                     }
                 }
             },
