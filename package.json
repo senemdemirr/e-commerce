@@ -7,7 +7,7 @@
     "dev": "next dev",
     "build": "NEXT_DISABLE_TURBOPACK=1 next build",
     "start": "next start",
-    "lint": "next lint",
+    "lint": "eslint app components context lib scripts tests",
     "test": "NODE_OPTIONS=--experimental-vm-modules jest"
   },
   "dependencies": {

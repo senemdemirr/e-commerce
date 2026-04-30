@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState, use, useRef } from "react";
+import { useCallback, useEffect, useState, use, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { apiFetch } from "@/lib/apiFetch/fetch";
 import { Box, Typography, CircularProgress, Button, Divider } from "@mui/material";
@@ -55,7 +55,7 @@ export default function OrderDetailsPage({ params }) {
         }
     };
 
-    const fetchOrderDetails = async () => {
+    const fetchOrderDetails = useCallback(async () => {
         try {
             const res = await apiFetch(`/api/orders/${order_number}`);
             if (res && res.order) {
@@ -69,11 +69,11 @@ export default function OrderDetailsPage({ params }) {
         } finally {
             setLoading(false);
         }
-    };
+    }, [order_number]);
 
     useEffect(() => {
         fetchOrderDetails();
-    }, [order_number]);
+    }, [fetchOrderDetails]);
 
     if (loading) {
         return (

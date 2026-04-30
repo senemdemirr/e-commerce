@@ -1,7 +1,7 @@
 "use client";
 import { apiFetch } from "@/lib/apiFetch/fetch";
 import { useRouter } from "next/navigation";
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { createContext, useContext } from "react";
 import { useSnackbar } from "notistack";
 import { useUser } from "@/context/UserContext";
@@ -16,7 +16,7 @@ export function CartProvider({ children }) {
     const [isCartReady, setIsCartReady] = useState(!user);
     const router = useRouter();
 
-    const fetchCart = async () => {
+    const fetchCart = useCallback(async () => {
         if (!user) {
             setItems([]);
             setIsCartReady(true);
@@ -34,12 +34,12 @@ export function CartProvider({ children }) {
                 setItems([]);
                 return;
             }
-            console.log(error);
+            console.error(error);
             enqueueSnackbar("Failed to load cart information.", { variant: "error" });
         } finally {
             setIsCartReady(true);
         }
-    }
+    }, [enqueueSnackbar, user]);
 
     useEffect(() => {
         if (user) {
@@ -49,7 +49,7 @@ export function CartProvider({ children }) {
             setItems([]);
             setIsCartReady(true);
         }
-    }, [user]);
+    }, [fetchCart, user]);
 
     const addToCart = async (product, quantity) => {
         if (!user) {
@@ -84,7 +84,7 @@ export function CartProvider({ children }) {
                 enqueueSnackbar("Please sign in. You can't add items to the cart without signing in.", { variant: "info" });
                 return;
             }
-            console.log(error);
+            console.error(error);
             enqueueSnackbar("Failed to add product to cart.", { variant: "error" });
         } finally {
             setLoading(false);
