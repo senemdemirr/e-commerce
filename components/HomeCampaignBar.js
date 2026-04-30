@@ -85,7 +85,7 @@ export default function HomeCampaignBar({ campaigns }) {
 
     return (
         <>
-            <Box component="section" className="container mx-auto pt-4">
+            <Box component="section" className="container mx-auto pt-8">
                 <div className="no-scrollbar scrollbar-hide flex items-start gap-9 overflow-x-auto">
                     {campaigns.map((campaign) => {
                         const discountLabel = formatCampaignDiscount(campaign);
