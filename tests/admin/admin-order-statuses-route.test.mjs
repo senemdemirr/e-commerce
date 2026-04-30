@@ -13,8 +13,8 @@ describe('Admin Order Statuses Route', () => {
             pool: { query: queryMock },
         }));
 
-        const module = await loadFresh('app/api/admin/order-statuses/route.js');
-        return module.GET;
+        const routeModule = await loadFresh('app/api/admin/order-statuses/route.js');
+        return routeModule.GET;
     }
 
     test('GET /api/admin/order-statuses - status sayilari ve kart ozeti doner', async () => {

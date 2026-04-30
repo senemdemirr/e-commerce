@@ -6,9 +6,9 @@ describe('Admin Subcategories Route', () => {
 
     beforeEach(async () => {
         jest.resetModules();
-        const module = await loadFresh('app/api/admin/subcategories/route.js');
-        GET = module.GET;
-        POST = module.POST;
+        const routeModule = await loadFresh('app/api/admin/subcategories/route.js');
+        GET = routeModule.GET;
+        POST = routeModule.POST;
     });
 
     test('GET /api/admin/subcategories - en yeni alt kategorileri üstte döner', async () => {

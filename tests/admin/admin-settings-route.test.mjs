@@ -6,9 +6,9 @@ describe('Admin Settings Management', () => {
 
     beforeEach(async () => {
         jest.resetModules();
-        const module = await loadFresh('app/api/admin/settings/route.js');
-        GET = module.GET;
-        PUT = module.PUT;
+        const routeModule = await loadFresh('app/api/admin/settings/route.js');
+        GET = routeModule.GET;
+        PUT = routeModule.PUT;
     });
 
     test('GET /api/admin/settings - genel site ayarlarını döner', async () => {

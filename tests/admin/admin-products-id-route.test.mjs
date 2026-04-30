@@ -6,10 +6,10 @@ describe('Admin Product ID Route', () => {
 
     beforeEach(async () => {
         jest.resetModules();
-        const module = await loadFresh('app/api/admin/products/[id]/route.js');
-        GET = module.GET;
-        PUT = module.PUT;
-        DELETE = module.DELETE;
+        const routeModule = await loadFresh('app/api/admin/products/[id]/route.js');
+        GET = routeModule.GET;
+        PUT = routeModule.PUT;
+        DELETE = routeModule.DELETE;
     });
 
     const createMockRequest = (overrides = {}, deleteKeys = [], role = 'admin') => {

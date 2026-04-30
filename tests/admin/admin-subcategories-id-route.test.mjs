@@ -6,9 +6,9 @@ describe('Admin Subcategory ID Route', () => {
 
     beforeEach(async () => {
         jest.resetModules();
-        const module = await loadFresh('app/api/admin/subcategories/[id]/route.js');
-        PUT = module.PUT;
-        DELETE = module.DELETE;
+        const routeModule = await loadFresh('app/api/admin/subcategories/[id]/route.js');
+        PUT = routeModule.PUT;
+        DELETE = routeModule.DELETE;
     });
 
     // --- PUT: Alt Kategori Güncelleme ---

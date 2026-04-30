@@ -6,8 +6,8 @@ describe('Admin Dashboard Route', () => {
 
     beforeEach(async () => {
         jest.resetModules();
-        const module = await loadFresh('app/api/admin/dashboard/route.js');
-        GET = module.GET;
+        const routeModule = await loadFresh('app/api/admin/dashboard/route.js');
+        GET = routeModule.GET;
     });
 
     test('GET /api/admin/dashboard - tüm istatistikleri döner', async () => {

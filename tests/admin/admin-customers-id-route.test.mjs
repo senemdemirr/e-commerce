@@ -6,10 +6,10 @@ describe('Admin Customer ID Route', () => {
 
     beforeEach(async () => {
         jest.resetModules();
-        const module = await loadFresh('app/api/admin/customers/[id]/route.js');
-        GET = module.GET;
-        PATCH = module.PATCH;
-        // DELETE = module.DELETE; // Not in todos but might be useful
+        const routeModule = await loadFresh('app/api/admin/customers/[id]/route.js');
+        GET = routeModule.GET;
+        PATCH = routeModule.PATCH;
+        // DELETE = routeModule.DELETE; // Not in todos but might be useful
     });
 
     // --- GET ---

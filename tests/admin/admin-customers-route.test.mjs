@@ -6,8 +6,8 @@ describe('Admin Customers Route', () => {
 
     beforeEach(async () => {
         jest.resetModules();
-        const module = await loadFresh('app/api/admin/customers/route.js');
-        GET = module.GET;
+        const routeModule = await loadFresh('app/api/admin/customers/route.js');
+        GET = routeModule.GET;
     });
 
     test('GET /api/admin/customers - admin olmayan kullanıcı 403 alır', async () => {

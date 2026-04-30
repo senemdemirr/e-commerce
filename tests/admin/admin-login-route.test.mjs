@@ -7,8 +7,8 @@ describe('Admin Login Route (API)', () => {
     beforeEach(async () => {
         jest.resetModules();
         // app/api/admin/login/route.js dosyasındaki POST fonksiyonunu yüklüyoruz
-        const module = await loadFresh('app/api/admin/login/route.js');
-        POST = module.POST;
+        const routeModule = await loadFresh('app/api/admin/login/route.js');
+        POST = routeModule.POST;
     });
 
     test('POST /api/admin/login - email alanı eksikse 400 döner', async () => {
