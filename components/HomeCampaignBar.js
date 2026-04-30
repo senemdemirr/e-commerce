@@ -1,12 +1,13 @@
 'use client';
 
 import { useState } from 'react';
-import { Box, Button, Chip, Dialog, DialogActions, DialogContent, DialogTitle, IconButton } from '@mui/material';
+import { Box, Button, Chip, DialogActions, DialogContent, DialogTitle, IconButton } from '@mui/material';
 import CampaignRoundedIcon from '@mui/icons-material/CampaignRounded';
 import CloseRoundedIcon from '@mui/icons-material/CloseRounded';
 import ContentCopyRoundedIcon from '@mui/icons-material/ContentCopyRounded';
 import LocalOfferRoundedIcon from '@mui/icons-material/LocalOfferRounded';
 import { useSnackbar } from 'notistack';
+import AppDialog from '@/components/common/AppDialog';
 
 function formatCampaignDiscount(campaign) {
     const value = Number(campaign?.discount_value || 0);
@@ -115,7 +116,7 @@ export default function HomeCampaignBar({ campaigns }) {
                 </div>
             </Box>
 
-            <Dialog
+            <AppDialog
                 open={Boolean(selectedCampaign)}
                 onClose={closeDialog}
                 fullWidth
@@ -242,7 +243,7 @@ export default function HomeCampaignBar({ campaigns }) {
                         </DialogActions>
                     </>
                 ) : null}
-            </Dialog>
+            </AppDialog>
         </>
     );
 }

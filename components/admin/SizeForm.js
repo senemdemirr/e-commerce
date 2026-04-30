@@ -3,7 +3,6 @@
 import { useEffect, useState } from 'react';
 import {
     Button,
-    Dialog,
     DialogActions,
     DialogContent,
     DialogTitle,
@@ -12,6 +11,7 @@ import {
 import CloseRoundedIcon from '@mui/icons-material/CloseRounded';
 import DriveFileRenameOutlineRoundedIcon from '@mui/icons-material/DriveFileRenameOutlineRounded';
 import StraightenRoundedIcon from '@mui/icons-material/StraightenRounded';
+import AppDialog from '@/components/common/AppDialog';
 
 export default function SizeForm({
     open,
@@ -63,7 +63,7 @@ export default function SizeForm({
     const HeaderIcon = isEditMode ? DriveFileRenameOutlineRoundedIcon : StraightenRoundedIcon;
 
     return (
-        <Dialog
+        <AppDialog
             open={open}
             onClose={submitting ? undefined : onClose}
             fullWidth
@@ -152,6 +152,6 @@ export default function SizeForm({
                     </Button>
                 </DialogActions>
             </form>
-        </Dialog>
+        </AppDialog>
     );
 }

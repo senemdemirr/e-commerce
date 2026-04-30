@@ -2,10 +2,13 @@
 
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
+import { DialogContent, DialogTitle, IconButton } from "@mui/material";
+import CloseRoundedIcon from "@mui/icons-material/CloseRounded";
 import { apiFetch } from "@/lib/apiFetch/fetch";
 import { useCart } from "@/context/CartContext";
 import { useUser } from "@/context/UserContext";
 import NewAdresForm from "@/app/(site)/my-profile/components/UserAdresses/NewAdresForm";
+import AppDialog from "@/components/common/AppDialog";
 import { useSnackbar } from "notistack";
 import {
     calculateCampaignDiscountAmount,
@@ -397,22 +400,29 @@ export default function CheckoutPage() {
                 </div>
             </div>
 
-            {openAddressDialog && (
-                <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-                    <div className="bg-white dark:bg-surface-dark rounded-xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
-                        <div className="p-4 sm:p-6 border-b border-gray-200 dark:border-gray-700">
-                            <h2 className="text-xl sm:text-2xl font-bold">Add New Address</h2>
-                        </div>
-                        <div className="p-4 sm:p-6">
-                            <NewAdresForm
-                                mode="create"
-                                onSuccess={handleAddressSuccess}
-                                onCancel={() => setOpenAddressDialog(false)}
-                            />
-                        </div>
-                    </div>
-                </div>
-            )}
+            <AppDialog
+                open={openAddressDialog}
+                onClose={() => setOpenAddressDialog(false)}
+                fullWidth
+                maxWidth="md"
+                paperClassName="address-dialog-paper"
+            >
+                <DialogTitle className="!flex !items-center !justify-between !gap-4 !border-b !border-gray-200 !p-4 dark:!border-gray-700 sm:!p-6">
+                    <span className="text-xl font-bold text-text-main dark:text-white sm:text-2xl">
+                        Add New Address
+                    </span>
+                    <IconButton onClick={() => setOpenAddressDialog(false)} className="!text-text-muted">
+                        <CloseRoundedIcon />
+                    </IconButton>
+                </DialogTitle>
+                <DialogContent className="!p-4 sm:!p-6">
+                    <NewAdresForm
+                        mode="create"
+                        onSuccess={handleAddressSuccess}
+                        onCancel={() => setOpenAddressDialog(false)}
+                    />
+                </DialogContent>
+            </AppDialog>
         </main>
     );
 }

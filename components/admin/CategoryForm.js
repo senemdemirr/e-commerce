@@ -3,7 +3,6 @@
 import { useEffect, useState } from 'react';
 import {
     Button,
-    Dialog,
     DialogActions,
     DialogContent,
     DialogTitle,
@@ -13,6 +12,7 @@ import AddRoundedIcon from '@mui/icons-material/AddRounded';
 import CategoryRoundedIcon from '@mui/icons-material/CategoryRounded';
 import CloseRoundedIcon from '@mui/icons-material/CloseRounded';
 import DriveFileRenameOutlineRoundedIcon from '@mui/icons-material/DriveFileRenameOutlineRounded';
+import AppDialog from '@/components/common/AppDialog';
 
 function toCategorySlug(value = '') {
     const letterMap = {
@@ -136,7 +136,7 @@ export default function CategoryForm({
     const HeaderIcon = isEditMode ? DriveFileRenameOutlineRoundedIcon : CategoryRoundedIcon;
 
     return (
-        <Dialog
+        <AppDialog
             open={open}
             onClose={submitting ? undefined : onClose}
             fullWidth
@@ -273,6 +273,6 @@ export default function CategoryForm({
                     </Button>
                 </DialogActions>
             </form>
-        </Dialog>
+        </AppDialog>
     );
 }

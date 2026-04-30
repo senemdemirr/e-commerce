@@ -3,13 +3,13 @@
 import { useEffect, useState } from 'react';
 import {
     Button,
-    Dialog,
     DialogActions,
     DialogContent,
     DialogTitle,
     IconButton,
 } from '@mui/material';
 import CloseRoundedIcon from '@mui/icons-material/CloseRounded';
+import AppDialog from '@/components/common/AppDialog';
 import {
     formatCampaignDateTime,
     normalizeCampaignPayload,
@@ -99,7 +99,7 @@ export default function CampaignForm({
         : isEditMode ? 'Save Changes' : 'Create Campaign';
 
     return (
-        <Dialog
+        <AppDialog
             open={open}
             onClose={submitting ? undefined : onClose}
             fullWidth
@@ -296,6 +296,6 @@ export default function CampaignForm({
                     </Button>
                 </DialogActions>
             </form>
-        </Dialog>
+        </AppDialog>
     );
 }

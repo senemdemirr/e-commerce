@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useSnackbar } from 'notistack';
-import ConfirmDialog from '@/components/admin/ConfirmDialog';
+import ConfirmDialog from '@/components/common/ConfirmDialog';
 import ReadOnlyNotice from '@/components/admin/ReadOnlyNotice';
 import SizeForm from '@/components/admin/SizeForm';
 import SizesHeader from '@/components/admin/sizes/SizesHeader';

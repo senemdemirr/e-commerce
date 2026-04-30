@@ -3,7 +3,6 @@
 import { useEffect, useState } from 'react';
 import {
     Button,
-    Dialog,
     DialogActions,
     DialogContent,
     DialogTitle,
@@ -12,6 +11,7 @@ import {
 import CloseRoundedIcon from '@mui/icons-material/CloseRounded';
 import DriveFileRenameOutlineRoundedIcon from '@mui/icons-material/DriveFileRenameOutlineRounded';
 import PaletteRoundedIcon from '@mui/icons-material/PaletteRounded';
+import AppDialog from '@/components/common/AppDialog';
 
 function normalizeHexInput(value = '') {
     const normalized = String(value || '').trim().toUpperCase().replace(/[^#0-9A-F]/g, '');
@@ -84,7 +84,7 @@ export default function ColorForm({
     const HeaderIcon = isEditMode ? DriveFileRenameOutlineRoundedIcon : PaletteRoundedIcon;
 
     return (
-        <Dialog
+        <AppDialog
             open={open}
             onClose={submitting ? undefined : onClose}
             fullWidth
@@ -213,6 +213,6 @@ export default function ColorForm({
                     </Button>
                 </DialogActions>
             </form>
-        </Dialog>
+        </AppDialog>
     );
 }

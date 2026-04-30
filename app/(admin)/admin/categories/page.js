@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useSnackbar } from 'notistack';
 import CategoryForm from '@/components/admin/CategoryForm';
-import ConfirmDialog from '@/components/admin/ConfirmDialog';
+import ConfirmDialog from '@/components/common/ConfirmDialog';
 import ReadOnlyNotice from '@/components/admin/ReadOnlyNotice';
 import CategoriesHeader from '@/components/admin/categories/CategoriesHeader';
 import CategoriesStatsCards from '@/components/admin/categories/CategoriesStatsCards';

@@ -3,7 +3,6 @@
 import { useEffect, useState } from 'react';
 import {
     Button,
-    Dialog,
     DialogActions,
     DialogContent,
     DialogTitle,
@@ -16,6 +15,7 @@ import MailOutlineRoundedIcon from '@mui/icons-material/MailOutlineRounded';
 import ManageAccountsRoundedIcon from '@mui/icons-material/ManageAccountsRounded';
 import PersonRoundedIcon from '@mui/icons-material/PersonRounded';
 import SaveRoundedIcon from '@mui/icons-material/SaveRounded';
+import AppDialog from '@/components/common/AppDialog';
 
 function ReadonlyField({
     label,
@@ -74,7 +74,7 @@ export default function CustomerDetailModal({
     };
 
     return (
-        <Dialog
+        <AppDialog
             open={open}
             onClose={updating ? undefined : onClose}
             fullWidth
@@ -185,6 +185,6 @@ export default function CustomerDetailModal({
                     </Button>
                 </div>
             </DialogActions>
-        </Dialog>
+        </AppDialog>
     );
 }

@@ -1,7 +1,7 @@
 "use client";
-import { Typography, Button, Dialog, DialogTitle, IconButton, DialogContent, DialogActions } from "@mui/material";
+import { Typography, Button, DialogTitle, IconButton, DialogContent } from "@mui/material";
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { apiFetch } from "@/lib/apiFetch/fetch";
 import HomeOutlinedIcon from '@mui/icons-material/HomeOutlined';
 import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
@@ -10,6 +10,8 @@ import CloseIcon from '@mui/icons-material/Close';
 import NewAdresForm from "./NewAdresForm";
 import Loading from "@/components/Loading";
 import { useSnackbar } from "notistack";
+import AppDialog from "@/components/common/AppDialog";
+import ConfirmDialog from "@/components/common/ConfirmDialog";
 
 export default function UserAdresses() {
     const { enqueueSnackbar } = useSnackbar();
@@ -23,7 +25,7 @@ export default function UserAdresses() {
     const [addressToDelete, setAddressToDelete] = useState(null);
     const [deleting, setDeleting] = useState(false);
 
-    const fetchAddresses = async () => {
+    const fetchAddresses = useCallback(async () => {
         try {
             setLoading(true);
             const res = await apiFetch("/api/my-profile/my-addresses");
@@ -34,7 +36,7 @@ export default function UserAdresses() {
         } finally {
             setLoading(false);
         }
-    }
+    }, [enqueueSnackbar]);
 
     const handleOpenCreate = () => {
         setMode("create");
@@ -94,7 +96,7 @@ export default function UserAdresses() {
 
     useEffect(() => {
         fetchAddresses();
-    }, []);
+    }, [fetchAddresses]);
 
     return (
         <div className="container">
@@ -107,7 +109,13 @@ export default function UserAdresses() {
                     onClick={handleOpenCreate}
                 >Add new address</Button>
             </div>
-            <Dialog open={openModal} onClose={handleClose} fullWidth maxWidth="md">
+            <AppDialog
+                open={openModal}
+                onClose={handleClose}
+                fullWidth
+                maxWidth="md"
+                paperClassName="address-dialog-paper"
+            >
                 <DialogTitle className="flex flex-row justify-between items-center">
                     {mode === "create" ? "Add new adress" : "Edit address"}
                     <IconButton onClick={handleClose}>
@@ -122,24 +130,20 @@ export default function UserAdresses() {
                         onSuccess={handleSuccess}
                     />
                 </DialogContent>
-            </Dialog>
-            <Dialog open={openConfirm} onClose={closeConfirm}>
-                <DialogContent>
-                    Are you sure you want to delete?
-                </DialogContent>
-                <DialogActions>
-                    <Button onClick={closeConfirm} disabled={deleting}>
-                        Cancel
-                    </Button>
-                    <Button
-                        onClick={handleDeleteConfirmed}
-                        disabled={deleting || !addressToDelete}
-                        color="error"
-                    >
-                        {deleting ? "Deleting..." : "Delete"}
-                    </Button>
-                </DialogActions>
-            </Dialog>
+            </AppDialog>
+            <ConfirmDialog
+                open={openConfirm}
+                title="Delete address?"
+                description={addressToDelete
+                    ? `The address "${addressToDelete.address_title}" will be deleted. This action cannot be undone.`
+                    : "This action cannot be undone."}
+                confirmText="Delete"
+                loadingText="Deleting..."
+                loading={deleting}
+                confirmDisabled={!addressToDelete}
+                onClose={closeConfirm}
+                onConfirm={handleDeleteConfirmed}
+            />
             {loading ?
                 <Loading />
                 :

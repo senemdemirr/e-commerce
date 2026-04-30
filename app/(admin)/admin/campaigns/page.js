@@ -6,7 +6,7 @@ import CampaignForm from '@/components/admin/campaigns/CampaignForm';
 import CampaignsHeader from '@/components/admin/campaigns/CampaignsHeader';
 import CampaignsStatsCards from '@/components/admin/campaigns/CampaignsStatsCards';
 import CampaignsTable from '@/components/admin/campaigns/CampaignsTable';
-import ConfirmDialog from '@/components/admin/ConfirmDialog';
+import ConfirmDialog from '@/components/common/ConfirmDialog';
 import ReadOnlyNotice from '@/components/admin/ReadOnlyNotice';
 import { useAdminSession } from '@/context/AdminSessionContext';
 import { normalizeCampaignRecord } from '@/lib/admin/campaigns';

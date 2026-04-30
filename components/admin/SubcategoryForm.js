@@ -3,7 +3,6 @@
 import { useEffect, useState } from 'react';
 import {
     Button,
-    Dialog,
     DialogActions,
     DialogContent,
     DialogTitle,
@@ -14,6 +13,7 @@ import AccountTreeRoundedIcon from '@mui/icons-material/AccountTreeRounded';
 import CategoryRoundedIcon from '@mui/icons-material/CategoryRounded';
 import CloseRoundedIcon from '@mui/icons-material/CloseRounded';
 import DriveFileRenameOutlineRoundedIcon from '@mui/icons-material/DriveFileRenameOutlineRounded';
+import AppDialog from '@/components/common/AppDialog';
 
 function toSubcategorySlug(value = '') {
     const letterMap = {
@@ -162,7 +162,7 @@ export default function SubcategoryForm({
     const HeaderIcon = isEditMode ? DriveFileRenameOutlineRoundedIcon : AccountTreeRoundedIcon;
 
     return (
-        <Dialog
+        <AppDialog
             open={open}
             onClose={submitting ? undefined : onClose}
             fullWidth
@@ -345,6 +345,6 @@ export default function SubcategoryForm({
                     </Button>
                 </DialogActions>
             </form>
-        </Dialog>
+        </AppDialog>
     );
 }

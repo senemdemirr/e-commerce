@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useSnackbar } from 'notistack';
 import ColorForm from '@/components/admin/ColorForm';
-import ConfirmDialog from '@/components/admin/ConfirmDialog';
+import ConfirmDialog from '@/components/common/ConfirmDialog';
 import ReadOnlyNotice from '@/components/admin/ReadOnlyNotice';
 import ColorsHeader from '@/components/admin/colors/ColorsHeader';
 import ColorsStatsCards from '@/components/admin/colors/ColorsStatsCards';
