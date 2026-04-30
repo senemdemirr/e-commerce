@@ -224,15 +224,6 @@ export default async function Home() {
               >
                 View Product
               </Button>
-              <Button
-                component="a"
-                href="#trending-products"
-                variant="outlined"
-                startIcon={<PlayCircleOutlineIcon />}
-                className="!rounded-full !border-white/30 !bg-white/20 !px-8 !py-4 !font-bold !normal-case !text-white !shadow-none !backdrop-blur-md transition-colors hover:!border-white/40 hover:!bg-white/30"
-              >
-                Explore Collection
-              </Button>
             </div>
           </div>
         </div>
