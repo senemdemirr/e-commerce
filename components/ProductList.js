@@ -112,14 +112,14 @@ export default function ProductList({ products, isFavoritePage = false }) {
     return (
         <div className="container py-8 mx-auto px-4 sm:px-0">
             <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                <p className="text-sm text-gray-500">{filtered.length} ürün listeleniyor</p>
+                <p className="text-sm text-gray-500">{filtered.length} products listed</p>
                 <label className="flex w-full flex-col gap-1 text-sm font-medium text-gray-700 sm:w-auto sm:min-w-[16rem]">
-                    Sıralama
+                    Sort
                     <select
                         value={sort}
                         onChange={handleSortChange}
                         className="h-11 rounded-lg border border-gray-200 bg-white px-3 text-sm text-gray-900 shadow-sm outline-none transition focus:border-orange-300 focus:ring-2 focus:ring-orange-100"
-                        aria-label="Ürünleri sırala"
+                        aria-label="Sort products"
                     >
                         {PRODUCT_SORT_OPTIONS.map((option) => (
                             <option key={option.value} value={option.value}>
