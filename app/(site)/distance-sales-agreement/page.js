@@ -17,7 +17,7 @@ export default function DistanceSalesAgreement() {
                 <section>
                     <h2 className="text-xl font-semibold mb-2">2. SUBJECT</h2>
                     <p>
-                        The subject of this Agreement is the determination of the rights and obligations of the parties in accordance with the Law on Consumer Protection No. 6502 and the Regulation on Distance Contracts regarding the sale and delivery of the product/service specified below, which the BUYER has ordered electronically from the SELLER's website.
+                        The subject of this Agreement is the determination of the rights and obligations of the parties in accordance with the Law on Consumer Protection No. 6502 and the Regulation on Distance Contracts regarding the sale and delivery of the product/service specified below, which the BUYER has ordered electronically from the SELLER&apos;s website.
                     </p>
                 </section>
 
@@ -44,7 +44,7 @@ export default function DistanceSalesAgreement() {
                         5.1. The BUYER may exercise the right of withdrawal from the contract relative to the refusal of the goods without taking any legal or criminal responsibility and without giving any reason within 14 (fourteen) days from the date of delivery of the product to them or the person/organization at the address indicated.
                     </p>
                     <p>
-                        5.2. In order to exercise the right of withdrawal, written notification must be given to the SELLER by registered mail, fax, or email within 14 (fourteen) days, and the product must not be used in accordance with the provisions of "Products for which the Right of Withdrawal cannot be exercised" in this contract.
+                        5.2. In order to exercise the right of withdrawal, written notification must be given to the SELLER by registered mail, fax, or email within 14 (fourteen) days, and the product must not be used in accordance with the provisions of &quot;Products for which the Right of Withdrawal cannot be exercised&quot; in this contract.
                     </p>
                 </section>
 

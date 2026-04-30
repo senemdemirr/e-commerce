@@ -38,7 +38,7 @@ export default function MobileMenu() {
                 const res = await apiFetch("/api/categories");
                 setCategories(res);
             } catch (error) {
-                console.log("Category route error: ", error);
+                console.error("Category route error: ", error);
             }
         }
         fetchCategories();
@@ -102,7 +102,7 @@ export default function MobileMenu() {
                                 </div>
                             </div>
                         ) : (
-                            <Link
+                            <a
                                 href="/auth/login"
                                 className="flex items-center gap-3 text-text-main hover:text-primary py-3 font-semibold group"
                                 onClick={toggleMenu}
@@ -111,7 +111,7 @@ export default function MobileMenu() {
                                     <PersonIcon className="text-gray-500 group-hover:text-primary" />
                                 </div>
                                 <span>Sign In</span>
-                            </Link>
+                            </a>
                         )}
                     </div>
 
@@ -119,14 +119,14 @@ export default function MobileMenu() {
 
                     {/* Main Links */}
                     <div className="px-3 flex flex-col gap-1">
-                        <Link
+                            <Link
                             href={user ? "/favorites" : "/auth/login"}
-                            className={`flex items-center gap-3 py-3 px-3 rounded-lg transition-all ${isActive('/favorites') ? 'bg-primary/10 text-primary font-bold' : 'text-text-main hover:bg-background-light'}`}
-                            onClick={toggleMenu}
-                        >
-                            <FavoriteBorderOutlinedIcon className={isActive('/favorites') ? "text-primary" : "text-text-muted"} />
-                            <span>My Favorites</span>
-                        </Link>
+                                className={`flex items-center gap-3 py-3 px-3 rounded-lg transition-all ${isActive('/favorites') ? 'bg-primary/10 text-primary font-bold' : 'text-text-main hover:bg-background-light'}`}
+                                onClick={toggleMenu}
+                            >
+                                <FavoriteBorderOutlinedIcon className={isActive('/favorites') ? "text-primary" : "text-text-muted"} />
+                                <span>My Favorites</span>
+                            </Link>
 
                         <Link
                             href="/basket"
@@ -154,7 +154,7 @@ export default function MobileMenu() {
                                         >
                                             <Link
                                                 href={`/${category.slug}`}
-                                                onClick={(e) => {
+                                                onClick={() => {
                                                     toggleMenu();
                                                 }}
                                                 className={`flex-grow font-medium ${isCategoryActive ? 'text-primary font-bold' : 'text-text-main'}`}
@@ -203,6 +203,7 @@ export default function MobileMenu() {
                                 <a
                                     href="/auth/logout"
                                     className="block w-full text-left py-3 px-2 text-red-500 hover:bg-red-50 rounded-lg transition-colors font-medium text-sm"
+                                    onClick={toggleMenu}
                                 >
                                     Log Out
                                 </a>

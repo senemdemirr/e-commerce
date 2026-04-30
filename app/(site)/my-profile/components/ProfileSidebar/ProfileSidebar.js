@@ -1,19 +1,17 @@
 "use client";
-import { Box, Link, List, ListItem, ListItemButton, ListItemIcon, ListItemText, Typography } from "@mui/material";
+import NextLink from "next/link";
+import { Box, List, ListItem, ListItemButton, ListItemIcon, ListItemText, Typography } from "@mui/material";
 import { useUser } from "@/context/UserContext";
 import PersonIcon from '@mui/icons-material/Person';
 import LocationOnIcon from '@mui/icons-material/LocationOn';
-// import LockIcon from '@mui/icons-material/Lock';
 import ShoppingBagIcon from '@mui/icons-material/ShoppingBag';
 import LogoutIcon from '@mui/icons-material/Logout';
-import EditIcon from '@mui/icons-material/Edit';
 import { usePathname } from "next/navigation";
 
 const menuItems = [
     { label: "My Information", href: "/my-profile/user-information", icon: <PersonIcon /> },
     { label: "All My Orders", href: "/my-profile/orders", icon: <ShoppingBagIcon /> },
     { label: "My Addresses", href: "/my-profile/my-adresses", icon: <LocationOnIcon /> },
-    // { label: "Change Password", href: "/my-profile/change-password", icon: <LockIcon /> },
 ]
 
 export default function ProfileSidebar() {
@@ -29,9 +27,6 @@ export default function ProfileSidebar() {
                     <Box className="bg-primary/20 w-20 h-20 flex items-center justify-center rounded-full border-4 border-[#f1f3f2] dark:border-[#2a342d]">
                         <Typography className="text-primary !text-2xl !font-bold">{firstOfName}{firstOfSurname}</Typography>
                     </Box>
-                    {/* <button className="absolute bottom-0 right-0 bg-primary hover:bg-primary-dark text-white rounded-full p-1.5 shadow-md transition-colors border-2 border-surface-light dark:border-surface-dark">
-                        <EditIcon sx={{ fontSize: 16, display: 'block' }} />
-                    </button> */}
                 </Box>
                 <Typography className="text-text-main dark:text-white !text-lg !font-bold">
                     {user?.name} {user?.surname}
@@ -55,7 +50,7 @@ export default function ProfileSidebar() {
                             >
                                 <ListItemButton
                                     href={item.href}
-                                    component={Link}
+                                    component={NextLink}
                                     className="!px-6 !py-3"
                                 >
                                     <ListItemIcon className={`!min-w-0 !mr-4 ${isActive ? "!text-primary" : "!text-text-muted"}`}>

@@ -14,7 +14,7 @@ export default function Navbar() {
                 const res = await apiFetch("/api/categories");
                 setCategories(res);
             } catch (error) {
-                console.log("Category route error: ", error);
+                console.error("Category route error: ", error);
             }
         }
         fetchCategories();

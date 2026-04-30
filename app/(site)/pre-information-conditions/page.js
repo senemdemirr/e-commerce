@@ -33,7 +33,7 @@ export default function PreInformationConditions() {
                         4.1. The BUYER declares that they have read and informed themselves about the basic characteristics, sales price, payment method, and delivery information of the product subject to the contract on the website and have given the necessary confirmation electronically.
                     </p>
                     <p>
-                        4.2. The product subject to the contract shall be delivered to the BUYER or the person/organization at the address indicated by them within the period described in the preliminary information on the website, depending on the distance of the BUYER's residence for each product, provided that it does not exceed the legal 30-day period.
+                        4.2. The product subject to the contract shall be delivered to the BUYER or the person/organization at the address indicated by them within the period described in the preliminary information on the website, depending on the distance of the BUYER&apos;s residence for each product, provided that it does not exceed the legal 30-day period.
                     </p>
                 </section>
 

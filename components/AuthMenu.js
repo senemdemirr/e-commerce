@@ -27,12 +27,17 @@ export default function AuthMenu() {
                         {user ?
                             (
                                 <>
-                                    <a href="/my-profile/orders" className="block px-4 py-2 text-sm hover:bg-gray-100">
-                                        All My Orders
-                                    </a>
-                                    <a href="/auth/logout" className="block px-4 py-2 text-sm hover:bg-gray-100">
-                                        Log Out
-                                    </a>
+                                    <li>
+                                        <Link href="/my-profile/orders" className="block px-4 py-2 text-sm hover:bg-gray-100">
+                                            All My Orders
+                                        </Link>
+                                    </li>
+                                    <li>
+                                        {/* eslint-disable-next-line @next/next/no-html-link-for-pages */}
+                                        <a href="/auth/logout" className="block px-4 py-2 text-sm hover:bg-gray-100">
+                                            Log Out
+                                        </a>
+                                    </li>
                                 </>
                             )
                             :
@@ -47,4 +52,4 @@ export default function AuthMenu() {
             </ul>
         </>
     )
-} 
+}

@@ -120,7 +120,7 @@ export default function MyOrdersPage() {
             <Box className="p-6 md:p-8 flex flex-col gap-4">
                 {orders.length === 0 ? (
                     <Box className="text-center py-12">
-                        <Typography className="text-text-muted">You don't have any orders yet.</Typography>
+                        <Typography className="text-text-muted">You don&apos;t have any orders yet.</Typography>
                     </Box>
                 ) : (
                     currentOrders.map((order) => {
