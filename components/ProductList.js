@@ -11,6 +11,25 @@ import {
     sortProductList,
 } from "@/lib/product-list-sort";
 
+function normalizeSearchValue(value) {
+    return String(value || "").trim().toLocaleLowerCase('tr');
+}
+
+function productMatchesQuery(product, queryValue) {
+    if (!queryValue) {
+        return true;
+    }
+
+    return [
+        product?.title,
+        product?.brand,
+        product?.description,
+        product?.sku,
+        product?.categorySlug,
+        product?.subCategorySlug,
+    ].some((value) => normalizeSearchValue(value).includes(queryValue));
+}
+
 export default function ProductList({ products, isFavoritePage = false }) {
     const user = useUser();
     const router = useRouter();
@@ -18,7 +37,7 @@ export default function ProductList({ products, isFavoritePage = false }) {
     const searchParams = useSearchParams();
     const query = searchParams.get("query") || "";
     const sort = getProductSortValue(searchParams.get("sort"));
-    const queryValue = query.trim().toLocaleLowerCase('tr');
+    const queryValue = normalizeSearchValue(query);
     const [productList, setProductList] = useState([]);
     const [favoriteIds, setFavoriteIds] = useState(new Set());
     // 'tr' locale is used for Turkish characters like 'i' and 'I'
@@ -97,9 +116,7 @@ export default function ProductList({ products, isFavoritePage = false }) {
     const filtered = useMemo(() => {
         let list = productList;
         if (queryValue) {
-            list = list.filter((product) => (
-                String(product?.title || "").toLocaleLowerCase('tr').includes(queryValue)
-            ));
+            list = list.filter((product) => productMatchesQuery(product, queryValue))
         }
         return sortProductList(list, sort);
     }, [productList, queryValue, sort]);

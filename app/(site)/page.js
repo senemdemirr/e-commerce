@@ -6,6 +6,7 @@ import EnergySavingsLeafIcon from "@mui/icons-material/EnergySavingsLeaf";
 import PlayCircleOutlineIcon from "@mui/icons-material/PlayCircleOutline";
 import VerifiedUserIcon from "@mui/icons-material/VerifiedUser";
 import HomeCampaignBar from "@/components/HomeCampaignBar";
+import ProductList from "@/components/ProductList";
 import { fetchHomepageCampaigns, fetchHomepageProducts } from "@/lib/homepage-data";
 import { pickHomepageProducts } from "@/lib/homepage-products";
 
@@ -37,6 +38,14 @@ function productAlt(product) {
 function productSummary(product) {
   const bullet = product?.details?.bullet_point?.[0];
   return bullet || product?.description || "Premium product from the current catalog.";
+}
+
+function normalizeSearchQuery(searchParams) {
+  const query = Array.isArray(searchParams?.query)
+    ? searchParams.query[0]
+    : searchParams?.query;
+
+  return typeof query === "string" ? query.trim() : "";
 }
 
 function AddProductButton({ product }) {
@@ -169,11 +178,36 @@ function ProductColorSwatches({ product }) {
   );
 }
 
-export default async function Home() {
+export default async function Home({ searchParams } = {}) {
+  const resolvedSearchParams = await searchParams;
+  const searchQuery = normalizeSearchQuery(resolvedSearchParams);
   const [products, campaigns] = await Promise.all([
     fetchHomepageProducts(),
     fetchHomepageCampaigns(),
   ]);
+
+  if (searchQuery) {
+    return (
+      <>
+        <HomeCampaignBar campaigns={campaigns} />
+        <Box component="section" className="container mx-auto px-4 py-10 sm:px-6 lg:px-0">
+          <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+            <div>
+              <p className="text-xs font-bold uppercase text-primary">Search</p>
+              <h1 className="mt-1 text-3xl font-bold text-on-surface">
+                Search results for {searchQuery}
+              </h1>
+            </div>
+            <Link className="font-bold text-primary hover:underline" href="/">
+              Clear search
+            </Link>
+          </div>
+          <ProductList products={products} />
+        </Box>
+      </>
+    );
+  }
+
   const { heroProduct, campaignProduct, editorProduct, trendingProducts, arrivals } =
     pickHomepageProducts(products);
 

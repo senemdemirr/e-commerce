@@ -1,18 +1,32 @@
 "use client";
 import { Input } from "@mui/material";
+import IconButton from "@mui/material/IconButton";
 import SearchIcon from "@mui/icons-material/Search";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter, useSearchParams, usePathname } from "next/navigation";
 
 export default function SearchInput() {
 
-   const [searchValue, setSearchValue] = useState("");
    const searchParams = useSearchParams();
+   const currentQuery = searchParams.get("query") || "";
+   const [searchValue, setSearchValue] = useState(currentQuery);
    const pathName = usePathname();
    const router = useRouter();
 
+   useEffect(() => {
+      setSearchValue(currentQuery);
+   }, [currentQuery]);
+
    function handleQueryChange(query) {
-      router.push(`${pathName}?${new URLSearchParams({ ...Object.fromEntries(searchParams.entries()), query }).toString()}`);
+      const params = new URLSearchParams(searchParams.toString());
+      if (query) {
+         params.set("query", query);
+      } else {
+         params.delete("query");
+      }
+
+      const queryString = params.toString();
+      router.push(queryString ? `${pathName}?${queryString}` : pathName);
    }
    function onSubmit(e) {
       e.preventDefault();
@@ -25,12 +39,17 @@ export default function SearchInput() {
          <Input
             type="search"
             placeholder="Search products..."
+            value={searchValue}
             onChange={(e) => setSearchValue(e.target.value)}
             disableUnderline
             className="w-full"
             style={{ margin: "0 auto" }}
             inputProps={{ "aria-label": "Search products" }}
-            endAdornment={<SearchIcon color="disabled"></SearchIcon>}
+            endAdornment={
+               <IconButton type="submit" aria-label="Submit product search" size="small">
+                  <SearchIcon color="disabled"></SearchIcon>
+               </IconButton>
+            }
          />
       </form>
    )
